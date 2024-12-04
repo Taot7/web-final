@@ -6,14 +6,23 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "openapi": "ts-node openapi.config.js"
   },
   "dependencies": {
+    "axios": "^1.7.8",
+    "crypto-js": "^4.2.0",
+    "pinia": "^2.2.8",
     "vue": "^3.5.12",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@umijs/openapi": "^1.13.0",
     "@vitejs/plugin-vue": "^5.1.4",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.7.2",
     "vite": "^5.4.10",
     "vite-plugin-vue-devtools": "^7.5.4"
   }
