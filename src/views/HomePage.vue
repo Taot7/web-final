@@ -4,7 +4,7 @@
 
 <template>
     <h1>首页</h1>
-    <RouterLink to="/account">
+    <RouterLink to="/personCenter">
         账户页
     </RouterLink>
     <RouterLink to="/teacher">
