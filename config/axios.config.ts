@@ -7,6 +7,15 @@ const request = axios.create({
   },
 });
 
+// 添加请求拦截器
+request.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers['token'] = `${token}`;
+  }
+  return config;
+});
+
 // 添加响应拦截器
 request.interceptors.response.use(
   (response) => {
