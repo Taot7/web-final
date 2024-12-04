@@ -7,6 +7,9 @@
     <RouterLink to="/account">
         账户页
     </RouterLink>
+    <RouterLink to="/teacher">
+        教师页
+    </RouterLink>
 </template>
 
 <style scoped>
