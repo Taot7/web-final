@@ -192,8 +192,7 @@ export default {
   font-family: Arial;
   text-align: center;
   color: #2c3e50;
-  /*background-color: #c3dde0;*/
-  background-color: #e9e9e9;
+  background-color: #c3dde0;
 
 }
 
@@ -328,11 +327,6 @@ h2{
   background-color: #48a4d7;
 }
 
-.confirm-upload-container {
-  background-color: #e9e9e9; /* 设置与页面背景一致的颜色 */
-  padding: 70px; /* 为容器提供一些内边距 */
-  width:100%;
-}
 
 .confirm-upload-btn {
   position: relative; /* 固定在页面的右下角 */
@@ -507,6 +501,6 @@ ul li {
 .color-background {
   width: 100%;
   height: 100%;
-  background-color: #e9e9e9;
+  background-color: #c3dde0;
 }
 </style>
