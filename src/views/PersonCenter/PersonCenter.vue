@@ -152,7 +152,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import CourseList from "@/views/PersonCenter/components/CourseList.vue";
+import CourseList from "./components/CourseList.vue";
 import TodoList from "./components/TodoList.vue";
 import NoteList from "./components/NoteList.vue";
 import DiscussionList from "./components/DiscussionList.vue";

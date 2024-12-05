@@ -1,0 +1,152 @@
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 20px;
+}
+
+.auth-box {
+  width: 400px;
+  padding: 40px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.form-item {
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.form-item input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  font-size: 14px;
+  background: #fff;
+  color: #333;
+}
+
+.form-item input:focus {
+  border-color: #409eff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+
+.form-item input.error {
+  border-color: #f56c6c;
+}
+
+.error-tip {
+  position: absolute;
+  left: 0;
+  bottom: -20px;
+  color: #f56c6c;
+  font-size: 12px;
+}
+
+.verification-code {
+  display: flex;
+  gap: 10px;
+}
+
+.verification-code input {
+  flex: 1;
+}
+
+.send-code-btn {
+  padding: 0 15px;
+  background: #409eff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.send-code-btn:disabled {
+  background: #a0cfff;
+  cursor: not-allowed;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background: #409eff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #66b1ff;
+}
+
+.submit-btn:disabled {
+  background: #a0cfff;
+  cursor: not-allowed;
+}
+
+.bottom-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.privacy-policy {
+  font-size: 12px;
+  color: #606266;
+  margin-bottom: 15px;
+}
+
+.privacy-policy a {
+  color: #409eff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.privacy-policy a:hover {
+  color: #66b1ff;
+}
+
+.auth-link {
+  font-size: 14px;
+  color: #606266;
+}
+
+.auth-link a {
+  color: #409eff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.auth-link a:hover {
+  color: #66b1ff;
+}
+
+.password-input {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #909399;
+  font-size: 14px;
+} 

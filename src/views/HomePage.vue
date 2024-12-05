@@ -7,6 +7,12 @@
     <RouterLink to="/personCenter">
         账户页
     </RouterLink>
+    <RouterLink to="/login">
+        登录页
+    </RouterLink>
+    <RouterLink to="/register">
+        注册页
+    </RouterLink>
     <RouterLink to="/teacher">
         教师页
     </RouterLink>
