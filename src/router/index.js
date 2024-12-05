@@ -2,12 +2,39 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [ 
+  routes: [
     {
       path: '/',
       redirect: '/home',
     },
-    { 
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('@/views/login/Login.vue'),
+      meta: {
+        requiresAuth: false,
+        title: '登录'
+      }
+    },
+    {
+      path: '/forgot-password',
+      name: 'ForgotPassword',
+      component: () => import('@/views/login/ForgotPassword.vue'),
+      meta: {
+        title: '忘记密码',
+        requiresAuth: false
+      }
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: () => import('@/views/login/Register.vue'),
+      meta: {
+        title: '注册',
+        requiresAuth: false
+      }
+    },
+    {
       path: '/home',
       name: 'home',
       component: () => import('@/views/HomePage.vue')
@@ -15,7 +42,7 @@ const router = createRouter({
     {
       path: '/personCenter',
       name: 'personCenter',
-      component: () => import('@/views/PersonCenter/PersonCenter.vue')
+      component: () => import('@/views/personCenter/PersonCenter.vue')
     },
     {
       path: '/student',
