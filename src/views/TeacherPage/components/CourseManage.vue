@@ -62,7 +62,7 @@
         </ul>
     </div>
     <div class="button-container">
-        <button class="confirm-upload-btn add-btn" @click="confirmUpload">确认上传</button>
+        <button class="confirm-upload-btn" @click="confirmUpload">确认上传</button>
     </div>
 </template>
 
@@ -199,20 +199,6 @@ const removeSubTag = (tagIndex: number, subTagIndex: number) => {
 }
 
 .add-btn:hover {
-  background-color: #48a4d7;
-}
-
-.confirm-upload-btn {
-  padding: 15px 30px;
-  font-size: 18px;
-  background-color: #59bcf5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.confirm-upload-btn:hover {
   background-color: #48a4d7;
 }
 

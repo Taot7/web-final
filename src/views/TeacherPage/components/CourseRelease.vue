@@ -29,7 +29,7 @@
           <div class="table-cell">{{ course.teacher }}</div>
           <div class="table-cell">{{ course.status }}</div>
           <div class="table-cell">
-            <button @click="previewCourse(course)" class="button">预览</button>
+            <button @click="previewCourse(course)" class="button">查看</button>
             <button @click="editCourse(course)" class="button">编辑</button>
             <button @click="deleteCourse(index)" class="button danger">删除</button>
           </div>
@@ -51,13 +51,14 @@
           </label>
         </div>
         <input type="file" @change="handleImageUpload" multiple />
-        <div class="image-preview">
-          <h4>轮播图预览</h4>
-          <img v-for="(img, index) in newCourse.images" :key="index" :src="img" class="preview-image" />
-        </div>
-        <button @click="publishCourse" class="button primary">发布课程</button>
+        <button @click="showPreview" class="button">预览</button>
+        
+        <p>
+            <button @click="publishCourse" class="button primary">发布课程</button>
+        </p>
+        
       </div>
-
+  
       <hr color="#ccc">
   
       <!-- 作业布置 -->
@@ -65,8 +66,18 @@
         <h2>布置作业</h2>
         <input v-model="assignment.title" type="text" placeholder="作业标题" class="input" />
         <textarea v-model="assignment.requirements" placeholder="作业要求" class="textarea"></textarea>
+        <div class="ddl">截至日期：</div>
         <input v-model="assignment.dueDate" type="date" class="input" />
         <button @click="assignHomework" class="button primary">布置作业</button>
+      </div>
+  
+      <!-- 模态框 -->
+      <div v-if="isModalVisible" class="modal-overlay">
+        <div class="modal-content">
+          <h2>预览内容</h2>
+          <!-- 这里可以添加预览的内容 -->
+          <button @click="closeModal" class="button">关闭</button>
+        </div>
       </div>
     </div>
   </template>
@@ -95,6 +106,9 @@
   const courses = ref<Course[]>([
     { id: 1, name: "HTML基础", category: "Web前端", teacher: "王老师", description: "HTML入门课程", status: "已发布", allowComments: true, allowNotes: false, images: [] },
     { id: 2, name: "JavaScript进阶", category: "Web前端", teacher: "李老师", description: "JS进阶知识", status: "未发布", allowComments: false, allowNotes: true, images: [] },
+    { id: 3, name: "CSS布局", category: "Web前端", teacher: "张老师", description: "CSS布局技巧", status: "已发布", allowComments: true, allowNotes: false, images: [] },
+    { id: 4, name: "Vue.js入门", category: "前端框架", teacher: "陈老师", description: "Vue.js基础知识", status: "未发布", allowComments: false, allowNotes: true, images: [] },
+    { id: 5, name: "React.js进阶", category: "前端框架", teacher: "刘老师", description: "深入理解React.js", status: "已发布", allowComments: true, allowNotes: false, images: [] },
   ]);
   
   const searchQuery = ref({
@@ -204,9 +218,20 @@
     alert(`作业 "${assignment.value.title}" 已布置，截止日期为 ${assignment.value.dueDate}`);
     assignment.value = { title: "", requirements: "", dueDate: "" }; // 重置作业信息
   };
+
+  const isModalVisible = ref(false);
+
+  const showPreview = () => {
+  isModalVisible.value = true;
+  };
+
+  const closeModal = () => {
+  isModalVisible.value = false;
+  };
+
   </script>
   
-  <style>
+  <style scoped>
   .course-release {
     padding: 20px;
     font-family: Arial, sans-serif;
@@ -223,9 +248,11 @@
     border: 1px solid #ccc;
     border-radius: 4px;
     width: 200px;
+    margin-right:10px;
   }
   
   .textarea {
+    margin-top:10px;
     width: 100%;
     height: 80px;
     padding: 8px;
@@ -239,6 +266,7 @@
   }
   
   .button {
+    margin-right: 5px;
     padding: 8px 12px;
     border: none;
     border-radius: 4px;
@@ -253,6 +281,10 @@
   .button.danger {
     background-color: #f44336;
     color: white;
+  }
+  
+  .button.small {
+    padding: 4px 8px;
   }
   
   .table-header,
@@ -288,15 +320,43 @@
   h2 {
     margin-top: 20px;
   }
-  
-  .image-preview {
-    display: flex;
-    flex-direction: column;
+
+  .button-delete{
+    width:60px;
+    margin-top:10px;
+    background-color:#f44336;
+    color:white;
+    padding:6px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
   }
-  
-  .preview-image {
-    width: 100px;
-    height: auto;
-    margin-top: 10px;
-  }
+
+  .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 80%;
+  max-width: 600px;
+}
+
+.ddl{
+    font-size: 15px;
+    margin-bottom: 5px;
+    margin-left:3px;
+}
   </style>

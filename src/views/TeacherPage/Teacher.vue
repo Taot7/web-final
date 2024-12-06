@@ -52,21 +52,23 @@ import CourseRelease from "@/views/TeacherPage/components/CourseRelease.vue";
 const currentPage = ref<"CoursewareManagement" | "CourseRelease">(
   "CoursewareManagement"
 );
-
 </script>
 
-<style>
+<style scoped>
 /* 页面整体背景 */
 .color-background {
   width: 100%;
   height: 100%;
-  background-color: #f7faff; /* 可以根据需要调整 */
+  background-color: #f7faff; /* 浅蓝色背景 */
 }
 
 /* 主色调 */
 :root {
-  --primary-color: #7bd6f1;  /* 亮蓝色 */
-  --secondary-color: #ffffff; /* 浅蓝色 */
+  --primary-color: #007bff; /* 蓝色 */
+  --hover-background: #eaf4ff; /* 浅蓝色悬停背景 */
+  --active-background: #f0f8ff; /* 浅蓝色激活背景 */
+  --text-color: #333; /* 默认字体颜色 */
+  --active-text-color: #007bff; /* 激活字体颜色 */
 }
 
 /* 顶部导航栏样式 */
@@ -99,7 +101,7 @@ const currentPage = ref<"CoursewareManagement" | "CourseRelease">(
 
 .nav-item {
   font-size: 16px;
-  color: #333;
+  color: var(--text-color);
   cursor: pointer;
   transition: color 0.3s;
 }
@@ -120,45 +122,44 @@ const currentPage = ref<"CoursewareManagement" | "CourseRelease">(
   border-radius: 50%;
   cursor: pointer;
 }
-/* 左侧导航栏样式 */
+
+/* 左侧导航栏样式修改 */
 .sidebar {
   position: fixed;
   left: 0;
   top: 60px;
   bottom: 0;
-  width: 200px;
-  background-color: #ffffff;
+  width: 240px;
+  background-color: #ffffff; /* 浅灰色背景 */
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
-  padding: 20px 10px;
+  padding: 20px 0;
+  border-radius: 8px;
 }
 
 .sidebar-item {
   display: flex;
-  justify-content: center; 
   align-items: center;
-  padding: 15px 15px; 
-  margin-bottom: 20px;  
-  font-size: 16px;
-  color: #333; 
+  justify-content: center;
+  padding: 20px 20px;
+  font-size: 18px;
+  color: #333333; 
   cursor: pointer;
-  border-radius: 8px;
-  background-color: var(--secondary-color); /* 浅蓝色背景 */
   transition: all 0.3s ease;
-  text-align: center;  /* 确保文本在居中时不被剪切 */
 }
 
 .sidebar-item:hover {
-  background-color:  #ecfaff; /* 悬停时的背景色 */
+  background-color: #e9f4fa; 
 }
 
 .sidebar-item.active {
-  background-color: var(--primary-color); /* 亮蓝色 */
-  color: #ffffff; /* 亮蓝色时的字体颜色 */
+  background-color: #ceedff;
+  font-weight: bold;
+  border-right: 4px solid #66adff; 
 }
 
 /* 主内容区样式 */
 .main-content {
-  margin-left: 220px;
+  margin-left: 260px;
   margin-top: 60px;
   padding: 20px;
 }
@@ -169,34 +170,5 @@ const currentPage = ref<"CoursewareManagement" | "CourseRelease">(
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* 图标字体 */
-.iconfont {
-  font-family: "iconfont" !important;
-  font-size: 14px;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.icon-grid:before {
-  content: "\e600";
-}
-
-.icon-task:before {
-  content: "\e601";
-}
-
-.icon-exam:before {
-  content: "\e602";
-}
-
-.icon-notes:before {
-  content: "\e603";
-}
-
-.icon-message:before {
-  content: "\e604";
 }
 </style>
