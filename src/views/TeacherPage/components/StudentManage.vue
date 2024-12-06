@@ -16,7 +16,7 @@
               </th>
               <th>序号</th>
               <th>学生姓名</th>
-              <th>账号</th>
+              <th>学号</th>
               <th>状态</th>
               <th>操作</th>
             </tr>
@@ -32,7 +32,7 @@
               </td>
               <td>{{ index + 1 }}</td>
               <td>{{ student.name }}</td>
-              <td>{{ student.email }}</td>
+              <td>{{ student.number }}</td>
               <td>{{ student.isDisabled ? "禁用" : "正常" }}</td>
               <td>
                 <button @click="resetPassword(student.id)" class="action-btn reset">
@@ -78,10 +78,10 @@
   
   // 学生数据
   const students = ref([
-    { id: 1, name: "张三", email: "zhangsan@example.com", isDisabled: false },
-    { id: 2, name: "李四", email: "lisi@example.com", isDisabled: false },
-    { id: 3, name: "王五", email: "wangwu@example.com", isDisabled: true },
-    { id: 4, name: "吴六", email: "wuliu@example.com", isDisabled: true },
+    { id: 1, name: "张三", number: "2022283748", isDisabled: false },
+    { id: 2, name: "李四", number: "2021484920", isDisabled: false },
+    { id: 3, name: "王五", number: "2022103845", isDisabled: true },
+    { id: 4, name: "吴六", number: "2022217465", isDisabled: true },
   ]);
   
   // 选中的学生

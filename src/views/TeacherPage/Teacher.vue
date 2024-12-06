@@ -5,7 +5,6 @@
       <div class="logo">教师端</div>
       <div class="nav-links">
         <span class="nav-item" @click="$router.push({ name: 'home' })">首页</span>
-        <span class="nav-item">课程中心</span>
       </div>
       <div class="user-section">
         <img class="user-avatar" src="https://via.placeholder.com/40" alt="用户头像" />
@@ -30,6 +29,13 @@
       </div>
       <div
         class="sidebar-item"
+        :class="{ active: currentPage === 'ReleaseTest' }"
+        @click="currentPage = 'ReleaseTest'"
+      >
+        <span>发布测试</span>
+      </div>
+      <div
+        class="sidebar-item"
         :class="{ active: currentPage === 'StudentManage' }"
         @click="currentPage = 'StudentManage'"
       >
@@ -49,6 +55,9 @@
         <div v-if="currentPage === 'StudentManage'">
           <StudentManage/>
         </div>
+        <div v-if="currentPage === 'ReleaseTest'">
+          <ReleaseTest/>
+        </div>
       </div>
     </div>
   </div>
@@ -60,7 +69,7 @@ import CourseManage from "@/views/TeacherPage/components/CourseManage.vue";
 import CourseRelease from "@/views/TeacherPage/components/CourseRelease.vue";
 import StudentManage from "@/views/TeacherPage/components/StudentManage.vue";
 
-const currentPage = ref<"CourseManage" | "CourseRelease" | "StudentManage">(
+const currentPage = ref<"CourseManage" | "CourseRelease" | "StudentManage" | "ReleaseTest">(
   "CourseManage"
 );
 </script>
