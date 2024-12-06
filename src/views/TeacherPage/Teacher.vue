@@ -16,8 +16,8 @@
     <div class="sidebar">
       <div
         class="sidebar-item"
-        :class="{ active: currentPage === 'CoursewareManagement' }"
-        @click="currentPage = 'CoursewareManagement'"
+        :class="{ active: currentPage === 'CourseManage' }"
+        @click="currentPage = 'CourseManage'"
       >
         <span>课件管理</span>
       </div>
@@ -28,16 +28,26 @@
       >
         <span>课程发布</span>
       </div>
+      <div
+        class="sidebar-item"
+        :class="{ active: currentPage === 'StudentManage' }"
+        @click="currentPage = 'StudentManage'"
+      >
+        <span>学生用户管理</span>
+      </div>
     </div>
 
     <!-- 主内容区 -->
     <div class="main-content">
       <div class="content">
-        <div v-if="currentPage === 'CoursewareManagement'">
+        <div v-if="currentPage === 'CourseManage'">
           <CourseManage />
         </div>
         <div v-if="currentPage === 'CourseRelease'">
           <CourseRelease />
+        </div>
+        <div v-if="currentPage === 'StudentManage'">
+          <StudentManage/>
         </div>
       </div>
     </div>
@@ -48,9 +58,10 @@
 import { ref } from "vue";
 import CourseManage from "@/views/TeacherPage/components/CourseManage.vue";
 import CourseRelease from "@/views/TeacherPage/components/CourseRelease.vue";
+import StudentManage from "@/views/TeacherPage/components/StudentManage.vue";
 
-const currentPage = ref<"CoursewareManagement" | "CourseRelease">(
-  "CoursewareManagement"
+const currentPage = ref<"CourseManage" | "CourseRelease" | "StudentManage">(
+  "CourseManage"
 );
 </script>
 
@@ -130,7 +141,7 @@ const currentPage = ref<"CoursewareManagement" | "CourseRelease">(
   top: 60px;
   bottom: 0;
   width: 240px;
-  background-color: #ffffff; /* 浅灰色背景 */
+  background-color: #ffffff; 
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
   padding: 20px 0;
   border-radius: 8px;
@@ -148,13 +159,14 @@ const currentPage = ref<"CoursewareManagement" | "CourseRelease">(
 }
 
 .sidebar-item:hover {
-  background-color: #e9f4fa; 
+  background-color: #f6fcff; 
+  color:#4cadee;
 }
 
 .sidebar-item.active {
-  background-color: #ceedff;
-  font-weight: bold;
+  background-color: #ecf8ff;
   border-right: 4px solid #66adff; 
+  color:#1b8cd8;
 }
 
 /* 主内容区样式 */

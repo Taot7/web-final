@@ -59,11 +59,11 @@
         
       </div>
   
-      <hr color="#ccc">
+      <hr color="#e9e9e9">
   
       <!-- 作业布置 -->
       <div class="assignment-section">
-        <h2>布置作业</h2>
+        <h3>布置作业</h3>
         <input v-model="assignment.title" type="text" placeholder="作业标题" class="input" />
         <textarea v-model="assignment.requirements" placeholder="作业要求" class="textarea"></textarea>
         <div class="ddl">截至日期：</div>
