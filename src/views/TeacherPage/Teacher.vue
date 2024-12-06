@@ -149,7 +149,7 @@ const currentPage = ref<"CourseManage" | "CourseRelease" | "StudentManage" | "Re
   left: 0;
   top: 60px;
   bottom: 0;
-  width: 240px;
+  width: 200px;
   background-color: #ffffff; 
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
   padding: 20px 0;
@@ -161,7 +161,7 @@ const currentPage = ref<"CourseManage" | "CourseRelease" | "StudentManage" | "Re
   align-items: center;
   justify-content: center;
   padding: 20px 20px;
-  font-size: 18px;
+  font-size: 16px;
   color: #333333; 
   cursor: pointer;
   transition: all 0.3s ease;
@@ -180,7 +180,7 @@ const currentPage = ref<"CourseManage" | "CourseRelease" | "StudentManage" | "Re
 
 /* 主内容区样式 */
 .main-content {
-  margin-left: 260px;
+  margin-left: 210px;
   margin-top: 60px;
   padding: 20px;
 }

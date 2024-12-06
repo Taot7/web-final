@@ -1,6 +1,6 @@
 <template>
     <div class="header-container">
-        <h1>课程发布</h1>
+        <h2>课程发布</h2>
     </div>
     <hr color="#a9d7df">
     <div class="course-release">
@@ -9,38 +9,63 @@
             <input v-model="searchQuery.courseId" type="text" placeholder="课程ID" class="input" />
             <input v-model="searchQuery.courseName" type="text" placeholder="课程名称" class="input" />
             <input v-model="searchQuery.teacherName" type="text" placeholder="讲师姓名" class="input" />
-            <button @click="search" class="button">搜索</button>
+            <button class="button">搜索</button>
         </div>
 
         <!-- 课程表格 -->
-        <div class="course-table">
-            <div class="table-header">
-                <div class="table-cell">课程编号</div>
-                <div class="table-cell">课程名称</div>
-                <div class="table-cell">类别名称</div>
-                <div class="table-cell">讲师姓名</div>
-                <div class="table-cell">发布状态</div>
-                <div class="table-cell">操作</div>
+        <div class="list-container">
+            <!-- 表头 -->
+            <div class="list-header">
+            <div class="list-item id">课程编号</div>
+            <div class="list-item">课程名称</div>
+            <div class="list-item">类别名称</div>
+            <div class="list-item">讲师姓名</div>
+            <div class="list-item">发布状态</div>
+            <div class="list-item action">操作</div>
             </div>
-            <div v-for="(course, index) in filteredCourses" :key="course.id" class="table-row">
-                <div class="table-cell">{{ course.id }}</div>
-                <div class="table-cell">{{ course.name }}</div>
-                <div class="table-cell">{{ course.category }}</div>
-                <div class="table-cell">{{ course.teacher }}</div>
-                <div class="table-cell">{{ course.status }}</div>
-                <div class="table-cell">
-                    <button @click="previewCourse(course)" class="button">查看</button>
-                    <button @click="editCourse(course)" class="button">编辑</button>
-                    <button @click="deleteCourse(index)" class="button danger">删除</button>
+            <div v-for="(course, index) in filteredCourses" :key="course.id">
+            <!-- 分割线 -->
+            <div class="divider"></div>
+            <!-- 行内容 -->
+            <div class="list-row">
+                <div class="list-item id">{{ course.id }}</div>
+                <div class="list-item">{{ course.name }}</div>
+                <div class="list-item">{{ course.category }}</div>
+                <div class="list-item">{{ course.teacher }}</div>
+                <div class="list-item">{{ course.status }}</div>
+                <div class="list-item action">
+                <button @click="searchCourse(course)" class="btn">查看</button>
+                <button @click="editCourse(course)" class="btn">编辑</button>
+                <button @click="deleteCourse(index)" class="btn btn-danger">删除</button>
                 </div>
+            </div>
+            </div>
+        </div>
+ 
+        <div>轮播图次序：</div>
+        <div class="gallery">
+            <!-- 显示封面图片 -->
+            <div 
+                v-for="(course, index) in filteredCourses" 
+                :key="course.id" 
+                class="gallery-item"
+            >
+                <img 
+                :src="course.cover || 'default-placeholder.png'" 
+                alt="课程封面" 
+                class="gallery-img" 
+                />
             </div>
         </div>
 
+        
+
         <!-- 发布新课程 -->
         <div class="new-course">
-            <h2>发布新课程</h2>
+            <h3>发布新课程</h3>
             <input v-model="newCourse.name" type="text" placeholder="课程名称" class="input" />
             <input v-model="newCourse.category" type="text" placeholder="课程类别" class="input" />
+            <input v-model="newCourse.teacher" type="text" placeholder="教师姓名" class="input" />
             <textarea v-model="newCourse.description" placeholder="课程简介" class="textarea"></textarea>
             <div class="checkbox">
                 <label>
@@ -71,6 +96,87 @@
             <button @click="assignHomework" class="button primary">布置作业</button>
         </div>
 
+        <!-- 查找结果模态框 -->
+        <div v-if="isSearchModalVisible" class="modal-overlay">
+        <div class="modal-content">
+            <h2>课程详情</h2>
+            <div class="course-preview">
+                <div class="preview-image">
+                    <img :src="searchResult?.images[0] || 'default-placeholder.png'" alt="课程封面" />
+                </div>
+                <div class="preview-info">
+                    <h3>{{ searchResult?.name || "课程名称" }}</h3>
+                    <p>课程编号：{{ searchResult?.id }}</p>
+                    <p>类别名称：{{ searchResult?.category }}</p>
+                    <p>讲师姓名：{{ searchResult?.teacher }}</p>
+                    <p>课程简介：{{ searchResult?.description }}</p>
+                    <p>发布状态：{{ searchResult?.status }}</p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button @click="closeSearchModal" class="button">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div v-if="isEditModalVisible" class="modal-overlay">
+        <div class="modal-content">
+            <h2>编辑课程</h2>
+            <div class="course-edit">
+                <div class="edit-fields">
+                    <label for="edit-name">课程名称：</label>
+                    <input
+                        id="edit-name"
+                        type="text"
+                        v-model="editTargetCourse.name"
+                        placeholder="课程名称"
+                        class="input"
+                    />
+                    <label for="edit-category">类别名称：</label>
+                    <input
+                        id="edit-category"
+                        type="text"
+                        v-model="editTargetCourse.category"
+                        placeholder="类别名称"
+                        class="input"
+                    />
+                    <label for="edit-teacher">讲师姓名：</label>
+                    <input
+                        id="edit-teacher"
+                        type="text"
+                        v-model="editTargetCourse.teacher"
+                        placeholder="讲师姓名"
+                        class="input"
+                    />
+                    <label for="edit-description">课程简介：</label>
+                    <textarea
+                        id="edit-description"
+                        v-model="editTargetCourse.description"
+                        placeholder="课程简介"
+                        class="textarea"
+                    ></textarea>
+                </div>
+                <div class="checkbox">
+                    <label>
+                        <input type="checkbox" v-model="editTargetCourse.allowComments" />
+                        打开评论区
+                    </label>
+                    <label>
+                        <input type="checkbox" v-model="editTargetCourse.allowNotes" />
+                        打开笔记区
+                    </label>
+                </div>
+                <div>封面图片：</div>
+                <input type="file" @change="updateCourseImage" class="selectfile" />
+
+                <div class="modal-buttons">
+                    <button @click="saveEditedCourse" class="button primary">保存</button>
+                    <button @click="closeEditModal" class="button">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
         <!-- 模态框部分 -->
         <div v-if="isModalVisible" class="modal-overlay">
             <div class="modal-content">
@@ -94,7 +200,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, reactive} from "vue";
 
 interface Course {
     id: number;
@@ -106,6 +212,7 @@ interface Course {
     allowComments: boolean;
     allowNotes: boolean;
     images: string[]; // 新增字段用于存储图片
+    cover: string; 
 }
 
 interface Assignment {
@@ -115,11 +222,11 @@ interface Assignment {
 }
 
 const courses = ref<Course[]>([
-    { id: 1, name: "HTML基础", category: "Web前端", teacher: "王老师", description: "HTML入门课程", status: "已发布", allowComments: true, allowNotes: false, images: [] },
-    { id: 2, name: "JavaScript进阶", category: "Web前端", teacher: "李老师", description: "JS进阶知识", status: "未发布", allowComments: false, allowNotes: true, images: [] },
-    { id: 3, name: "CSS布局", category: "Web前端", teacher: "张老师", description: "CSS布局技巧", status: "已发布", allowComments: true, allowNotes: false, images: [] },
-    { id: 4, name: "Vue.js入门", category: "前端框架", teacher: "陈老师", description: "Vue.js基础知识", status: "未发布", allowComments: false, allowNotes: true, images: [] },
-    { id: 5, name: "React.js进阶", category: "前端框架", teacher: "刘老师", description: "深入理解React.js", status: "已发布", allowComments: true, allowNotes: false, images: [] },
+    { id: 1, name: "HTML基础", category: "Web前端", teacher: "王老师", description: "HTML入门课程", status: "已发布", allowComments: true, allowNotes: false, cover: "/src/assets/try1.png", images: ["/src/assets/try1.png"] },
+    { id: 2, name: "JavaScript进阶", category: "Web前端", teacher: "李老师", description: "JS进阶知识", status: "未发布", allowComments: false, allowNotes: true, cover: "/src/assets/try2.png",images: ["/src/assets/try2.png"] },
+    { id: 3, name: "CSS布局", category: "Web前端", teacher: "张老师", description: "CSS布局技巧", status: "已发布", allowComments: true, allowNotes: false, cover: "/src/assets/try3.png",images: ["/src/assets/try3.png"] },
+    { id: 4, name: "Vue.js入门", category: "前端框架", teacher: "陈老师", description: "Vue.js基础知识", status: "未发布", allowComments: false, allowNotes: true, cover: "/src/assets/try4.png",images: ["/src/assets/try4.png"] },
+    { id: 5, name: "React.js进阶", category: "前端框架", teacher: "刘老师", description: "深入理解React.js", status: "已发布", allowComments: true, allowNotes: false, cover: "/src/assets/try5.png",images: ["/src/assets/try5.png"] },
 ]);
 
 const searchQuery = ref({
@@ -132,12 +239,13 @@ const newCourse = ref<Course>({
     id: 0,
     name: "",
     category: "",
-    teacher: "默认教师",
+    teacher: "", 
     description: "",
-    status: "未发布",
+    status: "已发布",
     allowComments: false,
     allowNotes: false,
     images: [],
+    cover:""
 });
 
 const assignment = ref<Assignment>({
@@ -156,19 +264,57 @@ const filteredCourses = computed(() =>
     })
 );
 
-const search = () => {
-    console.log("搜索条件：", searchQuery.value);
+const isSearchModalVisible = ref(false); // 控制查找模态框的显示
+const searchResult = ref<Course | null>(null); // 当前查找到的课程
+
+
+const closeSearchModal = () => {
+    isSearchModalVisible.value = false;
+    searchResult.value = null;
 };
 
-const previewCourse = (course: Course) => {
-    alert(`预览课程: ${course.name}`);
+const searchCourse = (course: Course) => {
+    searchResult.value = course; // 将当前点击的课程赋值给 searchResult
+    isSearchModalVisible.value = true; // 打开模态框
 };
 
-const previewImage = ref<string>("");
+const isEditModalVisible = ref(false); // 控制编辑模态框显示
+const editTargetCourse = ref<Course | null>(null); // 当前编辑的课程
 
 const editCourse = (course: Course) => {
-    alert(`编辑课程: ${course.name}`);
+    editTargetCourse.value = { ...course }; // 克隆课程数据，防止直接修改原始数据
+    isEditModalVisible.value = true; // 显示编辑模态框
 };
+
+const closeEditModal = () => {
+    isEditModalVisible.value = false;
+    editTargetCourse.value = null; // 重置编辑目标
+};
+
+const saveEditedCourse = () => {
+    if (editTargetCourse.value) {
+        // 查找原课程并更新
+        const targetIndex = courses.value.findIndex((c) => c.id === editTargetCourse.value?.id);
+        if (targetIndex !== -1) {
+            courses.value[targetIndex] = { ...editTargetCourse.value }; // 更新课程信息
+        }
+    }
+    closeEditModal();
+};
+
+const updateCourseImage = (event: Event) => {
+    const files = (event.target as HTMLInputElement).files;
+    if (files && files[0]) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (typeof e.target?.result === "string" && editTargetCourse.value) {
+                editTargetCourse.value.images = [e.target.result]; // 更新图片路径
+            }
+        };
+        reader.readAsDataURL(files[0]);
+    }
+};
+
 
 const deleteCourse = (index: number) => {
     if (confirm("确认删除该课程吗？")) {
@@ -176,6 +322,9 @@ const deleteCourse = (index: number) => {
         updateCourseIds();
     }
 };
+
+
+const previewImage = ref<string>("");
 
 const publishCourse = () => {
     if (!newCourse.value.name || !newCourse.value.category) {
@@ -218,6 +367,7 @@ const resetNewCourse = () => {
         allowComments: false,
         allowNotes: false,
         images: [],
+        cover:""
     };
 };
 
@@ -301,20 +451,88 @@ const closeModal = () => {
     padding: 4px 8px;
 }
 
-.table-header,
-.table-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 0;
-    border-bottom: 1px solid #ccc;
-    align-items: center; /* 使内容垂直居中 */
+.list-container {
+  background-color: #fff;
+  overflow: hidden;
+  margin-top:40px;
+  margin-bottom: 30px;
 }
 
-.table-cell {
-    flex: 1;
-    text-align: center;
-    padding: 10px 0; /* 调整上下内边距 */
-    line-height: 1.5; /* 可选：调整行高 */
+/* 表头样式 */
+.list-header {
+  display: flex;
+  background-color: #f7f7f7;
+  padding: 14px 15px;
+  font-weight: bold;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* 每行样式 */
+.list-row {
+  display: flex;
+  padding: 10px 15px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.list-row:hover {
+  background-color: #fafafa;
+}
+
+/* 分割线 */
+.divider {
+  height: 1px;
+  background-color: #eeeeee;
+}
+
+/* 列样式 */
+.list-item {
+  flex: 1;
+  padding: 0 8px;
+  word-break: break-word;
+}
+
+/* 对齐样式 */
+.list-item.id {
+  text-align: left;
+  flex: 0.8; /* 略小于其他列 */
+}
+
+/* 操作列样式 */
+.list-item.action {
+  flex: 1.5; /* 加宽操作列 */
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 按钮样式 */
+.btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  background-color: #59bcf5;
+  transition: all 0.3s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn-danger {
+  background-color: #f75c5c;
+}
+
+.btn-danger:hover {
+  opacity: 0.9;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 
 .new-course {
@@ -323,19 +541,8 @@ const closeModal = () => {
 
 .header-container {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     margin: 20px 30px;
-}
-
-h1 {
-    margin-top: 30px;
-    margin-bottom: 30px;
-    margin-left: 30px;
-}
-
-h2 {
-    margin-top: 20px;
 }
 
 .modal-overlay {
@@ -391,4 +598,36 @@ h2 {
 .preview-info {
     flex: 1;
 }
+
+.course-gallery-container {
+  margin-top: 20px;
+}
+
+.gallery {
+  display: flex;
+  gap: 10px;
+  overflow-x: scroll;
+}
+
+.gallery-item {
+  width: 18%;
+  height: 0.005%;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+}
+
+.gallery-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 </style>

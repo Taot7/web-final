@@ -2,7 +2,7 @@
     <div class="student-management">
       <!-- 标题部分 -->
       <div class="header-container">
-        <h1>学生用户管理</h1>
+        <h2>学生用户管理</h2>
       </div>
       <hr color="#a9d7df" />
   
@@ -218,12 +218,6 @@
     justify-content: space-between;
     align-items: center;
     margin: 20px 30px;
-  }
-
-  h1 {
-  margin-top:30px;
-  margin-bottom: 30px;
-  margin-left: 30px;
   }
 
   </style>

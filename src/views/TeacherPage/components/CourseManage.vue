@@ -1,10 +1,10 @@
 <template>
     <div class="header-container">
-        <h1>课件管理</h1>
+        <h2>课件管理</h2>
     </div>
     <hr color="#a9d7df">
     <div class="upload-section">
-        <h2>上传课件</h2>
+        <h3>上传课件</h3>
         <div class="file-upload-container">
             <label class="file-upload">
                 <input type="file" multiple @change="handleFileUpload" />
@@ -28,7 +28,7 @@
         </div>
     </div>
     <div class="tag-management">
-        <h2>标签管理</h2>
+        <h3>标签管理</h3>
         <div class="url-input">
             <label>添加新标签：</label>
             <input type="text" v-model="newTag" placeholder="输入标签名" class="tag-input" />
@@ -275,16 +275,6 @@ const removeSubTag = (tagIndex: number, subTagIndex: number) => {
   list-style: none;
   padding-left: 20px;
   margin-top: 10px;
-}
-
-h1 {
-  margin-top:30px;
-  margin-bottom: 30px;
-  margin-left: 30px;
-}
-
-h2 {
-  margin-top: 20px;
 }
 
 .header-container {
