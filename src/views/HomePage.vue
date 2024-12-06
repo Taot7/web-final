@@ -16,6 +16,9 @@
     <RouterLink to="/teacher">
         教师页
     </RouterLink>
+    <RouterLink to="/user-list">
+        用户列表
+    </RouterLink>
 </template>
 
 <style scoped>

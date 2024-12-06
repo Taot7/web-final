@@ -1,5 +1,11 @@
 <template>
   <div class="account-page">
+    <!-- 返回首页按钮 -->
+    <div class="back-home" @click="$router.push({ name: 'home' })">
+      <i class="iconfont icon-home"></i>
+      返回首页
+    </div>
+
     <!-- 顶部背景和个人信息 -->
     <div class="profile-header">
       <div class="user-info">
@@ -157,7 +163,7 @@ import TodoList from "./components/TodoList.vue";
 import NoteList from "./components/NoteList.vue";
 import DiscussionList from "./components/DiscussionList.vue";
 import UserSettings from "./components/UserSettings.vue";
-import { uploadImage } from "@/services/api/commonController";
+import { uploadImage } from "../../services/api/commonController";
 
 const currentTab = ref("courses");
 const subTab = ref("learning");
@@ -192,28 +198,12 @@ const handleAvatarChange = async (event: Event) => {
 
   if (!file) return;
 
-  // 验证文件类型
-  if (!file.type.startsWith("image/")) {
-    alert("请选择图片文件");
-    return;
-  }
-
-  // 验证文件大小（限制为2MB）
-  if (file.size > 2 * 1024 * 1024) {
-    alert("图片大小不能超过2MB");
-    return;
-  }
-
   try {
     const formData = new FormData();
     formData.append("image", file);
 
-    const imgae = await uploadImage(formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    userInfo.value.avatar = imgae.data;
+    const response = await uploadImage(formData);
+    userInfo.value.avatar = response.data;
   } catch (error) {
     alert("上传失败,请重试");
   }
@@ -225,6 +215,30 @@ const handleAvatarChange = async (event: Event) => {
   width: 100%;
   min-height: 100vh;
   background: #f8f9fa;
+}
+
+/* 返回首页按钮样式 */
+.back-home {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  color: #667eea;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  transition: all 0.3s ease;
+}
+
+.back-home:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-2px);
 }
 
 .profile-header {

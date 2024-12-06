@@ -168,6 +168,12 @@ const provinces = ref([
   { code: 'SC', name: '四川省' }
 ])
 
+// 定义城市类型
+interface City {
+  code: string
+  name: string
+}
+
 // 城市数据映射
 const cityMap = {
   'GD': [
@@ -198,7 +204,8 @@ const cityMap = {
   ]
 }
 
-const cities = ref([])
+// 修改 cities 的定义
+const cities = ref<City[]>([])
 
 // 初始化用户信息
 const userInfo = ref({
