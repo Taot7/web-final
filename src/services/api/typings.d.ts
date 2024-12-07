@@ -23,7 +23,7 @@ declare namespace API {
     /** 截止时间 */
     deadline: string;
     /** 创建时间 */
-    createTime: string;
+    createTime?: string;
   };
 
   type AssignmentFeedbackParam = {
@@ -47,12 +47,12 @@ declare namespace API {
     /** 截止时间 */
     deadline: string;
     /** 创建时间 */
-    createTime: string;
+    createTime?: string;
   };
 
   type AssignmentSubmissionCommitParam = {
     /** 提交内容 */
-    content: string;
+    content?: string;
     /** 文件URL */
     fileUrl?: string;
   };
@@ -97,6 +97,8 @@ declare namespace API {
     feedback?: string;
     /** 提交时间 */
     submitTime?: string;
+    assignment?: AssignmentVO;
+    student?: UserVO;
   };
 
   type AssignmentSubmitStatVO = {
@@ -122,8 +124,9 @@ declare namespace API {
     /** 截止时间 */
     deadline: string;
     /** 创建时间 */
-    createTime: string;
+    createTime?: string;
     submitStat?: AssignmentSubmitStatVO;
+    course?: CourseVO;
   };
 
   type commitAssignmentSubmissionParams = {
@@ -150,7 +153,7 @@ declare namespace API {
     /** 是否推荐 */
     isRecommended?: boolean;
     /** 课程状态：0-草稿、1-已发布、2-已归档 */
-    status?: number;
+    status?: "0" | "1" | "2";
     /** 是否允许评论 */
     allowComment?: boolean;
     /** 是否允许笔记 */
@@ -210,6 +213,7 @@ declare namespace API {
     status?: boolean;
     /** 创建时间 */
     createTime?: string;
+    course?: CourseVO;
   };
 
   type CourseCategory = {
@@ -252,8 +256,8 @@ declare namespace API {
     courseId?: number;
     /** 学生ID */
     studentId?: number;
-    /** 状态：0-进行中、1-已完成、2-已退出 */
-    status?: "0" | "1" | "2";
+    /** 状态：0-未开始,1-进行中、2-已完成、3-已退出 */
+    status?: "0" | "1" | "2" | "3";
     /** 学习进度 */
     progress?: number;
     /** 注册时间 */
@@ -267,12 +271,14 @@ declare namespace API {
     courseId?: number;
     /** 学生ID */
     studentId?: number;
-    /** 状态：0-进行中、1-已完成、2-已退出 */
-    status?: "0" | "1" | "2";
+    /** 状态：0-未开始,1-进行中、2-已完成、3-已退出 */
+    status?: "0" | "1" | "2" | "3";
     /** 学习进度 */
     progress?: number;
     /** 注册时间 */
     createTime?: string;
+    course?: CourseVO;
+    student?: UserVO;
   };
 
   type CourseMaterial = {
@@ -324,6 +330,7 @@ declare namespace API {
     sortOrder?: number;
     /** 创建时间 */
     createTime?: string;
+    course?: CourseVO;
   };
 
   type CourseQuery = {
@@ -342,7 +349,7 @@ declare namespace API {
     /** 是否推荐 */
     isRecommended?: boolean;
     /** 课程状态：0-草稿、1-已发布、2-已归档 */
-    status?: number;
+    status?: "0" | "1" | "2";
     /** 是否允许评论 */
     allowComment?: boolean;
     /** 是否允许笔记 */
@@ -358,6 +365,8 @@ declare namespace API {
     /** 更新时间 */
     updateTime?: string;
     sorter?: Sorter;
+    /** 课程id */
+    courseIds?: number[];
   };
 
   type CourseVO = {
@@ -376,7 +385,7 @@ declare namespace API {
     /** 是否推荐 */
     isRecommended?: boolean;
     /** 课程状态：0-草稿、1-已发布、2-已归档 */
-    status?: number;
+    status?: "0" | "1" | "2";
     /** 是否允许评论 */
     allowComment?: boolean;
     /** 是否允许笔记 */
@@ -495,7 +504,9 @@ declare namespace API {
     /** 创建时间 */
     createTime?: string;
     /** 子评论 */
-    children?: Discussion[];
+    children?: DiscussionVO[];
+    course?: CourseVO;
+    user?: UserVO;
   };
 
   type enableDisableUserParams = {
@@ -594,10 +605,34 @@ declare namespace API {
     param: DiscussionQuery;
   };
 
+  type getMyAssignmentSubmissionsParams = {
+    current?: number;
+    pageSize?: number;
+    param: AssignmentSubmissionQuery;
+  };
+
+  type getMyCourseEnrollmentsParams = {
+    current?: number;
+    pageSize?: number;
+    param: CourseEnrollmentQuery;
+  };
+
   type getMyDiscussionsParams = {
     current?: number;
     pageSize?: number;
     param: DiscussionQuery;
+  };
+
+  type getMyStudyNotesParams = {
+    current?: number;
+    pageSize?: number;
+    param: StudyNoteQuery;
+  };
+
+  type getMyTestRecordsParams = {
+    current?: number;
+    pageSize?: number;
+    param: TestRecordQuery;
   };
 
   type getQuestionBankParams = {
@@ -628,6 +663,12 @@ declare namespace API {
     current?: number;
     pageSize?: number;
     param: SelfTestQuery;
+  };
+
+  type getStudentsParams = {
+    current?: number;
+    pageSize?: number;
+    param: UserQuery;
   };
 
   type getStudyNoteParams = {
@@ -881,6 +922,10 @@ declare namespace API {
     questions?: QuestionBank[];
   };
 
+  type setEnableUserRegisterParams = {
+    enable: boolean;
+  };
+
   type Sorter = {
     /** 排序字段 */
     column?: string;
@@ -927,6 +972,8 @@ declare namespace API {
     content?: string;
     /** 创建时间 */
     createTime?: string;
+    course?: CourseVO;
+    student?: UserVO;
   };
 
   type TestRecord = {
@@ -1113,6 +1160,7 @@ declare namespace API {
     createTime?: string;
     /** 更新时间 */
     updateTime?: string;
+    roleIds?: number[];
   };
 
   type UserResetPasswordParam = {
@@ -1120,6 +1168,20 @@ declare namespace API {
     userId: number;
     /** 新密码 */
     newPassword: string;
+  };
+
+  type UserStudentRegisterParam = {
+    /** 学号 */
+    studentId: string;
+    /** 密码 */
+    password: string;
+  };
+
+  type UserTeacherRegisterParam = {
+    /** 用户名 */
+    username: string;
+    /** 密码 */
+    password: string;
   };
 
   type UserVO = {

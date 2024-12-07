@@ -59,13 +59,42 @@ export async function getUser(
   });
 }
 
-/** 获取用户列表 GET /user-management/list */
+/** 是否启用用户自主注册 GET /user-management/is-enable-user-register */
+export async function isEnableSelfRegister(options?: { [key: string]: any }) {
+  return request<boolean>("/user-management/is-enable-user-register", {
+    method: "GET",
+    ...(options || {}),
+  });
+}
+
+/** 获取所有用户列表 GET /user-management/list */
 export async function getUsers(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
   params: API.getUsersParams,
   options?: { [key: string]: any }
 ) {
   return request<API.ListResultUserVO>("/user-management/list", {
+    method: "GET",
+    params: {
+      // current has a default value: 1
+      current: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+      ...params,
+      param: undefined,
+      ...params["param"],
+    },
+    ...(options || {}),
+  });
+}
+
+/** 获取学生列表 GET /user-management/list-students */
+export async function getStudents(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getStudentsParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultUserVO>("/user-management/list-students", {
     method: "GET",
     params: {
       // current has a default value: 1
@@ -91,6 +120,21 @@ export async function resetPassword(
       "Content-Type": "application/json",
     },
     data: body,
+    ...(options || {}),
+  });
+}
+
+/** 设置是否启用用户自主注册 PUT /user-management/set-enable-user-register */
+export async function setEnableUserRegister(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.setEnableUserRegisterParams,
+  options?: { [key: string]: any }
+) {
+  return request<boolean>("/user-management/set-enable-user-register", {
+    method: "PUT",
+    params: {
+      ...params,
+    },
     ...(options || {}),
   });
 }

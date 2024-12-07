@@ -65,6 +65,30 @@ export async function getCourseEnrollments(
   });
 }
 
+/** 获取我的课程注册列表 GET /course-enrollment/list-self */
+export async function getMyCourseEnrollments(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getMyCourseEnrollmentsParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultCourseEnrollmentVO>(
+    "/course-enrollment/list-self",
+    {
+      method: "GET",
+      params: {
+        // current has a default value: 1
+        current: "1",
+        // pageSize has a default value: 10
+        pageSize: "10",
+        ...params,
+        param: undefined,
+        ...params["param"],
+      },
+      ...(options || {}),
+    }
+  );
+}
+
 /** 学生取消课程注册 PUT /course-enrollment/quit/${param0} */
 export async function quitCourseEnrollment(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

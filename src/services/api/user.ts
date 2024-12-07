@@ -33,12 +33,27 @@ export async function logout(options?: { [key: string]: any }) {
   });
 }
 
-/** 用户注册 POST /user/register */
-export async function register(
-  body: API.UserForm,
+/** 用户学生注册 POST /user/register-for-student */
+export async function registerForStudent(
+  body: API.UserStudentRegisterParam,
   options?: { [key: string]: any }
 ) {
-  return request<API.UserAuthVO>("/user/register", {
+  return request<API.UserAuthVO>("/user/register-for-student", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
+/** 老师用户注册 POST /user/register-for-teacher */
+export async function registerForTeacher(
+  body: API.UserTeacherRegisterParam,
+  options?: { [key: string]: any }
+) {
+  return request<API.UserAuthVO>("/user/register-for-teacher", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

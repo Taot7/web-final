@@ -66,6 +66,27 @@ export async function getTestRecords(
   });
 }
 
+/** 获取我的考试记录列表 GET /test-record/list-self */
+export async function getMyTestRecords(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getMyTestRecordsParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultTestRecordVO>("/test-record/list-self", {
+    method: "GET",
+    params: {
+      // current has a default value: 1
+      current: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+      ...params,
+      param: undefined,
+      ...params["param"],
+    },
+    ...(options || {}),
+  });
+}
+
 /** 学生提交考试答案 POST /test-record/submit */
 export async function submitTestRecord(
   body: API.TestRecordCommitParam,

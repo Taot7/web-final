@@ -95,6 +95,30 @@ export async function getAssignmentSubmissions(
   );
 }
 
+/** 获取我的作业提交列表 GET /assignment-submission/list-self */
+export async function getMyAssignmentSubmissions(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getMyAssignmentSubmissionsParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultAssignmentSubmissionVO>(
+    "/assignment-submission/list-self",
+    {
+      method: "GET",
+      params: {
+        // current has a default value: 1
+        current: "1",
+        // pageSize has a default value: 10
+        pageSize: "10",
+        ...params,
+        param: undefined,
+        ...params["param"],
+      },
+      ...(options || {}),
+    }
+  );
+}
+
 /** 根据条件获取学生作业提交情况 GET /assignment-submission/statistic */
 export async function getAssignmentSubmitStat(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

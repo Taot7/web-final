@@ -70,6 +70,27 @@ export async function getStudyNotes(
   });
 }
 
+/** 获取我的学习笔记列表 GET /study-note/list-self */
+export async function getMyStudyNotes(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getMyStudyNotesParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultStudyNoteVO>("/study-note/list-self", {
+    method: "GET",
+    params: {
+      // current has a default value: 1
+      current: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+      ...params,
+      param: undefined,
+      ...params["param"],
+    },
+    ...(options || {}),
+  });
+}
+
 /** 修改指定学习笔记信息 PUT /study-note/update/${param0} */
 export async function updateStudyNote(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
