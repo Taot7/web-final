@@ -65,7 +65,7 @@ const router = createRouter({
       path: '/online-course',
       name: 'onlineCourse',
       component: () => import('@/views/CoursePage/onlineCourse.vue')
-    }
+    },
   ],
 })
 
