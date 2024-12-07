@@ -1093,7 +1093,7 @@ declare namespace API {
     /** 用户ID */
     userId?: number;
     /** 用户名 */
-    username: string;
+    username?: string;
     /** 邮箱 */
     email?: string;
     /** 学号 */
