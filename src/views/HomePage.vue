@@ -290,7 +290,9 @@
   <RouterLink to="/course">
     课程详情页
   </RouterLink>
-
+  <RouterLink to="/usermanage">
+    系统管理员
+  </RouterLink>
 </template>
 
 <script>
