@@ -53,7 +53,13 @@
         </div>
       </div>
     </section>
-
+    <div class="sidebar">
+      <div class="sidebar-content">
+        <h3>咨询</h3>
+        <p>有问题？联系我们！</p>
+        <button>联系我们</button>
+      </div>
+    </div>
     <!-- 课程类别 -->
     <!-- 课程类别 -->
     <section id="categories">
@@ -68,6 +74,7 @@
               href="#"
               class="category-link"
               @click.prevent="filterCoursesByCategory(category.name)"
+              :class="{ active: activeCategory === category.name }"
           >
             {{ category.name }}
           </a>
@@ -306,6 +313,7 @@ var newCourses_ID = [6, 7, 8];
 export default {
   data() {
     return {
+      activeCategory: "全部",  // 保存当前激活的分类
       filteredCourses: [], // 筛选后的课程数据
       selectedCategory: null, // 当前选择的课程类别
       sortField: "updateTime", // 排序字段
@@ -318,12 +326,12 @@ export default {
       popularCourses: [],
       newCourses: [],
       courseCategories: [
-        { name: "编程" },
-        { name: "设计" },
-        { name: "商业" },
-        { name: "文学" },
-        { name: "理工" },
-        { name: "策划" },
+        { name: "全部" },
+        { name: "前端" },
+        { name: "后端" },
+        { name: "算法" },
+        { name: "数据库" },
+        { name: "多线程" },
       ],
       showModal: false,
       modalCourse: {},
@@ -673,10 +681,16 @@ export default {
     },
     // 按类别筛选课程
     filterCoursesByCategory(category) {
+      this.activeCategory = category;
       this.selectedCategory = category;
-      this.filteredCourses = this.courses.filter(
-          (course) => course.categoryName === category
-      );
+      if(this.selectedCategory=="全部"){
+        this.filteredCourses=this.courses;
+      }else{
+        this.filteredCourses = this.courses.filter(
+            (course) => course.categoryName === category
+        );
+      }
+
     },
     // 按指定字段排序课程
     sortCourses() {
@@ -835,6 +849,8 @@ export default {
 
     // 查看课程详情
     viewDetails(course) {
+      this.$router.push('/course');  // 跳转到关于页面
+      return
       this.modalCourse = { ...course };
       this.showModal = true;
     },
@@ -1151,6 +1167,13 @@ header nav ul li {
   transform: scale(1.1); /* 鼠标悬停时轻微放大 */
 }
 
+/* 激活样式 */
+.category-link.active {
+  background-color: #007bff; /* 激活项背景色 */
+  color: #fff; /* 激活项字体颜色 */
+  font-weight: bold; /* 激活项字体加粗 */
+}
+
 .course-container {
   background-color: white;
   display: flex;
@@ -1452,5 +1475,44 @@ h2{
   background-color: #007bff; /* 背景颜色变为蓝色 */
   border-radius: 30px; /* 圆角保持一致 */
   transform: scale(1.1); /* 鼠标悬停时轻微放大 */
+}
+/* 咨询栏样式 */
+.sidebar {
+  position: fixed;
+  right: 20px; /* 与右侧保持一定的距离 */
+  top: 300px; /* 距离顶部一定的高度 */
+  width: 200px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+  padding: 20px;
+  border-radius: 10px; /* 圆角 */
+  z-index: 9999; /* 确保咨询栏在其他内容之上 */
+}
+
+.sidebar h3 {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+  margin-top: 10px;
+  color: #007bff;
+}
+
+.sidebar p {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.sidebar button {
+  background-color: #30b5ff;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar button:hover {
+  background-color: #1c688f;
 }
 </style>
