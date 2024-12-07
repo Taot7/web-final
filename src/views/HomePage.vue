@@ -104,7 +104,7 @@
         <div class="course-item-s" v-for="(course, index) in filteredCourses" :key="index">
           <img :src="course.coverImage" :alt="course.title" />
           <h3>{{ course.title }}</h3>
-          <p>{{ course.description }}</p>
+          <p>{{ truncatedDescription(course.description) }}</p>
           <div class="divider"></div>
           <p>更新时间: {{ course.updateTime }}</p>
           <div class="course-stats">
@@ -124,7 +124,7 @@
 
     <!-- 推荐课程 -->
     <section id="recommend-courses">
-      <h2>热门课程</h2>
+      <h2>推荐课程</h2>
       <div class="course-container">
         <div
             v-for="(course, index) in recommendedCourses"
@@ -133,7 +133,7 @@
         >
           <img :src="course.coverImage" :alt="course.title" />
           <h3>{{ course.title }}</h3>
-          <p>{{ course.description }}</p>
+          <p>{{ truncatedDescription(course.description) }}</p>
           <div class="divider"></div>
           <p>更新时间: {{ course.updateTime }}</p>
           <!-- 添加注册人数和点赞人数 -->
@@ -163,7 +163,7 @@
         >
           <img :src="course.coverImage" :alt="course.title" />
           <h3>{{ course.title }}</h3>
-          <p>{{ course.description }}</p>
+          <p>{{ truncatedDescription(course.description) }}</p>
           <div class="divider"></div>
           <p>更新时间: {{ course.updateTime }}</p>
           <!-- 添加注册人数和点赞人数 -->
@@ -184,7 +184,7 @@
 
     <!-- 最新课程 -->
     <section id="new-courses">
-      <h2>热门课程</h2>
+      <h2>最新课程</h2>
       <div class="course-container">
         <div
             v-for="(course, index) in newCourses"
@@ -193,7 +193,7 @@
         >
           <img :src="course.coverImage" :alt="course.title" />
           <h3>{{ course.title }}</h3>
-          <p>{{ course.description }}</p>
+          <p>{{ truncatedDescription(course.description) }}</p>
           <div class="divider"></div>
           <p>更新时间: {{ course.updateTime }}</p>
           <!-- 添加注册人数和点赞人数 -->
@@ -306,9 +306,9 @@
 import axios from 'axios';
 
 // 预设课程ID（如果需要）
-var recommendedCourses_ID = [0, 1, 2];
-var popularCourses_ID = [3, 4, 5];
-var newCourses_ID = [6, 7, 8];
+var recommendedCourses_ID = [1,2,3,4,5,6,7];
+var popularCourses_ID = [3, 4, 5,8];
+var newCourses_ID = [6, 7, 8,9];
 
 export default {
   data() {
@@ -663,11 +663,8 @@ export default {
     };
   },
   mounted() {
-    this.fetchCourses();  // 获取所有课程数据
-    this.fetchAllCourses();
-    this.fetchRecommendedCourses();  // 获取推荐课程
-    this.fetchPopularCourses();  // 获取热门课程
-    this.fetchNewCourses();  // 获取最新课程
+    this.fetchDataInOrder();
+
 
     // 轮播图自动切换
     setInterval(() => {
@@ -676,6 +673,23 @@ export default {
   },
 
   methods: {
+    // 异步按顺序获取所有课程、推荐课程、热门课程和最新课程
+    async fetchDataInOrder() {
+      try {
+        // 按顺序调用各个方法
+        await this.fetchAllCourses(); // 获取所有课程数据
+        // await this.fetchCourses();    // 获取课程数据并更新其他部分
+        await this.fetchRecommendedCourses();  // 获取推荐课程
+        await this.fetchPopularCourses();  // 获取热门课程
+        await this.fetchNewCourses();  // 获取最新课程
+      } catch (error) {
+        console.error("获取数据时发生错误", error);
+      }
+    },
+    truncatedDescription(description) {
+      const maxLength = 35;
+      return description.length > maxLength ? description.substring(0, maxLength) + '...' : description;
+    },
     goToImage(index) {
       this.currentIndex = index;
     },
@@ -713,6 +727,7 @@ export default {
       });
     },
     // 获取所有课程数据，并更新轮播图
+    // 获取所有课程数据，并更新轮播图
     async fetchAllCourses() {
       try {
         // 调用课程列表接口
@@ -724,118 +739,120 @@ export default {
         });
 
         if (response.data && response.data.data) {
-          this.filteredCourses = this.localCarouselCourses; // 使用本地预设数据
-          console.log(response)
+          const coursesList = response.data.data.list;
+          this.courses = coursesList;  // 保存所有课程数据
+
+          // 更新轮播图
+          this.carouselCourse=coursesList
+              .slice(0, 3) // 只取前三个课程作为轮播图的封面
+          this.carouselImages = coursesList
+              .slice(0, 3) // 只取前三个课程作为轮播图的封面
+              .map(course => course.coverImage); // 提取封面图 URL
+          this.totalImages = this.carouselImages.length; // 更新轮播图的总数
+          console.log(this.courses)
+          // 使用本地数据作为备用数据
+          this.filteredCourses = this.courses;
+          console.log("获取全部数据成功");
         } else {
           throw new Error("未能获取到有效的课程数据");
         }
       } catch (error) {
-        console.error("222222无法加载课程数据", error);
-        this.filteredCourses = this.localCarouselCourses; // 使用本地预设数据
-      } finally {
-        this.loading = false; // 数据加载完成，关闭加载状态
-      }
-    },
-    async fetchCourses() {
-      try {
-        // 调用课程列表接口
-        const response = await axios.get('http://47.115.57.164:81/api/course/list', {
-          params: {
-            current: 1,     // 当前页
-            pageSize: 10,   // 每页10条数据
-          }
-        });
-
-        if (response.data && response.data.data) {
-
-          this.courses = response.data.data; // 赋值课程数据
-          // 从课程列表中提取封面图，并更新轮播图
-          this.carouselImages = response.data.data
-              .slice(0, 3) // 只取前三个课程作为轮播图的封面
-              .map(course => course.coverImage); // 提取封面图 URL
-
-          this.totalImages = this.carouselImages.length; // 更新轮播图的总数
-        } else {
-          console.log(response)
-          throw new Error("11111未能获取到有效的课程数据");
-        }
-      } catch (error) {
-        console.error("1111111无法加载课程数据", error);
-        this.courses = this.localCarouselCourses; // 使用本地预设数据
-        this.carouselCourse=this.courses.slice(0, 3);
+        console.error("无法加载全部课程", error);
+        // 使用本地预设数据
+        this.filteredCourses = this.localCarouselCourses;
+        this.carouselCourse=this.localCarouselCourses
+            .slice(0, 3) // 只取前三个课程作为轮播图的封面
         this.carouselImages = this.localCarouselCourses
             .slice(0, 3) // 只取前三个课程作为轮播图的封面
             .map(course => course.coverImage); // 提取封面图 URL
-        this.totalImages = this.carouselImages.length; // 更新轮播图的总数
-        console.log(this.totalImages)
-        console.log(this.carouselImages[0])
+        this.totalImages = this.carouselImages.length;
+
       } finally {
         this.loading = false; // 数据加载完成，关闭加载状态
       }
     },
 
-    // 获取推荐课程
+// // 获取课程数据并更新其他部分
+//     async fetchCourses() {
+//       try {
+//         // 直接从 this.courses 中获取课程数据
+//         if (this.courses && this.courses.length > 0) {
+//           // 持有完整课程数据，直接使用
+//           this.carouselImages = this.courses
+//               .slice(0, 3) // 只取前三个课程作为轮播图的封面
+//               .map(course => course.coverImage); // 提取封面图 URL
+//           this.totalImages = this.carouselImages.length;
+//         } else {
+//           throw new Error("无法加载轮播课程数据，格式错误");
+//         }
+//       } catch (error) {
+//         console.error("无法加载轮播课程数据", error);
+//         this.courses = this.localCarouselCourses; // 使用本地数据作为备用
+//         this.carouselImages = this.localCarouselCourses
+//             .slice(0, 3) // 只取前三个课程作为轮播图的封面
+//             .map(course => course.coverImage);
+//         this.totalImages = this.carouselImages.length;
+//       } finally {
+//         this.loading = false; // 数据加载完成，关闭加载状态
+//       }
+//     },
+
+// 获取推荐课程
     async fetchRecommendedCourses() {
       try {
-        const courses = await Promise.all(
-            recommendedCourses_ID.map(async (id) => {
-              const response = await axios.get('http://47.115.57.164:81/api/course/info/', { params: { id } });
-              return response.data.data;
-            })
-        );
-        this.recommendedCourses = courses.flat();  // 合并多个课程信息
-        // 筛选推荐课程
-        this.recommendedCourses = this.recommendedCourses.filter(course => course.isRecommended);
+        // 确保 allCourses 已加载
+        if (!this.courses || this.courses.length === 0) {
+          throw new Error("课程数据未加载完成");
+        }
+
+        // 根据 course ID 列表从 this.courses 中筛选推荐课程
+        this.recommendedCourses = this.courses.filter(course => course.isRecommended);
+
       } catch (error) {
         console.error("无法加载推荐课程", error);
-        this.recommendedCourses = this.localRecommendedCourses.filter(course => course.isRecommended); // 使用本地推荐课程
+        // 使用本地推荐课程数据
+        this.recommendedCourses = this.localRecommendedCourses.filter(course => course.isRecommended);
       }
     },
 
-    // 获取热门课程
+// 获取热门课程
     async fetchPopularCourses() {
       try {
-        const courses = await Promise.all(
-            popularCourses_ID.map(async (id) => {
-              const response = await axios.get('http://47.115.57.164:81/api/course/info/', { params: { id } });
-              return response.data.data;
-            })
-        );
-        this.popularCourses = courses.flat();  // 合并多个课程信息
-        // 按照浏览次数、点赞数、学生数量排序
-        this.popularCourses.sort((a, b) => {
+        // 确保 allCourses 已加载
+        if (!this.courses || this.courses.length === 0) {
+          throw new Error("课程数据未加载完成");
+        }
+
+        // 从已加载的课程数据中筛选热门课程
+        this.popularCourses = this.courses.sort((a, b) => {
           return b.viewCount - a.viewCount || b.likeCount - a.likeCount || b.studentCount - a.studentCount;
         });
+
       } catch (error) {
         console.error("无法加载热门课程", error);
+        // 使用本地热门课程数据
         this.popularCourses = this.localPopularCourses.sort((a, b) => {
           return b.viewCount - a.viewCount || b.likeCount - a.likeCount || b.studentCount - a.studentCount;
-        }); // 使用本地热门课程
+        });
       }
     },
 
-    // 获取最新课程
+// 获取最新课程
     async fetchNewCourses() {
       try {
-        const courses = await Promise.all(
-            newCourses_ID.map(async (id) => {
-              const response = await axios.get('http://47.115.57.164:81/api/course/info/', { params: { id } });
-              return response.data.data;
-            })
-        );
-        this.newCourses = courses.flat();  // 合并多个课程信息
-        // 按照更新时间排序
-        this.newCourses.sort((a, b) => new Date(b.updateTime) - new Date(a.updateTime));
+        // 确保 allCourses 已加载
+        if (!this.courses || this.courses.length === 0) {
+          throw new Error("课程数据未加载完成");
+        }
+
+        // 从已加载的课程数据中筛选最新课程
+        this.newCourses = this.courses.sort((a, b) => new Date(b.updateTime) - new Date(a.updateTime));
+
       } catch (error) {
         console.error("无法加载最新课程", error);
-        this.newCourses = this.localNewCourses.sort((a, b) => new Date(b.updateTime) - new Date(a.updateTime)); // 使用本地最新课程
+        // 使用本地最新课程数据
+        this.newCourses = this.localNewCourses.sort((a, b) => new Date(b.updateTime) - new Date(a.updateTime));
       }
-    },
-
-    // 轮播图切换
-    // 切换到下一张图片
-    nextImage() {
-      this.currentIndex = (this.currentIndex + 1) % this.totalImages;
     },
 
     // 初始化轮播图内容
@@ -880,6 +897,9 @@ export default {
     // 按分类筛选课程
     filterByCategory(category) {
       alert(`筛选课程类别: ${category}`);
+    },
+    nextImage() {
+      this.currentIndex = (this.currentIndex + 1) % this.totalImages;
     },
   },
 };
