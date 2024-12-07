@@ -45,52 +45,14 @@
       <div class="content-right">
         <!-- 根据当前选中的菜单项显示不同内容 -->
         <template v-if="currentMenuItem === 3">
-          <!-- 课程内容视图 -->
-          <div class="course-content-view">
-            <div class="chapters-list">
-              <div v-for="(chapter, index) in chapters" 
-                   :key="index" 
-                   class="chapter-item">
-                <div class="chapter-header" @click="toggleChapter(index)">
-                  <span class="chapter-title">第{{ index + 1 }}章: {{ chapter.title }}</span>
-                  <span class="expand-icon">{{ chapter.isExpanded ? '▼' : '▶' }}</span>
-                </div>
-                
-                <div v-show="chapter.isExpanded" class="chapter-content">
-                  <div v-for="(lesson, lIndex) in chapter.lessons" 
-                       :key="lIndex"
-                       class="lesson-item"
-                       @click="openLesson(lesson)">
-                    <i :class="getLessonIcon(lesson.type)"></i>
-                    <span class="lesson-title">{{ lesson.title }}</span>
-                    <span class="lesson-status" :class="lesson.status">
-                      {{ lesson.status }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="content-display">
-              <div v-if="selectedLesson" class="lesson-detail">
-                <h2>{{ selectedLesson.title }}</h2>
-                <div class="lesson-media">
-                  <video v-if="selectedLesson.type === 'video'" 
-                         :src="selectedLesson.content" 
-                         controls></video>
-                  <div v-else-if="selectedLesson.type === 'document'" 
-                       class="document-viewer">
-                    {{ selectedLesson.content }}
-                  </div>
-                </div>
-              </div>
-              <div v-else class="placeholder">
-                请选择要学习的课程内容
-              </div>
-            </div>
-          </div>
+          <CourseContent />
         </template>
-        
+        <template v-else-if="currentMenuItem === 5">
+          <CourseQuiz />
+        </template>
+        <template v-else-if="currentMenuItem === 6">
+          <CourseHomework />
+        </template>
         <template v-else>
           <!-- 原有的成绩进度内容 -->
           <div class="course-announcement">
@@ -171,10 +133,16 @@
 
 <script>
 import NavBar from '@/components/NavBar.vue';
+import CourseContent from './components/CourseContent.vue';
+import CourseQuiz from './components/CourseQuiz.vue';
+import CourseHomework from './components/CourseHomework.vue';
 
 export default {
   components: {
-    NavBar
+    NavBar,
+    CourseContent,
+    CourseQuiz,
+    CourseHomework
   },
   data() {
     return {
@@ -200,8 +168,8 @@ export default {
         { name: '考核', icon: 'icon-exam', hasSubMenu: true }
       ],
       examSubMenu: [
-        { name: '作业', icon: 'icon-homework', path: '/homework' },
-        { name: '测验', icon: 'icon-quiz', path: '/quiz' },
+        { name: '作业', icon: 'icon-homework' },
+        { name: '测验', icon: 'icon-quiz' },
       ],
       chapters: [
         {
@@ -268,8 +236,11 @@ export default {
       }
     },
     handleSubMenuClick(subItem) {
-      // 使用 router 进行导航
-      this.$router.push(subItem.path);
+      if (subItem.name === '作业') {
+        this.currentMenuItem = 6;
+      } else if (subItem.name === '测验') {
+        this.currentMenuItem = 5;
+      }
     },
     toggleChapter(index) {
       this.chapters[index].isExpanded = !this.chapters[index].isExpanded;
