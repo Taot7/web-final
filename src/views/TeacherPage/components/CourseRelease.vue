@@ -42,23 +42,25 @@
             </div>
         </div>
  
-        <div>轮播图次序：</div>
-        <div class="gallery">
-            <!-- 显示封面图片 -->
+        <div>首页轮播图次序：</div>
+        <div class="gallery-container">
             <div 
                 v-for="(course, index) in filteredCourses" 
                 :key="course.id" 
                 class="gallery-item"
+                draggable="true"
+                @dragstart="handleDragStart(index)"
+                @dragover.prevent
+                @drop="handleDrop(index)"
             >
                 <img 
-                :src="course.cover || 'default-placeholder.png'" 
-                alt="课程封面" 
-                class="gallery-img" 
+                    :src="course.cover || 'default-placeholder.png'" 
+                    alt="课程封面" 
+                    class="gallery-img" 
                 />
+                <div class="image-number">编号：{{ index + 1 }}</div>
             </div>
         </div>
-
-        
 
         <!-- 发布新课程 -->
         <div class="new-course">
@@ -90,6 +92,13 @@
         <div class="assignment-section">
             <h3>布置作业</h3>
             <input v-model="assignment.title" type="text" placeholder="作业标题" class="input" />
+            <!-- 添加下拉框选择课程 -->
+            <select id="course-select" v-model="assignment.selectedCourse" class="course-select">
+                <option disabled value="">选择课程</option>
+                <option v-for="course in courses" :key="course.id" :value="course.id">
+                    {{ course.name }}
+                </option>
+            </select>
             <textarea v-model="assignment.requirements" placeholder="作业要求" class="textarea"></textarea>
             <div class="ddl">截至日期：</div>
             <input v-model="assignment.dueDate" type="date" class="input" />
@@ -219,6 +228,7 @@ interface Assignment {
     title: string;
     requirements: string;
     dueDate: string;
+    selectedCourse: number | null; // 记录选中的课程ID
 }
 
 const courses = ref<Course[]>([
@@ -252,7 +262,9 @@ const assignment = ref<Assignment>({
     title: "",
     requirements: "",
     dueDate: "",
+    selectedCourse: null,
 });
+
 
 const filteredCourses = computed(() =>
     courses.value.filter((course) => {
@@ -350,9 +362,33 @@ const handleImageUpload = (event: Event) => {
     }
 };
 
+let draggedIndex = -1;
+
+// 拖拽开始事件
+const handleDragStart = (index: number) => {
+    draggedIndex = index;
+};
+
+// 放置事件
+const handleDrop = (targetIndex: number) => {
+    if (draggedIndex === -1 || draggedIndex === targetIndex) return;
+
+    // 更新图片顺序
+    const draggedItem = filteredCourses.value[draggedIndex];
+    filteredCourses.value.splice(draggedIndex, 1); // 移除拖拽的图片
+    filteredCourses.value.splice(targetIndex, 0, draggedItem); // 插入到目标位置
+
+    // 更新课程顺序数据
+    updateCourseIds();
+    draggedIndex = -1; // 重置拖拽索引
+};
+
 const updateCourseIds = () => {
     courses.value.forEach((course, index) => {
         course.id = index + 1; // 更新课程ID为递增
+    });
+    filteredCourses.value.forEach((course, index) => {
+        course.id = index + 1; // 更新课程编号为当前顺序
     });
 };
 
@@ -372,13 +408,17 @@ const resetNewCourse = () => {
 };
 
 const assignHomework = () => {
-    if (!assignment.value.title || !assignment.value.requirements || !assignment.value.dueDate) {
-        alert("请填写完整作业信息");
+    if (!assignment.value.title || !assignment.value.requirements || !assignment.value.dueDate || !assignment.value.selectedCourse) {
+        alert("请填写完整作业信息并选择课程");
         return;
     }
-    alert(`作业 "${assignment.value.title}" 已布置，截止日期为 ${assignment.value.dueDate}`);
-    assignment.value = { title: "", requirements: "", dueDate: "" }; // 重置作业信息
+    const selectedCourse = courses.value.find(course => course.id === assignment.value.selectedCourse);
+    if (selectedCourse) {
+        alert(`作业 "${assignment.value.title}" 已布置给课程 "${selectedCourse.name}"，截止日期为 ${assignment.value.dueDate}`);
+        assignment.value = { title: "", requirements: "", dueDate: "", selectedCourse: null }; // 重置作业信息
+    }
 };
+
 
 const isModalVisible = ref(false);
 
@@ -603,31 +643,56 @@ const closeModal = () => {
   margin-top: 20px;
 }
 
-.gallery {
-  display: flex;
-  gap: 10px;
-  overflow-x: scroll;
+.course-select {
+    padding: 2px;
+    font-size: 14px;
+    width: 150px;
+}
+
+.image-container {
+    display: inline-block;
+    margin: 5px;
+    cursor: move;
+    width: 100px;
+    height: 100px;
+}
+
+.gallery-container {
+    display: flex;
+    overflow-x: auto; /* 启用水平滚动 */
+    white-space: nowrap;
+    padding: 10px;
+    gap: 15px; /* 图片间距 */
+}
+
+.gallery-container::-webkit-scrollbar {
+    height: 10px; /* 滚动条高度 */
+}
+
+.gallery-container::-webkit-scrollbar-thumb {
+    background-color: #b3b3b3; /* 滚动条颜色 */
+    border-radius: 4px;
+}
+
+.gallery-container::-webkit-scrollbar-track {
+    background-color: #f1f1f1; /* 滚动条轨道颜色 */
 }
 
 .gallery-item {
-  width: 18%;
-  height: 0.005%;
-  cursor: pointer;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease-in-out;
-}
-
-.gallery-item:hover {
-  transform: scale(1.05);
+    flex: 0 0 auto; /* 图片不换行 */
+    text-align: center;
 }
 
 .gallery-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+    width: 230px;
+    height: 150px;
+    object-fit: cover;
+    cursor: grab;
 }
 
+.image-number {
+    margin-top: 5px;
+    font-size: 14px;
+    color: #555;
+}
 </style>

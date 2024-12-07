@@ -1,75 +1,84 @@
 <template>
-    <div class="header-container">
-        <h2>课件管理</h2>
-    </div>
-    <hr color="#a9d7df">
-    <div class="upload-section">
-        <h3>上传课件</h3>
-        <div class="file-upload-container">
-            <label class="file-upload">
-                <input type="file" multiple @change="handleFileUpload" />
-                <span>{{ "选择文件" }}</span>
-            </label>
-        </div>
-        <!-- 显示已添加的文件 -->
-        <div class="url-input">
-            <label>或粘贴网络地址：</label>
-            <input type="text" v-model="remoteUrl" placeholder="输入网络资源 URL" />
-            <button class="add-btn" @click="addRemoteFile">添加</button>
-        </div>
-        <div v-if="pendingFiles.length > 0" class="added-files">
-            <p>已添加文件：</p>
-            <ul class="file-list">
-                <li v-for="(file, index) in pendingFiles" :key="index">
-                    {{ file.name }} ({{ file.type }})
-                    <button @click="removeFile(index)" class="remove-btn">删除</button>
-                </li>
-            </ul>
-        </div>
-    </div>
-    <div class="tag-management">
-        <h3>标签管理</h3>
-        <div class="url-input">
-            <label>添加新标签：</label>
-            <input type="text" v-model="newTag" placeholder="输入标签名" class="tag-input" />
-            <button class="add-btn" @click="addTag">添加</button>
-        </div>
-        <ul class="tag-list">
-            <li v-for="(tag, index) in tags" :key="index" class="tag-item">
-                <div class="tag-header">
-                    <span>{{ tag.name }}</span>
-                    <button @click="removeTag(index)" class="remove-btn">删除</button>
-                </div>
-                <!-- 子标签列表 -->
-                <ul class="sub-tag-list">
-                    <li v-for="(subTag, subIndex) in tag.children" :key="subIndex" class="sub-tag-item">
-                        <span>{{ subTag }}</span>
-                        <button @click="removeSubTag(index, subIndex)" class="remove-btn">删除</button>
-                    </li>
-                </ul>
-                <!-- 添加子标签 -->
-                <div class="add-sub-tag">
-                    <input
-                        type="text"
-                        v-model="newSubTag"
-                        placeholder="输入子标签名"
-                        class="sub-tag-input"
-                        @keyup.enter="addSubTag(index)"
-                    />
-                    <button class="add-btn" @click="addSubTag(index)">添加子标签</button>
-                </div>
-            </li>
-        </ul>
-    </div>
-    <div class="button-container">
-        <button class="confirm-upload-btn" @click="confirmUpload">确认上传</button>
-    </div>
+  <div class="header-container">
+      <h2>课件管理</h2>
+  </div>
+  <hr color="#a9d7df">
+  <div class="upload-section">
+      <h3>上传课件</h3>
+      <div class="file-upload-container">
+          <!-- 文件上传按钮 -->
+          <label class="file-upload">
+              <input type="file" multiple @change="handleFileUpload" />
+              <span>{{ "选择文件" }}</span>
+          </label>
+          <!-- 课程选择下拉框 -->
+          <select v-model="selectedCourse" class="course-select">
+              <option disabled value="">选择课程</option>
+              <option v-for="(course, index) in courses" :key="index" :value="course">
+                  {{ course }}
+              </option>
+          </select>
+      </div>
+      <!-- 显示已添加的文件 -->
+      <div class="url-input">
+          <label>或粘贴网络地址：</label>
+          <input type="text" v-model="remoteUrl" placeholder="输入网络资源 URL" />
+          <button class="add-btn" @click="addRemoteFile">添加</button>
+      </div>
+      <div v-if="pendingFiles.length > 0" class="added-files">
+          <p>已添加文件：</p>
+          <ul class="file-list">
+              <li v-for="(file, index) in pendingFiles" :key="index">
+                  {{ file.name }} ({{ file.type }})
+                  <button @click="removeFile(index)" class="remove-btn">删除</button>
+              </li>
+          </ul>
+      </div>
+  </div>
+  <div class="tag-management">
+      <h3>标签管理</h3>
+      <div class="url-input">
+          <label>添加新标签：</label>
+          <input type="text" v-model="newTag" placeholder="输入标签名" class="tag-input" />
+          <button class="add-btn" @click="addTag">添加</button>
+      </div>
+      <ul class="tag-list">
+          <li v-for="(tag, index) in tags" :key="index" class="tag-item">
+              <div class="tag-header">
+                  <span>{{ tag.name }}</span>
+                  <button @click="removeTag(index)" class="remove-btn">删除</button>
+              </div>
+              <ul class="sub-tag-list">
+                  <li v-for="(subTag, subIndex) in tag.children" :key="subIndex" class="sub-tag-item">
+                      <span>{{ subTag }}</span>
+                      <button @click="removeSubTag(index, subIndex)" class="remove-btn">删除</button>
+                  </li>
+              </ul>
+              <div class="add-sub-tag">
+                  <input
+                      type="text"
+                      v-model="newSubTag"
+                      placeholder="输入子标签名"
+                      class="sub-tag-input"
+                      @keyup.enter="addSubTag(index)"
+                  />
+                  <button class="add-btn" @click="addSubTag(index)">添加子标签</button>
+              </div>
+          </li>
+      </ul>
+  </div>
+  <div class="button-container">
+      <button class="confirm-upload-btn" @click="confirmUpload">确认上传</button>
+  </div>
 </template>
 
-
 <script setup lang="ts">
-
 import { ref } from "vue";
+
+// 已选课程
+const selectedCourse = ref("");
+// 课程列表
+const courses = ref(["HTML基础", "JavaScript进阶", "CSS布局", "Vue.js入门", "React.js进阶"]);
 
 const pendingFiles = ref<{ name: string; type: string }[]>([]);
 const remoteUrl = ref("");
@@ -78,26 +87,35 @@ const newTag = ref("");
 const newSubTag = ref("");
 
 const handleFileUpload = (event: Event) => {
+  if (!selectedCourse.value) {
+      alert("请选择课程后再上传文件！");
+      return;
+  }
   const files = Array.from((event.target as HTMLInputElement).files || []);
   pendingFiles.value.push(...files.map((file) => ({ name: file.name, type: file.type })));
 };
 
 const addRemoteFile = () => {
+  if (!selectedCourse.value) {
+      alert("请选择课程后再添加文件！");
+      return;
+  }
   if (remoteUrl.value) {
-    pendingFiles.value.push({ name: remoteUrl.value, type: "网络资源" });
-    remoteUrl.value = "";
+      pendingFiles.value.push({ name: remoteUrl.value, type: "网络资源" });
+      remoteUrl.value = "";
   }
 };
 
 const confirmUpload = () => {
   if (pendingFiles.value.length === 0) {
-    alert("没有文件可以上传");
-    return;
+      alert("没有文件可以上传");
+      return;
   }
-  if (confirm("确认上传选中的课件吗？")) {
-    pendingFiles.value = [];
-    tags.value = [];
-    alert("上传成功！");
+  if (confirm(`确认上传选中的课件到 "${selectedCourse.value}" 吗？`)) {
+      pendingFiles.value = [];
+      tags.value = [];
+      selectedCourse.value = "";
+      alert("上传成功！");
   }
 };
 
@@ -107,8 +125,8 @@ const removeFile = (index: number) => {
 
 const addTag = () => {
   if (newTag.value) {
-    tags.value.push({ name: newTag.value, children: [] });
-    newTag.value = "";
+      tags.value.push({ name: newTag.value, children: [] });
+      newTag.value = "";
   }
 };
 
@@ -118,17 +136,15 @@ const removeTag = (index: number) => {
 
 const addSubTag = (index: number) => {
   if (newSubTag.value) {
-    tags.value[index].children.push(newSubTag.value);
-    newSubTag.value = "";
+      tags.value[index].children.push(newSubTag.value);
+      newSubTag.value = "";
   }
 };
 
 const removeSubTag = (tagIndex: number, subTagIndex: number) => {
   tags.value[tagIndex].children.splice(subTagIndex, 1);
 };
-
 </script>
-
 
 <style scoped>
 
@@ -308,5 +324,12 @@ const removeSubTag = (tagIndex: number, subTagIndex: number) => {
 
 .confirm-upload-btn:hover {
     background-color: #48a4d7;
+}
+
+.course-select {
+    padding: 3px;
+    font-size: 14px;
+    margin-left:35px;
+    width: 150px;
 }
 </style>
