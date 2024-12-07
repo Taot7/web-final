@@ -11,7 +11,7 @@ import { RouterView } from 'vue-router'
     </RouterView>
   </div>
 </template>
-
+  
 <style>
 .page-container{
   width: 100%;
