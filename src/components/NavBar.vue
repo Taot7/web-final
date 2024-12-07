@@ -3,7 +3,6 @@
     <div class="nav-left">
       <div class="nav-links">
         <router-link to="/" class="nav-item">首页</router-link>
-        <router-link to="/course" class="nav-item">课程</router-link>
       </div>
     </div>
     <div class="nav-right">
