@@ -200,8 +200,8 @@ export default {
         { name: '考核', icon: 'icon-exam', hasSubMenu: true }
       ],
       examSubMenu: [
+        { name: '作业', icon: 'icon-homework', path: '/homework' },
         { name: '测验', icon: 'icon-quiz', path: '/quiz' },
-        { name: '考试', icon: 'icon-exam', path: '/exam' }
       ],
       chapters: [
         {
@@ -315,7 +315,7 @@ export default {
 .main-content {
   display: flex;
   gap: 20px;
-  margin-top: 20px;
+  margin-top: 50px;
 }
 
 .sidebar {
@@ -417,6 +417,7 @@ button:hover {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
+  margin-top: 0px;
 }
 
 .more-options {
