@@ -16,7 +16,9 @@
       </div>
       <nav>
         <ul>
-          <li><a href="#home">首页</a></li>
+          <li><a href="#home">首页</a>
+
+          </li>
           <li><a href="#courses">课程</a></li>
           <li><a href="#about">关于</a></li>
           <li><a href="#contact">联系我们</a></li>
@@ -31,7 +33,7 @@
     <section id="course-carousel">
       <div class="carousel">
         <div
-            v-for="(image, index) in carouselImages"
+            v-for="(image, index) in carouselCourse"
             :key="index"
             class="carousel-image"
             :class="{
@@ -40,7 +42,22 @@
         'next': currentIndex === (index + 1) % totalImages
       }"
         >
-          <img :src="image" :alt="'轮播图 ' + (index + 1)" />
+          <img :src="image.coverImage" :alt="image.title" />
+
+          <!-- 课程标题 -->
+          <div class="carousel-title">{{ image.title }}</div>
+
+          <!-- 轮播点 -->
+          <!-- 轮播图底部点 -->
+          <div class="carousel-point-container">
+            <div
+                v-for="(image, index) in carouselCourse"
+                :key="index"
+                class="carousel-point"
+                :class="{'active': currentIndex === index}"
+                @click="goToImage(index)"
+            ></div>
+          </div>
         </div>
       </div>
     </section>
@@ -85,7 +102,7 @@
 
       <!-- 横向滑动容器 -->
       <div class="course-container-horizontal">
-        <div class="course-item" v-for="(course, index) in filteredCourses" :key="index">
+        <div class="course-item-s" v-for="(course, index) in filteredCourses" :key="index">
           <img :src="course.coverImage" :alt="course.title" />
           <h3>{{ course.title }}</h3>
           <p>{{ course.description }}</p>
@@ -286,9 +303,6 @@
   <RouterLink to="/teacher">
     教师页
   </RouterLink>
-  <RouterLink to="/class">
-    课程页
-  </RouterLink>
   <RouterLink to="/user-list">
     用户列表
   </RouterLink>
@@ -313,6 +327,7 @@ export default {
       isLoggedIn: false,
       newComment: "",
       courses: [],
+      carouselCourse:[],
       recommendedCourses: [],
       popularCourses: [],
       newCourses: [],
@@ -667,6 +682,9 @@ export default {
   },
 
   methods: {
+    goToImage(index) {
+      this.currentIndex = index;
+    },
     // 按类别筛选课程
     filterCoursesByCategory(category) {
       this.selectedCategory = category;
@@ -744,10 +762,13 @@ export default {
       } catch (error) {
         console.error("1111111无法加载课程数据", error);
         this.courses = this.localCarouselCourses; // 使用本地预设数据
+        this.carouselCourse=this.courses.slice(0, 3);
         this.carouselImages = this.localCarouselCourses
             .slice(0, 3) // 只取前三个课程作为轮播图的封面
             .map(course => course.coverImage); // 提取封面图 URL
         this.totalImages = this.carouselImages.length; // 更新轮播图的总数
+        console.log(this.totalImages)
+        console.log(this.carouselImages[0])
       } finally {
         this.loading = false; // 数据加载完成，关闭加载状态
       }
@@ -812,8 +833,18 @@ export default {
     },
 
     // 轮播图切换
+    // 切换到下一张图片
     nextImage() {
       this.currentIndex = (this.currentIndex + 1) % this.totalImages;
+    },
+
+    // 初始化轮播图内容
+    setCarouselImages() {
+      this.carouselImages = this.localCarouselCourses.map(course => ({
+        title: course.title,
+        coverImage: course.coverImage
+      }));
+      this.totalImages = this.carouselImages.length; // 更新总图片数量
     },
 
     // 查看课程详情
@@ -1055,7 +1086,6 @@ header nav ul li a#login-link:hover {
   transform: scale(1.1); /* 鼠标悬停时轻微放大 */
 
 }
-
 /* 课程轮播图样式 */
 .carousel {
   position: relative;
@@ -1064,18 +1094,10 @@ header nav ul li a#login-link:hover {
   height: 400px;
   background-color: white;
   border-radius: 20px;
+}
 
-}
-#course-carousel{
-  background-color: white;
-  border-radius: 20px;
-  border-top: 2px solid #d8f1ff;
-  margin: 10px;
-}
 .carousel-image {
-  background-color: white;
-
-  position: absolute; /* 让图片重叠定位在同一个位置 */
+  position: absolute; /* 图片重叠定位 */
   top: 0;
   left: 0;
   width: 100%;
@@ -1087,20 +1109,50 @@ header nav ul li a#login-link:hover {
 
 .carousel-image.active {
   opacity: 1;
-  z-index: 1; /* 当前激活的图片放在最上面 */
+  z-index: 1; /* 当前激活的图片 */
 }
 
 .carousel-image.previous,
 .carousel-image.next {
-  opacity: 0; /* 不需要过渡效果的图片保持透明 */
+  opacity: 0; /* 不显示的图片 */
 }
 
 .carousel-image img {
   width: 100%;
   height: 100%;
-
   object-fit: cover;
+}
 
+/* 课程标题样式 */
+.carousel-title {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* 轮播点样式 */
+.carousel-indicator {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  gap: 8px;
+}
+
+.carousel-indicator span {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.5);
+  transition: background-color 0.3s;
+}
+
+.carousel-indicator .active-dot {
+  background-color: white;
 }
 
 
@@ -1195,7 +1247,17 @@ header nav ul li a#login-link:hover {
   background-color: #ddd;
   margin: 15px 0;
 }
-
+.course-item-s button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease; /* 按钮也有平滑过渡效果 */
+}
 .course-item button {
   margin-top: 10px;
   padding: 10px 15px;
@@ -1360,8 +1422,10 @@ h2{
   background-color: #f9f9f9;
   border-radius: 15px;
 }
-
-.course-item {
+.course-item-s {
+  width: 20%;
+  display: flex;
+  flex-direction: column;
   flex: 0 0 300px; /* 固定每个课程卡片的宽度 */
   scroll-snap-align: start; /* 滚动时对齐到容器开头 */
   border: 1px solid #ddd;
@@ -1369,14 +1433,16 @@ h2{
   padding: 15px;
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-top: 2px solid #caeaff;
   transition: transform 0.3s ease;
 }
 
-.course-item:hover {
+.course-item-s:hover {
   transform: scale(1.05); /* 鼠标悬停时放大效果 */
+  border-top: 2px solid #30b5ff;
 }
 
-.course-item img {
+.course-item-s img {
   width: 100%;
   height: 150px;
   object-fit: cover;
@@ -1391,5 +1457,24 @@ h2{
   background-color: #007bff;
   border-radius: 4px;
 }
+.carousel-point-container {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+}
 
+.carousel-point {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ddd;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.carousel-point.active {
+  background-color: #007bff;  /* 激活点的颜色 */
+}
 </style>
