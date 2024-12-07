@@ -6,6 +6,10 @@
       </div>
     </div>
     <div class="nav-right">
+      <router-link to="/personCenter" class="user-profile">
+        <img src="@/assets/account_photo.jpg" alt="用户头像" class="avatar">
+        <span class="notification">14</span>
+      </router-link>
     </div>
   </nav>
 </template>
