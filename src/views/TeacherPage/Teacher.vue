@@ -68,6 +68,7 @@ import { ref } from "vue";
 import CourseManage from "@/views/TeacherPage/components/CourseManage.vue";
 import CourseRelease from "@/views/TeacherPage/components/CourseRelease.vue";
 import StudentManage from "@/views/TeacherPage/components/StudentManage.vue";
+import ReleaseTest from "@/views/TeacherPage/components/ReleaseTest.vue";
 
 const currentPage = ref<"CourseManage" | "CourseRelease" | "StudentManage" | "ReleaseTest">(
   "CourseManage"
