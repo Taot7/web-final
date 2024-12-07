@@ -159,6 +159,10 @@
 <script setup>
 import { ref } from 'vue'
 import NavBar from '@/components/NavBar.vue'
+import { useRouter } from 'vue-router'
+
+// 获取路由实例
+const router = useRouter()
 
 // 定义标签页数据
 const tabs = [
@@ -195,9 +199,15 @@ const showJoinDialog = ref(false)
 
 // 处理确认加入
 const handleConfirmJoin = () => {
-  // 这里添加加入课程的逻辑
-  console.log('确认加入课程')
   showJoinDialog.value = false
+  // 携带参数跳转
+  router.push({
+    path: '/online-course',
+    query: {
+      courseId: 'xxx', // 课程ID
+      courseName: '云计算基础及应用' // 课程名称
+    }
+  })
 }
 </script>
 
