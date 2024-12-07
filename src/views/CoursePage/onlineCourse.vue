@@ -1,0 +1,510 @@
+<template>
+  <div class="course-page">
+    <!-- 导航栏 -->
+    <NavBar />
+
+    <div class="main-content">
+      <!-- 左侧导航和信息 -->
+      <div class="sidebar">
+        <!-- 课程封面和信息 -->
+        <div class="course-cover">
+          <img src="@/assets/try2.png" alt="课程封面" class="cover-image">
+          <div class="course-details">
+            <h2>软件工程</h2>
+            <p>教师: 杜文俊 / 深圳大学</p>
+            <p>进度: 课程已进行 15/18 周</p>
+            <button @click="startLearning">开始学习</button>
+          </div>
+        </div>
+
+        <!-- 导航菜单 -->
+        <ul class="menu">
+          <li v-for="(item, index) in menuItems" 
+              :key="index"
+              :class="{ active: currentMenuItem === index }"
+              @click="handleMenuClick(item, index)">
+            <span>{{ item.name }}</span>
+            <i :class="item.icon" class="menu-icon"></i>
+          </li>
+          
+          <!-- 子菜单 -->
+          <transition name="submenu">
+            <ul class="submenu" v-if="showSubMenu && currentMenuItem === 5"> <!-- 5是考核选项的索引 -->
+              <li v-for="(subItem, subIndex) in examSubMenu" 
+                  :key="subIndex"
+                  @click="handleSubMenuClick(subItem)">
+                <span>{{ subItem.name }}</span>
+                <i :class="subItem.icon" class="menu-icon"></i>
+              </li>
+            </ul>
+          </transition>
+        </ul>
+      </div>
+
+      <!-- 右侧主要内容 -->
+      <div class="content-right">
+        <!-- 最新课程公告 -->
+        <div class="course-announcement">
+          <div class="announcement-header">
+            <h3>最新课程公告</h3>
+            <div class="more-options" @click="toggleMoreOptions" ref="moreBtn">
+              <i class="more-icon" style="color: #4CAF50">更多></i>
+              <!-- 弹出菜单 -->
+              <div class="popup-menu" v-if="showMoreOptions">
+                <div class="menu-item" @click="handleViewAll">查看全部</div>
+                <div class="menu-item" @click="handleMarkRead">标记已读</div>
+                <div class="menu-item" @click="handleShare">分享</div>
+              </div>
+            </div>
+          </div>
+          <p>{{ announcement }}</p>
+        </div>
+
+        <!-- 线上成绩进度 -->
+        <div class="course-progress">
+          <h3>线上成绩进度</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>考核项</th>
+                <th>权重</th>
+                <th>任务数</th>
+                <th>完成数</th>
+                <th>平均分数</th>
+                <th>完成进度</th>
+                <th>加权得分</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in progressItems" :key="item.name">
+                <td>{{ item.name }}</td>
+                <td>{{ item.weight }}</td>
+                <td>{{ item.tasks }}</td>
+                <td>{{ item.completed }}</td>
+                <td>{{ item.averageScore }}</td>
+                <td>{{ item.progress }}</td>
+                <td>{{ item.weightedScore }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>当前得分: {{ currentScore }}</p>
+        </div>
+
+        <!-- 在成绩表格下方添加说明性tab -->
+        <div class="score-explanation">
+          <div class="explanation-tabs">
+            <div class="tab active">计算规则说明</div>
+          </div>
+          <div class="explanation-content">
+            <div class="rule-item">
+              <span class="rule-label">平均分数</span>
+              <span class="rule-equals">=</span>
+              <span class="rule-formula">每次完成该项任务的分数之和 / 完成该项任务次数，若视频每次均满分</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">进度</span>
+              <span class="rule-equals">=</span>
+              <span class="rule-formula">完成该项任务数 / 该项任务总数，讨论不进度概念</span>
+            </div>
+            <div class="rule-item">
+              <span class="rule-label">加权得分</span>
+              <span class="rule-equals">=</span>
+              <span class="rule-formula">平均分数 × 完成进度 × 权重</span>
+            </div>
+            <div class="rule-item conditions">
+              <span class="rule-label">参加考试的条件：</span>
+              <span class="condition-item">视频达名数，满足任务数）/视���测验任务总数 > 50.0%，</span>
+              <span class="condition-item highlight">【您已完成：91%】</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import NavBar from '@/components/NavBar.vue';
+
+export default {
+  components: {
+    NavBar
+  },
+  data() {
+    return {
+      progressItems: [
+        { name: '签到', weight: 0, tasks: 0, completed: 0, averageScore: 100, progress: '0%', weightedScore: 0.00 },
+        { name: '视频', weight: 30, tasks: 178, completed: 174, averageScore: '--', progress: '98%', weightedScore: 29.33 },
+        { name: '作业', weight: 0, tasks: 0, completed: 0, averageScore: 0, progress: '0%', weightedScore: 0.00 },
+        { name: '测验', weight: 10, tasks: 13, completed: 0, averageScore: 0, progress: '0%', weightedScore: 0.00 },
+        { name: '讨论', weight: 30, tasks: 0, completed: 16, averageScore: 32, progress: '--', weightedScore: 9.60 },
+        { name: '考试', weight: 30, tasks: 0, completed: 0, averageScore: 0, progress: '--', weightedScore: 0.00 },
+      ],
+      currentScore: 38.93,
+      announcement: '暂无公告',
+      showMoreOptions: false,
+      currentMenuItem: null,
+      showSubMenu: false,
+      menuItems: [
+        { name: '线上成绩进度', icon: 'icon-progress' },
+        { name: '课程公告', icon: 'icon-announcement' },
+        { name: '直播', icon: 'icon-live' },
+        { name: '课程内容', icon: 'icon-content' },
+        { name: '课程讨论', icon: 'icon-discussion' },
+        { name: '考核', icon: 'icon-exam', hasSubMenu: true }
+      ],
+      examSubMenu: [
+        { name: '测验', icon: 'icon-quiz', path: '/quiz' },
+        { name: '考试', icon: 'icon-exam', path: '/exam' }
+      ]
+    };
+  },
+  methods: {
+    startLearning() {
+      alert('开始学习');
+    },
+    toggleMoreOptions() {
+      this.showMoreOptions = !this.showMoreOptions;
+    },
+    handleViewAll() {
+      // 处理查看全部
+      this.showMoreOptions = false;
+    },
+    handleMarkRead() {
+      // 处理标记已读
+      this.showMoreOptions = false;
+    },
+    handleShare() {
+      // 处理分享
+      this.showMoreOptions = false;
+    },
+    handleMenuClick(item, index) {
+      if (item.hasSubMenu) {
+        this.currentMenuItem = index;
+        this.showSubMenu = !this.showSubMenu;
+      } else {
+        this.showSubMenu = false;
+        this.currentMenuItem = index;
+        // 处理其他菜单项的点击
+      }
+    },
+    handleSubMenuClick(subItem) {
+      // 使用 router 进行导航
+      this.$router.push(subItem.path);
+    }
+  },
+  mounted() {
+    // 点击其他地方关闭弹出菜单
+    document.addEventListener('click', (e) => {
+      if (!this.$refs.moreBtn?.contains(e.target)) {
+        this.showMoreOptions = false;
+      }
+    });
+  },
+  beforeUnmount() {
+    // 清理事件监听
+    document.removeEventListener('click', this.handleClickOutside);
+  }
+};
+</script>
+
+<style scoped>
+.course-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+  background-color: #f4f4f9;
+}
+
+.main-content {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-cover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cover-image {
+  width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-details {
+  text-align: center;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+}
+
+.menu li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.menu li:hover {
+  background-color: #e0e0e0;
+}
+
+.menu-icon {
+  font-size: 16px;
+  color: #666;
+}
+
+.content-right {
+  flex: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.course-info, .course-progress, .course-announcement {
+  border: 1px solid #ccc;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.announcement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.more-options {
+  position: relative;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.more-icon {
+  font-size: 20px;
+  color: #666;
+  transition: color 0.3s;
+}
+
+.more-icon:hover {
+  color: #333;
+}
+
+.popup-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  min-width: 120px;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.menu-item {
+  padding: 10px 15px;
+  color: #333;
+  transition: background-color 0.3s;
+}
+
+.menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.course-announcement {
+  margin-top: 60px;
+  border: 1px solid #eee;
+  padding: 20px;
+  border-radius: 8px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.course-announcement h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.score-explanation {
+  margin-top: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.explanation-tabs {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 0 15px;
+}
+
+.tab {
+  display: inline-block;
+  padding: 12px 20px;
+  color: #4CAF50;
+  font-weight: 500;
+  position: relative;
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: #4CAF50;
+}
+
+.explanation-content {
+  padding: 20px;
+  background: #fff;
+}
+
+.rule-item {
+  margin-bottom: 12px;
+  line-height: 1.6;
+  color: #666;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.rule-label {
+  font-weight: 500;
+  color: #333;
+  margin-right: 8px;
+  min-width: 70px;
+}
+
+.rule-equals {
+  margin: 0 8px;
+  color: #999;
+}
+
+.rule-formula {
+  color: #666;
+}
+
+.conditions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed #eee;
+}
+
+.condition-item {
+  margin-right: 8px;
+}
+
+.highlight {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: #f8f9fa;
+}
+
+.submenu li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 3px solid transparent;
+  font-size: 13px;
+  color: #666;
+}
+
+.submenu li:hover {
+  background-color: #f1f8f1;
+  color: #4CAF50;
+  border-left-color: #4CAF50;
+}
+
+/* 子菜单图标 */
+.icon-quiz::after { content: '📝'; }
+.icon-homework::after { content: '📚'; }
+.icon-exam::after { content: '✍️'; }
+
+/* 子菜单展开/收起动画 */
+.submenu-enter-active,
+.submenu-leave-active {
+  transition: all 0.3s ease;
+  max-height: 300px;
+}
+
+.submenu-enter-from,
+.submenu-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-10px);
+}
+</style>
