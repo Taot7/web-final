@@ -40,6 +40,11 @@ const router = createRouter({
       component: () => import('@/views/HomePage.vue')
     },
     {
+      path: '/course',
+      name: 'course',
+      component: () => import('@/views/CoursePage/course.vue')
+    },
+    {
       path: '/personCenter',
       name: 'personCenter',
       component: () => import('@/views/PersonCenter/PersonCenter.vue')
@@ -49,11 +54,6 @@ const router = createRouter({
       name: 'teacher',
       component: () => import('@/views/TeacherPage/Teacher.vue')
     },
-    {
-      path: '/class',
-      name: 'class',
-      component: () => import('@/views/class/Class.vue')
-    }
   ],
 })
 

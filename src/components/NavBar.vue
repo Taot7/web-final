@@ -1,18 +1,12 @@
 <template>
   <nav class="nav-bar">
     <div class="nav-left">
-      <img src="@/assets/try1.png" alt="优课联盟" class="logo">
       <div class="nav-links">
         <router-link to="/" class="nav-item">首页</router-link>
         <router-link to="/course" class="nav-item">课程</router-link>
-        <router-link to="/about" class="nav-item">关于我们</router-link>
       </div>
     </div>
     <div class="nav-right">
-      <router-link to="/personCenter" class="user-profile">
-        <img src="@/assets/account_photo.jpg" alt="用户头像" class="avatar">
-        <span class="notification">14</span>
-      </router-link>
     </div>
   </nav>
 </template>
@@ -51,6 +45,7 @@ const userAvatar = ref('/path/to/default-avatar.png') // 替换为实际的默�
 }
 
 .nav-links {
+  margin-left:100px;
   display: flex;
   gap: 30px;
 }

@@ -1,5 +1,4 @@
 <template>
-  <<<<<<< HEAD
   <!-- 页首 -->
   <div class="akk">
 
@@ -12,17 +11,10 @@
       <div class="ss">
         <img class="_1ntKd"  src="https://shared-https.ydstatic.com/ke/web/v1.7.3/32aac580.png" alt="" data-reactid="14">
         <input type="text" class="_3l-Kp" placeholder="输入课程或者老师名称" value="" data-reactid="15">
-
       </div>
       <nav>
         <ul>
-          <li><a href="#home">首页</a>
-
-          </li>
-          <li><a href="#courses">课程</a></li>
-          <li><a href="#about">关于</a></li>
-          <li><a href="#contact">联系我们</a></li>
-          <li><a href="#login" id="login-link">登录</a></li>
+          <li class="nav-item" @click="$router.push({ name: 'login' })">登录</li>
         </ul>
       </nav>
 
@@ -289,24 +281,16 @@
 
   </div>
 
-  =======
-  <h1>首页</h1>
   <RouterLink to="/personCenter">
     账户页
-  </RouterLink>
-  <RouterLink to="/login">
-    登录页
-  </RouterLink>
-  <RouterLink to="/register">
-    注册页
   </RouterLink>
   <RouterLink to="/teacher">
     教师页
   </RouterLink>
-  <RouterLink to="/user-list">
-    用户列表
+  <RouterLink to="/course">
+    课程详情页
   </RouterLink>
-  >>>>>>> 36b5b65a9ba3bb537bf97021415412220617972d
+
 </template>
 
 <script>
@@ -1056,36 +1040,10 @@ header nav ul {
 }
 
 header nav ul li {
-  margin: 0 20px;
+  margin: 0 30px;
 }
 
-header nav ul li a {
-  color: dodgerblue; /* 默认字体颜色 */
-  text-decoration: none; /* 默认无下划线 */
-  display: inline-block; /* 为悬停背景和圆角效果提供支持 */
-  padding: 8px 16px; /* 增加内边距使按钮更美观 */
-  transition: color 0.3s ease, transform 0.3s ease, background-color 0.3s ease; /* 添加平滑过渡 */
-  border-radius: 30px; /* 默认保持圆角 */
-  font-weight: 800;
-}
 
-header nav ul li a:hover {
-  color: #f5f5f5; /* 鼠标悬停时字体颜色变为浅色 */
-  text-decoration: none; /* 可选择去掉下划线 */
-  background-color: #007bff; /* 鼠标悬停时背景变为蓝色 */
-  border-radius: 30px; /* 圆角保持一致 */
-  transform: scale(1.1); /* 鼠标悬停时轻微放大 */
-  font-weight: 800;
-}
-
-header nav ul li a#login-link:hover {
-  color: #f5f5f5; /* 鼠标悬停时字体颜色变为浅色 */
-  text-decoration: none; /* 可选择去掉下划线 */
-  background-color: #007bff; /* 鼠标悬停时背景变为蓝色 */
-  border-radius: 30px; /* 圆角保持一致 */
-  transform: scale(1.1); /* 鼠标悬停时轻微放大 */
-
-}
 /* 课程轮播图样式 */
 .carousel {
   position: relative;
@@ -1345,7 +1303,7 @@ h2{
 ._3l-Kp {
   height: 40px;
   width: calc(100% - 50px); /* 留出图片的宽度 */
-  color: rgba(255, 255, 255, 0.51);
+  color: rgba(0, 0, 0, 0.51);
   background-color: rgba(164, 160, 160, 0.26);
   border-radius: 200px;
   padding-left: 50px; /* 确保文字不会和图片重叠 */
@@ -1454,7 +1412,7 @@ h2{
 }
 
 .course-container-horizontal::-webkit-scrollbar-thumb {
-  background-color: #007bff;
+  background-color: #cecece;
   border-radius: 4px;
 }
 .carousel-point-container {
@@ -1476,5 +1434,21 @@ h2{
 
 .carousel-point.active {
   background-color: #007bff;  /* 激活点的颜色 */
+}
+
+.nav-item {
+  font-size: 16px;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: color 0.3s;
+  margin-right:50px;
+  padding: 8px 12px;
+}
+
+.nav-item:hover{
+  color: #f5f5f5; /* 字体颜色变为浅色 */
+  background-color: #007bff; /* 背景颜色变为蓝色 */
+  border-radius: 30px; /* 圆角保持一致 */
+  transform: scale(1.1); /* 鼠标悬停时轻微放大 */
 }
 </style>
