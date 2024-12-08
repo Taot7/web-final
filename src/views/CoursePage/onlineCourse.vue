@@ -8,10 +8,10 @@
       <div class="sidebar">
         <!-- 课程封面和信息 -->
         <div class="course-cover">
-          <img src="@/assets/try2.png" alt="课程封面" class="cover-image">
+          <img :src="course?.coverImage" alt="课程封面" class="cover-image">
           <div class="course-details">
-            <h2>软件工程</h2>
-            <p>教师: 杜文俊 / 深圳大学</p>
+            <h2>{{ course?.title }}</h2>
+            <p>教师: {{ course?.teacher?.nickname }} / 深圳大学 </p>
             <p>进度: 课程已进行 15/18 周</p>
             <button @click="startLearning">开始学习</button>
           </div>
@@ -140,6 +140,7 @@ import CourseContent from './components/CourseContent.vue';
 import CourseQuiz from './components/CourseQuiz.vue';
 import CourseHomework from './components/CourseHomework.vue';
 import CourseDiscussion from './components/CourseDiscussion.vue';
+import { getCourse } from '@/services/api/course';
 
 export default {
   components: {
@@ -151,6 +152,7 @@ export default {
   },
   data() {
     return {
+      course: null,
       progressItems: [
         { name: '签到', weight: 0, tasks: 0, completed: 0, averageScore: 100, progress: '0%', weightedScore: 0.00 },
         { name: '视频', weight: 30, tasks: 178, completed: 174, averageScore: '--', progress: '98%', weightedScore: 29.33 },
@@ -173,8 +175,8 @@ export default {
         { name: '考核', icon: 'icon-exam', hasSubMenu: true }
       ],
       examSubMenu: [
+      { name: '测验', icon: 'icon-quiz' },
         { name: '作业', icon: 'icon-homework' },
-        { name: '测验', icon: 'icon-quiz' },
       ],
       chapters: [
         {
@@ -211,9 +213,25 @@ export default {
       selectedLesson: null
     };
   },
+  async created() {
+    const courseId = this.$route.query.courseId;
+    if (courseId) {
+      try {
+        const response = await getCourse({ id: courseId });
+        if (response.status === 200) {
+          this.course = response.data;
+        }
+      } catch (error) {
+        console.error('获取课程信息失败:', error);
+      }
+    }
+  },
   methods: {
     startLearning() {
-      alert('开始学习');
+      // 将当前菜单项设置为课程内容(索引为3)
+      this.currentMenuItem = 3;
+      // 关闭子菜单
+      this.showSubMenu = false;
     },
     toggleMoreOptions() {
       this.showMoreOptions = !this.showMoreOptions;
@@ -237,7 +255,6 @@ export default {
       } else {
         this.showSubMenu = false;
         this.currentMenuItem = index;
-        // 处理其他菜单项的点击
       }
     },
     handleSubMenuClick(subItem) {
