@@ -23,6 +23,12 @@ export class UserAuth {
     return currentUser.value.roles.some(role => role.ename === roleName);
   }
 
+  // 判断指定用户是否具有某个角色
+  static hasRoleByUser(user: API.UserVO | null, roleName: string) {
+    if (!user?.roles) return false;
+    return user.roles.some(role => role.ename === roleName);
+  }
+
   // 判断是否是教师
   static  isTeacher() {
     return this.hasRole('TEACHER');
@@ -114,12 +120,29 @@ export class UserAuth {
 
   // 检查是否已登录
   static isLoggedIn(): boolean {
+    console.log('currentUser',currentUser.value)
+    console.log('localStorage.getItem',localStorage.getItem('token'))
     return !!currentUser.value && !!localStorage.getItem('token');
   }
 
   // 获取用户Token
   static getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  // 刷新用户信息
+  static async refreshUserInfo() {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await this.getCurrentUserInfo();
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('刷新用户信息失败:', error);
+      return false;
+    }
   }
 }
 
@@ -137,5 +160,6 @@ export  function useUser() {
     registerTeacher: UserAuth.registerTeacher,
     getCurrentUserInfo: UserAuth.getCurrentUserInfo,
     getRoleNames: UserAuth.getRoleNames,
+    refreshUserInfo: UserAuth.refreshUserInfo,
   };
 } 

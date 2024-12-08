@@ -12,10 +12,13 @@
         <img class="_1ntKd"  src="https://shared-https.ydstatic.com/ke/web/v1.7.3/32aac580.png" alt="" data-reactid="14">
         <input type="text" class="_3l-Kp" placeholder="输入课程或者老师名称" value="" data-reactid="15">
       </div>
-      <nav>
-        <ul>
-          <li class="nav-item" @click="$router.push({ name: 'login' })">登录</li>
-        </ul>
+      <nav class="nav-menu">
+        <NavUser 
+          :user-info="userInfo"
+          :is-logged-in="isLoggedIn"
+          @personal-center="goToPersonalCenter"
+          @logout="logout"
+        />
       </nav>
 
     </header>
@@ -287,27 +290,20 @@
     </footer>
 
   </div>
-
-  <RouterLink to="/personCenter">
-    账户页
-  </RouterLink>
-  <RouterLink to="/teacher">
-    教师页
-  </RouterLink>
-  <RouterLink to="/usermanage">
-    系统管理员
-  </RouterLink>
 </template>
 
 <script>
 import axios from 'axios';
-
+import { useUser } from '@/utils/userAuth';
+import NavUser from '@/components/NavUser.vue'
 // 预设课程ID（如果需要）
 var recommendedCourses_ID = [1,2,3,4,5,6,7];
 var popularCourses_ID = [3, 4, 5,8];
 var newCourses_ID = [6, 7, 8,9];
-
 export default {
+  components: {
+    NavUser
+  },
   data() {
     return {
       activeCategory: "全部",  // 保存当前激活的分类
@@ -315,7 +311,6 @@ export default {
       selectedCategory: null, // 当前选择的课程类别
       sortField: "updateTime", // 排序字段
       sortOrder: "asc", // 排序顺序
-      isLoggedIn: false,
       newComment: "",
       courses: [],
       carouselCourse:[],
@@ -596,7 +591,7 @@ export default {
           updateTime: "2023-10-01T08:30:00Z",
           documents: [
             { title: "Python 数据分析入门", link: "https://example.com/python-guide.pdf" },
-            { title: "Python 高级技术文档", link: "https://example.com/python-advanced.pdf" },
+            { title: "Python 高��技术文档", link: "https://example.com/python-advanced.pdf" },
           ],
           media: [
             { title: "Python 数据分析视频", link: "https://example.com/python-video.mp4" },
@@ -656,19 +651,48 @@ export default {
             { title: "前端优化视频", link: "https://example.com/front-end-optimize-video.mp4" },
           ]
         }
-      ]
+      ],
+      isLoggedIn: useUser().isLoggedIn,
+      userInfo: useUser().getCurrentUserInfo(),
+      showDropdown: false, // 控制下拉菜单的显示
+      loading: true
     };
   },
-  mounted() {
+  async mounted() {
     this.fetchDataInOrder();
-
+    await this.refreshUserInfo()
+    console.log(this.userInfo)
+    console.log(this.isLoggedIn)
 
     // 轮播图自动切换
     setInterval(() => {
       this.nextImage();
     }, 3000);
   },
-
+  // 路由进入守卫
+  async beforeRouteEnter(to, from, next) {
+    // 如果是从登录页来的，直接刷新整个页面
+    if (from.name === 'login' || from.name === 'register' || from.name === 'usermanage' || from.name === 'personCenter') {
+      next(vm => {
+        window.location.reload()
+      })
+      return
+    } 
+    // 其他情况正常进入
+    next(async (vm) => {
+      try {
+        const token = localStorage.getItem('token')
+        if (token) {
+          vm.loading = true
+          await useUser().refreshUserInfo()
+        }
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+      } finally {
+        vm.loading = false
+      }
+    })
+  },
   methods: {
     // 异步按顺序获取所有课程、推荐课程、热门课程和最新课程
     async fetchDataInOrder() {
@@ -898,7 +922,26 @@ export default {
     nextImage() {
       this.currentIndex = (this.currentIndex + 1) % this.totalImages;
     },
-  },
+    //刷新个人信息
+    async refreshUserInfo(){
+      this.userInfo=await useUser().getCurrentUserInfo()
+      this.isLoggedIn=useUser().isLoggedIn
+    },
+    goToPersonalCenter(){
+      if(useUser().isStudent) {
+        this.$router.push('/personCenter')
+      } else if(useUser().isTeacher) {
+        this.$router.push('/teacher')
+      }else if(useUser().isAdmin){
+        this.$router.push('/usermanage')
+      }
+    },
+    async logout() {
+      // 实现登出逻辑
+      useUser().logout();
+      await this.refreshUserInfo()
+    }
+  }
 };
 </script>
 
@@ -1476,6 +1519,15 @@ h2{
 
 .carousel-point.active {
   background-color: #007bff;  /* 激活点的颜色 */
+}
+.nav-menu{
+  font-size: 16px;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: color 0.3s;
+  margin-right:50px;
+  padding: 8px 12px;
+
 }
 
 .nav-item {
