@@ -52,9 +52,9 @@ export class UserAuth {
   }
 
   // 用户登录
-  static async login(username: string, password: string) {
+  static async login(studentId: string,  password: string) {
     try {
-      const response = await loginByPassword({ username, password });
+      const response = await loginByPassword({ studentId, password });
       if (response?.data?.token) {
         localStorage.setItem('token', response.data.token);
         await this.getCurrentUserInfo();
@@ -81,9 +81,9 @@ export class UserAuth {
   }
 
   // 学生注册
-  static async registerStudent(studentId: string, password: string) {
+  static async registerStudent(studentId: string,username: string, password: string) {
     try {
-      const response = await registerForStudent({ studentId, password });
+      const response = await registerForStudent({ studentId,username, password });
       if (response?.data?.token) {
         localStorage.setItem('token', response.data.token);
         await this.getCurrentUserInfo();
@@ -97,9 +97,9 @@ export class UserAuth {
   }
 
   // 教师注册
-  static async registerTeacher(username: string, password: string) {
+  static async registerTeacher(teacherId: string,username: string, password: string) {
     try {
-      const response = await registerForTeacher({ username, password });
+      const response = await registerForTeacher({ studentId:teacherId,username, password });
       if (response?.data?.token) {
         localStorage.setItem('token', response.data.token);
         await this.getCurrentUserInfo();

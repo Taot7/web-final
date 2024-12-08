@@ -10,7 +10,7 @@
     <div class="profile-header">
       <div class="user-info">
         <div class="avatar" @click="triggerFileInput">
-          <img :src="userInfo.avatarUrl" alt="用户头像" />
+          <img :src="userInfo.avatarUrl ||'/src/assets/default-avatar.png'" alt="用户头像" />
           <input
             type="file"
             ref="fileInput"
@@ -164,9 +164,9 @@ import NoteList from "@/views/PersonCenter/components/NoteList.vue";
 import DiscussionList from "@/views/PersonCenter/components/DiscussionList.vue";
 import UserSettings from "@/views/PersonCenter/components/UserSettings.vue";
 import { uploadImage } from "@/services/api/commonController";
-import { getCurrentUser } from "@/services/api/user";
 import { updateUser } from "@/services/api/userManagement";
-
+import { useUser } from "@/utils/userAuth";
+const { isLoggedIn,isTeacher,isStudent,isAdmin,getCurrentUserInfo} = useUser();
 const currentTab = ref("courses");
 const subTab = ref("learning");
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -182,13 +182,16 @@ const userInfo = ref<API.UserVO>({
 
 const reloadUserInfo=async()=>{
 
-  const request = await getCurrentUser();
-  userInfo.value = request.data;
+  const request = await getCurrentUserInfo()
+  userInfo.value = request;
   console.log('userInfo',userInfo.value)
 }
 //进入页面时获取用户信息
 onMounted(async () => {
-  reloadUserInfo()
+  userInfo.value = await getCurrentUserInfo()
+  
+  
+  console.log('isTeacher',isTeacher)
 });
 
 const stats = ref({
