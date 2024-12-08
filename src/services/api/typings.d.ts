@@ -3,10 +3,6 @@ declare namespace API {
     courseId: number;
   };
 
-  type addDiscussionParams = {
-    courseId: number;
-  };
-
   type addStudyNoteParams = {
     courseId: number;
   };
@@ -148,6 +144,8 @@ declare namespace API {
     categoryId?: number;
     /** 教师ID */
     teacherId?: number;
+    /** 讲师名称 */
+    teacherName?: string;
     /** 封面图片URL */
     coverImage?: string;
     /** 是否推荐 */
@@ -344,6 +342,8 @@ declare namespace API {
     categoryId?: number;
     /** 教师ID */
     teacherId?: number;
+    /** 讲师名称 */
+    teacherName?: string;
     /** 封面图片URL */
     coverImage?: string;
     /** 是否推荐 */
@@ -380,6 +380,8 @@ declare namespace API {
     categoryId?: number;
     /** 教师ID */
     teacherId?: number;
+    /** 讲师名称 */
+    teacherName?: string;
     /** 封面图片URL */
     coverImage?: string;
     /** 是否推荐 */
@@ -465,14 +467,23 @@ declare namespace API {
     discussionId?: number;
     /** 课程ID */
     courseId?: number;
-    /** 用户ID */
+    /** 创建人id */
     userId?: number;
+    /** 标题 */
+    title?: string;
     /** 讨论内容 */
     content?: string;
-    /** 父评论ID */
-    parentId?: number;
     /** 创建时间 */
     createTime?: string;
+  };
+
+  type DiscussionForm = {
+    /** 课程id */
+    courseId: number;
+    /** 标题 */
+    title: string;
+    /** 讨论内容 */
+    content?: string;
   };
 
   type DiscussionQuery = {
@@ -480,14 +491,76 @@ declare namespace API {
     discussionId?: number;
     /** 课程ID */
     courseId?: number;
-    /** 用户ID */
+    /** 创建人id */
     userId?: number;
+    /** 标题 */
+    title?: string;
     /** 讨论内容 */
     content?: string;
-    /** 父评论ID */
-    parentId?: number;
     /** 创建时间 */
     createTime?: string;
+  };
+
+  type DiscussionReplyForm = {
+    /** 讨论ID ,如果回复讨论则传讨论ID，如果回复回复则传回复ID */
+    discussionId?: number;
+    /** 讨论回复id，如果回复讨论则传null，如果回复回复则传回复ID */
+    replyId?: number;
+    /** 回复内容 */
+    content: string;
+  };
+
+  type DiscussionReplyQuery = {
+    /** 讨论ID */
+    discussionId?: number;
+    sorter?: Sorter;
+  };
+
+  type DiscussionReplyWithSubVO = {
+    /** 回复ID */
+    replyId?: number;
+    /** 讨论ID */
+    discussionId?: number;
+    /** 回复人id */
+    userId?: number;
+    /** 回复内容 */
+    content?: string;
+    /** 父回复ID,如果为无则为一级回复 */
+    parentId?: number;
+    /** 点赞数 */
+    likeCount?: number;
+    /** 回复时间 */
+    createTime?: string;
+    user?: UserVO;
+    /** 是否是老师 */
+    isTeacher?: boolean;
+    /** 回复数 */
+    replyCount?: number;
+    /** 子回复内容 */
+    subReplies?: DiscussionSubReplyVO[];
+  };
+
+  type DiscussionSubReplyVO = {
+    /** 回复ID */
+    replyId?: number;
+    /** 讨论ID */
+    discussionId?: number;
+    /** 回复人id */
+    userId?: number;
+    /** 回复内容 */
+    content?: string;
+    /** 父回复ID,如果为无则为一级回复 */
+    parentId?: number;
+    /** 点赞数 */
+    likeCount?: number;
+    /** 回复时间 */
+    createTime?: string;
+    user?: UserVO;
+    /** 是否是老师 */
+    isTeacher?: boolean;
+    /** 回复数 */
+    replyCount?: number;
+    replyTo?: UserVO;
   };
 
   type DiscussionVO = {
@@ -495,18 +568,45 @@ declare namespace API {
     discussionId?: number;
     /** 课程ID */
     courseId?: number;
-    /** 用户ID */
+    /** 创建人id */
     userId?: number;
+    /** 标题 */
+    title?: string;
     /** 讨论内容 */
     content?: string;
-    /** 父评论ID */
-    parentId?: number;
     /** 创建时间 */
     createTime?: string;
-    /** 子评论 */
-    children?: DiscussionVO[];
     course?: CourseVO;
     user?: UserVO;
+    /** 是为否教师 */
+    isTeacher?: boolean;
+    /** 回复数 */
+    replayCount?: number;
+  };
+
+  type DiscussionWithReplyVO = {
+    /** 讨论ID */
+    discussionId?: number;
+    /** 课程ID */
+    courseId?: number;
+    /** 创建人id */
+    userId?: number;
+    /** 标题 */
+    title?: string;
+    /** 讨论内容 */
+    content?: string;
+    /** 创建时间 */
+    createTime?: string;
+    course?: CourseVO;
+    user?: UserVO;
+    /** 是为否教师 */
+    isTeacher?: boolean;
+    /** 回复数 */
+    replayCount?: number;
+    /** 回复列表,预览前三条 */
+    replyList?: DiscussionReplyWithSubVO[];
+    /** 回复数 */
+    replyCount?: number;
   };
 
   type enableDisableUserParams = {
@@ -601,6 +701,12 @@ declare namespace API {
 
   type getDiscussionParams = {
     id: number;
+  };
+
+  type getDiscussionRepliesParams = {
+    current?: number;
+    pageSize?: number;
+    param: DiscussionReplyQuery;
   };
 
   type getDiscussionsParams = {
@@ -744,8 +850,18 @@ declare namespace API {
     total?: number;
   };
 
+  type ListResultDiscussionReplyWithSubVO = {
+    list?: DiscussionReplyWithSubVO[];
+    total?: number;
+  };
+
   type ListResultDiscussionVO = {
     list?: DiscussionVO[];
+    total?: number;
+  };
+
+  type ListResultDiscussionWithReplyVO = {
+    list?: DiscussionWithReplyVO[];
     total?: number;
   };
 
@@ -956,6 +1072,8 @@ declare namespace API {
     courseId?: number;
     /** 学生ID */
     studentId?: number;
+    /** 标题 */
+    title?: string;
     /** 笔记内容 */
     content?: string;
     /** 创建时间 */
@@ -969,6 +1087,8 @@ declare namespace API {
     courseId?: number;
     /** 学生ID */
     studentId?: number;
+    /** 标题 */
+    title?: string;
     /** 笔记内容 */
     content?: string;
     /** 创建时间 */
@@ -982,6 +1102,8 @@ declare namespace API {
     courseId?: number;
     /** 学生ID */
     studentId?: number;
+    /** 标题 */
+    title?: string;
     /** 笔记内容 */
     content?: string;
     /** 创建时间 */

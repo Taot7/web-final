@@ -17,6 +17,20 @@ export async function addCourseMaterial(
   });
 }
 
+/** 获取指定课程的课件资料 GET /course-material/course/${param0} */
+export async function getCourseMaterialsByCourseId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getCourseMaterialsByCourseIdParams,
+  options?: { [key: string]: any }
+) {
+  const { courseId: param0, ...queryParams } = params;
+  return request<API.CourseMaterial[]>(`/course-material/course/${param0}`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 删除指定课件资料 DELETE /course-material/delete/${param0} */
 export async function deleteCourseMaterial(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
@@ -43,23 +57,6 @@ export async function getCourseMaterial(
     params: { ...queryParams },
     ...(options || {}),
   });
-}
-
-/** 获取指定课程的课件资料 GET /course-material/info/courseContent/${param0} */
-export async function getCourseMaterialsByCourseId(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getCourseMaterialsByCourseIdParams,
-  options?: { [key: string]: any }
-) {
-  const { courseId: param0, ...queryParams } = params;
-  return request<API.CourseMaterial[]>(
-    `/course-material/info/courseContent/${param0}`,
-    {
-      method: "GET",
-      params: { ...queryParams },
-      ...(options || {}),
-    }
-  );
 }
 
 /** 获取课件资料列表 GET /course-material/list */
