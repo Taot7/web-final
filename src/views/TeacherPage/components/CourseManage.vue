@@ -15,7 +15,7 @@
           <select v-model="selectedCourse" class="course-select">
               <option disabled value="">选择课程</option>
               <option v-for="(course, index) in courses" :key="index" :value="course">
-                  {{ course }}
+                  {{ course.title }}
               </option>
           </select>
       </div>
@@ -74,12 +74,33 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
+import request from "../../../../config/axios.config";
 
 
 // 已选课程
-const selectedCourse = ref("");
+
+const selectedCourse = ref<{ title: string; id: number }>()
 // 课程列表
-const courses = ref(["HTML基础", "JavaScript进阶", "CSS布局", "Vue.js入门", "React.js进阶"]);
+const courses = ref<{ title: string; id: number }[]>([])
+
+onMounted(async ()=>{
+  const resp = await request.get('/course/list', {
+    params: {
+      current: 1, 
+      pageSize: 100
+    }
+  })
+
+  console.log(resp.data)
+  resp.data.list.forEach((item)=>{
+    courses.value.push({
+      title: item.title,
+      id: item.courseId
+    })
+  })
+  selectedCourse.value = courses.value[0]
+})
+
 
 const pendingFiles = ref<{ name: string; type: string, url: string}[]>([]);
 const remoteUrl = ref("");
@@ -119,15 +140,31 @@ const addRemoteFile = () => {
   }
 };
 
+const getFileType = (contentType: string): number => {
+  if (contentType.includes("image")) return 3; // 图片
+  if (contentType.includes("audio")) return 2; // 音频
+  if (contentType.includes("video")) return 1; // 视频
+  return 0; // 文档
+};
 const confirmUpload = () => {
   if (pendingFiles.value.length === 0) {
       alert("没有文件可以上传");
       return;
   }
   if (confirm(`确认上传选中的课件到 "${selectedCourse.value}" 吗？`)) {
+      pendingFiles.value.forEach(async (item)=>{
+        const resp = await request.post('/course-material/add',{
+
+          "courseId": selectedCourse.value.id,
+          "title": item.name,
+          "type": getFileType(item.type),
+          "contentUrl": item.url,
+        })
+       
+        console.log(item.name, ' upload resp: ', resp)
+      })  
       pendingFiles.value = [];
       tags.value = [];
-      selectedCourse.value = "";
       alert("上传成功！");
   }
 };
