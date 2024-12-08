@@ -63,7 +63,10 @@
 
     <!-- 提交按钮 -->
     <div class="submit-area">
-      <button class="submit-btn" @click="submitTest">提交试卷</button>
+      <button class="submit-btn" @click="submitTest" :disabled="isSubmitting">
+        {{ isSubmitting ? '提交中...' : '提交试卷' }}
+      </button>
+      <button class="back-btn" @click="$router.back()" :disabled="isSubmitting">返回</button>
     </div>
   </div>
 </template>

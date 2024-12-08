@@ -191,6 +191,7 @@ import NavBar from '@/components/NavBar.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getCourse } from '@/services/api/course'
 import { getCourseMaterialsByCourseId } from '@/services/api/courseMaterial'
+import { addCourseEnrollment } from '@/services/api/courseEnrollment'
 
 const router = useRouter()
 const route = useRoute()
@@ -225,15 +226,22 @@ const fetchCourseData = async () => {
 }
 
 // 处理确认加入课程
-const handleConfirmJoin = () => {
+const handleConfirmJoin = async (courseId) => {
   showJoinDialog.value = false
-  router.push({
-    path: '/online-course',
-    query: {
-      courseId: course.value?.courseId,
-      courseName: course.value?.title
+  
+  try {
+    // 调用加入课程的API
+    const response = await addCourseEnrollment({ courseId })
+    if (response) {
+      // 加入成功后跳转到课程页面
+      router.push({
+        path: '/online-course', 
+        query: { courseId }
+      })
     }
-  })
+  } catch (error) {
+    console.error('加入课程失败:', error)
+  }
 }
 
 // 获取课程内容
