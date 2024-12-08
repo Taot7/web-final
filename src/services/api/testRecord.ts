@@ -2,6 +2,17 @@
 /* eslint-disable */
 import request from "@/../config/axios.config";
 
+interface Answer {
+  questionId: number;
+  answer: string | string[]; // 支持单选和多选
+}
+
+interface TestSubmission {
+  testId: number;
+  answers: Answer[];
+  timeSpent?: number; // 可选：记录答题用时
+}
+
 /** 添加考试记录 POST /test-record/add */
 export async function addTestRecord(
   body: API.TestRecord,
