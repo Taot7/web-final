@@ -53,6 +53,9 @@
         <template v-else-if="currentMenuItem === 6">
           <CourseHomework />
         </template>
+        <template v-else-if="currentMenuItem === 4">
+          <CourseDiscussion />
+        </template>
         <template v-else>
           <!-- 原有的成绩进度内容 -->
           <div class="course-announcement">
@@ -136,13 +139,15 @@ import NavBar from '@/components/NavBar.vue';
 import CourseContent from './components/CourseContent.vue';
 import CourseQuiz from './components/CourseQuiz.vue';
 import CourseHomework from './components/CourseHomework.vue';
+import CourseDiscussion from './components/CourseDiscussion.vue';
 
 export default {
   components: {
     NavBar,
     CourseContent,
     CourseQuiz,
-    CourseHomework
+    CourseHomework,
+    CourseDiscussion
   },
   data() {
     return {
