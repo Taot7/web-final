@@ -6,7 +6,7 @@
 
     <div class="course-container">
       <div v-for="course in courseList" :key="course.id" class="course-item">
-        <div class="course-cover">
+        <div class="course-cover" @click="goToCourse(course.id)">
           <img :src="course.coverImage" alt="课程封面">
         </div>
         <div class="course-info">
@@ -32,7 +32,7 @@
           </div>
         </div>
         <div class="course-actions">
-          <button class="continue-btn">继续学习</button>
+          <button class="continue-btn" @click="goToOnlineCourse(course.id)">继续学习</button>
         </div>
       </div>
     </div>
@@ -41,6 +41,24 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+const goToCourse = (courseId) => {
+  router.push('/course',{
+    query: {
+      courseId: courseId
+    }
+  })
+}
+const goToOnlineCourse = (courseId) => {
+  router.push('/online-course',{
+    query: {
+      courseId: courseId
+    }
+  })
+}
 
 const courseList = ref([
   {

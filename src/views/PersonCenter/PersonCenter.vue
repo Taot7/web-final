@@ -10,7 +10,7 @@
     <div class="profile-header">
       <div class="user-info">
         <div class="avatar" @click="triggerFileInput">
-          <img :src="userInfo.avatar" alt="用户头像" />
+          <img :src="userInfo.avatarUrl" alt="用户头像" />
           <input
             type="file"
             ref="fileInput"
@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="info-content">
-          <h2>{{ userInfo.realName }}</h2>
+          <h2>{{ userInfo.nickname }}</h2>
           <div class="user-id">[ ID: {{ userInfo.userId }} ]</div>
           <div class="school-info">
             {{ userInfo.signature || "这个人很懒,什么都没写" }}
@@ -157,27 +157,38 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import CourseList from "./components/CourseList.vue";
-import TodoList from "./components/TodoList.vue";
-import NoteList from "./components/NoteList.vue";
-import DiscussionList from "./components/DiscussionList.vue";
-import UserSettings from "./components/UserSettings.vue";
-import { uploadImage } from "../../services/api/commonController";
+import { onMounted, ref } from "vue";
+import CourseList from "@/views/PersonCenter/components/CourseList.vue";
+import TodoList from "@/views/PersonCenter/components/TodoList.vue";
+import NoteList from "@/views/PersonCenter/components/NoteList.vue";
+import DiscussionList from "@/views/PersonCenter/components/DiscussionList.vue";
+import UserSettings from "@/views/PersonCenter/components/UserSettings.vue";
+import { uploadImage } from "@/services/api/commonController";
+import { getCurrentUser } from "@/services/api/user";
+import { updateUser } from "@/services/api/userManagement";
 
 const currentTab = ref("courses");
 const subTab = ref("learning");
 const fileInput = ref<HTMLInputElement | null>(null);
 
-const userInfo = ref({
-  realName: "Jscomet",
-  userId: "20240011211",
-  avatar:
+const userInfo = ref<API.UserVO>({
+  nickname: "Jscomet",
+  username: "20240011211",
+  avatarUrl:
     "http://47.115.57.164:81/api/common/view/image?filename=20241204.697b4a9a952b438cbd4d571c44811ded.avtar.jpg",
   signature: "深圳大学 - 计算机科学与技术学院 - 计算机科学与计算专业",
-  username: "liming2024",
   email: "liming@szu.edu.cn",
-  phone: "13800138000",
+});
+
+const reloadUserInfo=async()=>{
+
+  const request = await getCurrentUser();
+  userInfo.value = request.data;
+  console.log('userInfo',userInfo.value)
+}
+//进入页面时获取用户信息
+onMounted(async () => {
+  reloadUserInfo()
 });
 
 const stats = ref({
@@ -202,8 +213,21 @@ const handleAvatarChange = async (event: Event) => {
     const formData = new FormData();
     formData.append("image", file);
 
-    const response = await uploadImage(formData);
-    userInfo.value.avatar = response.data;
+    const response = await uploadImage(formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    userInfo.value.avatarUrl = response.data;
+
+    // 更新用户信息
+    const request = await updateUser({
+      id: userInfo.value.userId
+    },{
+      avatarUrl: response.data
+    })
+    console.log('request',request)
+    reloadUserInfo()
   } catch (error) {
     alert("上传失败,请重试");
   }

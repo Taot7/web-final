@@ -16,18 +16,18 @@
       </div>
       
       <div class="notes-container">
-        <div class="note-item" v-for="note in course.notes" :key="note.id">
+        <div class="note-item" v-for="note in course.notes" :key="note.id" @click="goToOnlineCourse(course.id)">
           <div class="note-meta">
             <span class="note-date">
               <i class="iconfont icon-time"></i>
               {{ note.createTime }}
             </span>
             <div class="note-actions">
-              <button class="edit-btn" @click="editNote(note)">
+              <button class="edit-btn" @click.stop="editNote(note)">
                 <i class="iconfont icon-edit"></i>
                 编辑
               </button>
-              <button class="delete-btn" @click="deleteNote(note.id)">
+              <button class="delete-btn" @click.stop="deleteNote(note.id)">
                 <i class="iconfont icon-delete"></i>
                 删除
               </button>
@@ -62,6 +62,9 @@
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface Note {
   id: number
@@ -124,6 +127,13 @@ const saveNote = () => {
   // 实现保存笔记的逻辑
   showAddNoteModal.value = false
   isEditing.value = false
+}
+
+const goToOnlineCourse = (courseId: number) => {
+  router.push({
+    name: 'onlineCourse',
+    params: { courseId: courseId }
+  })
 }
 </script>
 
@@ -216,6 +226,7 @@ const saveNote = () => {
   transition: all 0.3s ease;
   background: #fff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
 }
 
 .note-item:hover {
