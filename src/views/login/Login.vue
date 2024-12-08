@@ -58,6 +58,7 @@ import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import PrivacyPolicyDialog from "@/components/PrivacyPolicyDialog.vue";
 import { loginByPassword } from "@/services/api/user";
+import { useUser } from "@/utils/userAuth";
 
 const router = useRouter();
 const showPassword = ref(false);
@@ -106,10 +107,23 @@ const handleSubmit = async () => {
     console.log(request)
     if (request.status === 200) {
       localStorage.setItem("token", request.data.token);
-      alert("登录成功！！！，即将跳转首页");
-      setTimeout(() => {
-        router.push("/home");
-      }, 1000);
+      await useUser().refreshUserInfo();
+      console.log('isAdmin',useUser().isAdmin)
+      console.log('isStudent',useUser().isStudent)
+      console.log('isTeacher',useUser().isTeacher)
+      if(useUser().isAdmin) {
+
+        alert("登录成功！！！，即将跳转管理页面");
+        setTimeout(() => {
+          router.push("/usermanage");
+        }, 1000);
+      }else {
+        alert("登录成功！！！，即将跳转首页页面")
+        setTimeout(()=>{
+          router.push("/home")
+        },1000)
+      }
+
     } else {
       alert(request);
       errors.username = "学号/学工号或密码错误";
