@@ -73,14 +73,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+
 
 // 已选课程
 const selectedCourse = ref("");
 // 课程列表
 const courses = ref(["HTML基础", "JavaScript进阶", "CSS布局", "Vue.js入门", "React.js进阶"]);
 
-const pendingFiles = ref<{ name: string; type: string }[]>([]);
+const pendingFiles = ref<{ name: string; type: string, url: string}[]>([]);
 const remoteUrl = ref("");
 const tags = ref<{ name: string; children: string[] }[]>([]);
 const newTag = ref("");
@@ -90,9 +91,21 @@ const handleFileUpload = (event: Event) => {
   if (!selectedCourse.value) {
       alert("请选择课程后再上传文件！");
       return;
-  }
+  }  
+  // 获取文件列表
   const files = Array.from((event.target as HTMLInputElement).files || []);
-  pendingFiles.value.push(...files.map((file) => ({ name: file.name, type: file.type })));
+  
+  // 遍历文件，生成 URL 并加入 pendingFiles
+  files.forEach((file) => {
+    const fileUrl = URL.createObjectURL(file); // 创建文件的临时 URL
+
+    // 将文件的基本信息和 URL 添加到 pendingFiles
+    pendingFiles.value.push({
+      name: file.name,
+      type: file.type,
+      url: fileUrl,
+    });
+  });
 };
 
 const addRemoteFile = () => {
@@ -101,7 +114,7 @@ const addRemoteFile = () => {
       return;
   }
   if (remoteUrl.value) {
-      pendingFiles.value.push({ name: remoteUrl.value, type: "网络资源" });
+      pendingFiles.value.push({ name: remoteUrl.value, type: "网络资源", url: remoteUrl.value});
       remoteUrl.value = "";
   }
 };
