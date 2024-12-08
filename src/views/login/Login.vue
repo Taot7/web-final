@@ -7,7 +7,7 @@
         <input
           v-model="form.username"
           type="text"
-          placeholder="用户名/学号"
+          placeholder="学号/教职工号"
           :class="{ error: errors.username }"
         />
         <div class="error-tip">{{ errors.username }}</div>
@@ -100,7 +100,7 @@ const handleSubmit = async () => {
   try {
     // 模拟登录请求
     const request = await loginByPassword({
-      username: form.username,
+      studentId: form.username,
       password: form.password,
     });
     console.log(request)
@@ -112,10 +112,10 @@ const handleSubmit = async () => {
       }, 1000);
     } else {
       alert(request);
-      errors.username = "用户名或密码错误";
+      errors.username = "学号/学工号或密码错误";
     }
   } catch (error: any) {
-    errors.username = "用户名或密码错误";
+    errors.username = "学号/学工号或密码错误";
   } finally {
     isSubmitting.value = false;
   }

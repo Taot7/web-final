@@ -5,27 +5,22 @@
       
       <div class="form-item">
         <input
-          v-model="form.mobile"
+          v-model="form.userId"
           type="text"
-          placeholder="请输入手机号"
-          :class="{ error: errors.mobile }"
+          placeholder="请输入学号/教职工号"
+          :class="{ error: errors.userId }"
         >
-        <div class="error-tip">{{ errors.mobile }}</div>
+        <div class="error-tip">{{ errors.userId }}</div>
       </div>
 
-      <div class="form-item verification-code">
+      <div class="form-item">
         <input
-          v-model="form.verificationCode"
+          v-model="form.name"
           type="text"
-          placeholder="验证码"
+          placeholder="请输入姓名"
+          :class="{ error: errors.name }"
         >
-        <button 
-          class="send-code-btn"
-          :disabled="countdown > 0"
-          @click="sendVerificationCode"
-        >
-          {{ countdown > 0 ? `${countdown}s后重新发送` : '发送验证码' }}
-        </button>
+        <div class="error-tip">{{ errors.name }}</div>
       </div>
 
       <div class="form-item">
@@ -64,40 +59,42 @@
 </template>
 
 <script setup lang="ts">
+import { forgetPassword } from '@/services/api/user';
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const showPassword = ref(false)
 const isSubmitting = ref(false)
-const countdown = ref(0)
 
 const form = reactive({
-  mobile: '',
-  verificationCode: '',
+  userId: '',
+  name: '',
   newPassword: '',
   confirmPassword: ''
 })
 
 const errors = reactive({
-  mobile: '',
+  userId: '',
+  name: '',
   newPassword: '',
   confirmPassword: ''
 })
 
 const validateForm = () => {
   let isValid = true
-  errors.mobile = ''
+  errors.userId = ''
+  errors.name = ''
   errors.newPassword = ''
   errors.confirmPassword = ''
 
-  if (!/^1[3-9]\d{9}$/.test(form.mobile)) {
-    errors.mobile = '请输入正确的手机号'
+  if (!form.userId) {
+    errors.userId = '请输入学号/教职工号'
     isValid = false
   }
-  
-  if (!form.verificationCode) {
-    errors.mobile = '请输入验证码'
+
+  if (!form.name) {
+    errors.name = '请输入姓名'
     isValid = false
   }
 
@@ -122,16 +119,25 @@ const validateForm = () => {
 
 const handleSubmit = async () => {
   if (!validateForm()) {
-    return
-  }
 
+    alert('请输入正确的信息')
+      
+  }
   isSubmitting.value = true
   // 在这里可以添加提交表单的逻辑
+  const res = await forgetPassword({
+      studentId: form.userId,
+      username: form.name,
+      password: form.newPassword,
+    })
+    if(res.status === 200) {
+      // 提示用户密码重置成功
+      alert('密码重置成功,请重新登录')
+      router.push('/login')
+    }else{
+      alert('密码重置失败,请重试')
+    }
   isSubmitting.value = false
-}
-
-const sendVerificationCode = () => {
-  // 在这里可以添加发送验证码的逻辑
 }
 </script>
 
@@ -190,30 +196,6 @@ const sendVerificationCode = () => {
   bottom: -20px;
   color: #f56c6c;
   font-size: 12px;
-}
-
-.verification-code {
-  display: flex;
-  gap: 10px;
-}
-
-.verification-code input {
-  flex: 1;
-}
-
-.send-code-btn {
-  padding: 0 15px;
-  background: #409eff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.send-code-btn:disabled {
-  background: #a0cfff;
-  cursor: not-allowed;
 }
 
 .submit-btn {

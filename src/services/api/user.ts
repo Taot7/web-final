@@ -10,6 +10,21 @@ export async function getCurrentUser(options?: { [key: string]: any }) {
   });
 }
 
+/** 忘记密码 POST /user/forget-password */
+export async function forgetPassword(
+  body: API.UserTeacherRegisterParam,
+  options?: { [key: string]: any }
+) {
+  return request<boolean>("/user/forget-password", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    data: body,
+    ...(options || {}),
+  });
+}
+
 /** 用户登录 POST /user/login */
 export async function loginByPassword(
   body: API.UserLoginPasswordParam,

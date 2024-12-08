@@ -1112,8 +1112,8 @@ declare namespace API {
   };
 
   type UserLoginPasswordParam = {
-    /** 用户名 */
-    username: string;
+    /** 学号/教职工号 */
+    studentId: string;
     /** 密码 */
     password: string;
   };
@@ -1160,6 +1160,8 @@ declare namespace API {
     createTime?: string;
     /** 更新时间 */
     updateTime?: string;
+    /** 学院/部门 */
+    department?: string;
     roleIds?: number[];
   };
 
@@ -1173,11 +1175,15 @@ declare namespace API {
   type UserStudentRegisterParam = {
     /** 学号 */
     studentId: string;
+    /** 用户名 */
+    username: string;
     /** 密码 */
     password: string;
   };
 
   type UserTeacherRegisterParam = {
+    /** 教职工号 */
+    studentId: string;
     /** 用户名 */
     username: string;
     /** 密码 */
@@ -1217,6 +1223,8 @@ declare namespace API {
     createTime?: string;
     /** 更新时间 */
     updateTime?: string;
+    /** 学院/部门 */
+    department?: string;
     roles?: Role[];
   };
 

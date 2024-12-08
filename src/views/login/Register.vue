@@ -32,6 +32,16 @@
       </div>
 
       <div class="form-item">
+        <input
+          v-model="form.name"
+          type="text"
+          placeholder="请输入姓名"
+          :class="{ error: errors.name }"
+        >
+        <div class="error-tip">{{ errors.name }}</div>
+      </div>
+
+      <div class="form-item">
         <div class="password-input">
           <input
             v-model="form.password"
@@ -91,12 +101,14 @@ const registerType = ref<'student' | 'teacher'>('student')
 
 const form = reactive({
   userId: '', // 学号或教职工号
+  name: '', // 姓名
   password: '',
   confirmPassword: ''
 })
 
 const errors = reactive({
   userId: '',
+  name: '',
   password: '',
   confirmPassword: ''
 })
@@ -104,11 +116,17 @@ const errors = reactive({
 const validateForm = () => {
   let isValid = true
   errors.userId = ''
+  errors.name = ''
   errors.password = ''
   errors.confirmPassword = ''
 
   if (!form.userId) {
     errors.userId = registerType.value === 'student' ? '请输入学号' : '请输入教职工号'
+    isValid = false
+  }
+
+  if (!form.name) {
+    errors.name = '请输入姓名'
     isValid = false
   }
 
@@ -138,11 +156,13 @@ const handleSubmit = async () => {
     if(registerType.value === 'student'){
       request = await registerForStudent({
         studentId: form.userId,
+        username: form.name,
         password: form.password
       });
     }else{
       request = await registerForTeacher({
-        username: form.userId,
+        studentId: form.userId,
+        username: form.name,
         password: form.password
       });
     }
