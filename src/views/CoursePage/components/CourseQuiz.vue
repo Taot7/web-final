@@ -42,22 +42,25 @@ export default {
   data() {
     return {
       quizzes: [
-        { chapter: '第2章', name: '第一章节测试', status: '未提交', score: '--' },
-        { chapter: '第3章', name: '第二章节测试', status: '未提交', score: '--' },
-        { chapter: '第5章', name: '第三章节测试', status: '未提交', score: '--' },
-        { chapter: '第6章', name: '第四章节测试', status: '未提交', score: '--' },
-        { chapter: '第7章', name: '第五章节测试', status: '未提交', score: '--' },
-        { chapter: '第9章', name: '第六章节测试', status: '未提交', score: '--' },
-        { chapter: '第10章', name: '第七章节测试', status: '未提交', score: '--' },
-        { chapter: '第11章', name: '第八章节测试', status: '未提交', score: '--' },
-        { chapter: '第12章', name: '第九章节测试', status: '未提交', score: '--' }
+        { testId: 1, name: '第一章节测试', status: '未提交', score: '--' },
+        { testId: 2, name: '第二章节测试', status: '未提交', score: '--' },
+        { testId: 3, name: '第三章节测试', status: '未提交', score: '--' },
+        { testId: 4, name: '第四章节测试', status: '未提交', score: '--' },
+        { testId: 5, name: '第五章节测试', status: '未提交', score: '--' },
+        { testId: 6, name: '第六章节测试', status: '未提交', score: '--' },
+        { testId: 7, name: '第七章节测试', status: '未提交', score: '--' },
+        { testId: 8, name: '第八章节测试', status: '未提交', score: '--' },
+        { testId: 9, name: '第九章节测试', status: '未提交', score: '--' }
       ]
     }
   },
   methods: {
     startQuiz(quiz) {
-      // 处理开始测验的逻辑
-      console.log('开始测验:', quiz.name)
+      // 使用路由导航到测试页面，并传入测试ID
+      this.$router.push({
+        name: 'Test',
+        params: { testId: quiz.testId }
+      })
     }
   }
 }

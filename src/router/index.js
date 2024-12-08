@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Course from '@/views/CoursePage/course.vue'
 import OnlineCourse from '@/views/CoursePage/onlineCourse.vue'
+import Test from '@/views/CoursePage/components/Test.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,6 +66,12 @@ const router = createRouter({
       path: '/online-course',
       name: 'onlineCourse',
       component: () => import('@/views/CoursePage/onlineCourse.vue')
+    },
+    {
+      path: '/test/:testId',
+      name: 'Test',
+      component: Test,
+      props: true
     },
   ],
 })
