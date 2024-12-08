@@ -169,9 +169,9 @@ const handleSubmit = async () => {
     // 注册成功
     if(request.status === 200){
       localStorage.setItem('token', request.data.token)
-      alert('注册成功！！！，即将跳转首页')
+      alert('注册成功！！！即将跳转登录页面')
       setTimeout(() => {
-        router.push('/home')
+        router.push('/login')
       }, 1000)
     }
     // 注册失败
