@@ -122,7 +122,6 @@ export default {
         }
       } catch (error) {
         console.error('获取试卷数据失败：', error)
-        this.$message.error('获取试卷数据失败，请稍后重试')
       }
     },
 
@@ -137,7 +136,7 @@ export default {
       })
 
       if (unansweredQuestions.length > 0) {
-        this.$message.warning(`还有 ${unansweredQuestions.length} 道题目未完成`)
+        console.warn(`还有 ${unansweredQuestions.length} 道题目未完成`)
         return
       }
 
@@ -151,20 +150,20 @@ export default {
             answer: Array.isArray(answer) ? answer.join(',') : answer.toString()
           }))
         }
+        console.error(submitData)
+        alert(submitData)
 
         // 调用提交API
         const result = await submitTestRecord(submitData)
         
         if (result) {
-          this.$message.success('试卷提交成功！')
-          // 可以添加提交后的跳转逻辑
+          console.log('试卷提交成功！')
           this.$router.push('/course/test-result')
         } else {
-          this.$message.error('提交失败，请重试')
+          console.error('提交失败，请重试')
         }
       } catch (error) {
         console.error('提交试卷失败：', error)
-        this.$message.error('提交试卷失败，请稍后重试')
       } finally {
         this.isSubmitting = false
       }
