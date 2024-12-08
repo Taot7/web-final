@@ -12,11 +12,11 @@
       </div>
 
       <div class="discussions-container">
-        <div class="discussion-item" v-for="discussion in course.discussions" :key="discussion.id">
+        <div class="discussion-item" v-for="discussion in course.discussions" :key="discussion.id" @click="goToDiscussion(course.id, discussion.id)">
           <div class="discussion-meta">
             <span class="discussion-date">{{ discussion.createTime }}</span>
             <div class="discussion-actions">
-              <button class="delete-btn" @click="deleteDiscussion(discussion.id)">
+              <button class="delete-btn" @click.stop="deleteDiscussion(discussion.id)">
                 <i class="icon-delete"></i>
                 删除
               </button>
@@ -52,6 +52,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 interface Reply {
   id: number
@@ -132,6 +135,17 @@ const deleteDiscussion = (id: number) => {
     discussions: course.discussions.filter(d => d.id !== id)
   }))
 }
+
+const goToDiscussion = (courseId: number, discussionId: number) => {
+  router.push({
+    name: 'onlineCourse',
+    params: { courseId },
+    query: { 
+      tab: 'discussion',
+      discussionId
+    }
+  })
+}
 </script>
 
 <style scoped>
@@ -185,6 +199,7 @@ const deleteDiscussion = (id: number) => {
   margin-bottom: 20px;
   border-radius: 8px;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .discussion-item:hover {

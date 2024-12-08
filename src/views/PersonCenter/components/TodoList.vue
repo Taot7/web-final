@@ -14,7 +14,7 @@
 
     <!-- 作业列表 -->
     <div v-if="currentTab === 'homework'" class="todo-content">
-      <div v-for="item in homeworkList" :key="item.id" class="todo-item">
+      <div v-for="item in homeworkList" :key="item.id" class="todo-item" @click="goToOnlineCourse(item)">
         <div class="item-header">
           <span class="course-name">{{ item.courseName }}</span>
           <span :class="['status', item.status]">{{ getStatusText(item.status) }}</span>
@@ -24,7 +24,7 @@
           <p>{{ item.description }}</p>
           <div class="item-footer">
             <span class="deadline">截止日期: {{ item.deadline }}</span>
-            <button class="submit-btn" v-if="item.status === 'pending'">提交作业</button>
+            <button class="submit-btn" v-if="item.status === 'pending'" @click.stop="goToOnlineCourse(item)">提交作业</button>
           </div>
         </div>
       </div>
@@ -32,7 +32,7 @@
 
     <!-- 自测列表 -->
     <div v-if="currentTab === 'selfTest'" class="todo-content">
-      <div v-for="item in selfTestList" :key="item.id" class="todo-item">
+      <div v-for="item in selfTestList" :key="item.id" class="todo-item" @click="goToOnlineCourse(item)">
         <div class="item-header">
           <span class="course-name">{{ item.courseName }}</span>
           <span :class="['status', item.status]">{{ getStatusText(item.status) }}</span>
@@ -46,7 +46,7 @@
           </div>
           <div class="item-footer">
             <span class="deadline">截止日期: {{ item.deadline }}</span>
-            <button class="submit-btn" v-if="item.status === 'pending'">开始测试</button>
+            <button class="submit-btn" v-if="item.status === 'pending'" @click.stop="goToOnlineCourse(item)">开始测试</button>
           </div>
         </div>
       </div>
@@ -56,7 +56,9 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const currentTab = ref('homework')
 
 interface TodoItem {
@@ -138,6 +140,14 @@ const getStatusText = (status: string) => {
   }
   return statusMap[status] || status
 }
+
+const goToOnlineCourse = (item: HomeworkItem | SelfTestItem) => {
+  router.push({
+    name: 'onlineCourse',
+    params: { id: item.id }
+  })
+}
+
 </script>
 
 <style scoped>
@@ -179,6 +189,7 @@ const getStatusText = (status: string) => {
   padding: 15px;
   margin-bottom: 15px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
 }
 
 .item-header {

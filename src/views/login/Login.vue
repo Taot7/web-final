@@ -2,14 +2,14 @@
   <div class="auth-container">
     <div class="auth-box">
       <h2>用户登录</h2>
-      
+
       <div class="form-item">
         <input
           v-model="form.username"
           type="text"
-          placeholder="用户名/手机号/学号"
+          placeholder="用户名/学号"
           :class="{ error: errors.username }"
-        >
+        />
         <div class="error-tip">{{ errors.username }}</div>
       </div>
 
@@ -20,35 +20,25 @@
             type="password"
             placeholder="密码"
             :class="{ error: errors.password }"
-          >
+          />
         </div>
         <div class="error-tip">{{ errors.password }}</div>
       </div>
 
       <div class="login-options">
         <label class="remember-me">
-          <input 
-            type="checkbox" 
-            v-model="form.rememberMe"
-          >
+          <input type="checkbox" v-model="form.rememberMe" />
           <span>记住密码</span>
         </label>
-        <a 
-          class="forgot-password"
-          @click="router.push('/forgot-password')"
-        >
+        <a class="forgot-password" @click="router.push('/forgot-password')">
           忘记密码？
         </a>
       </div>
 
-      <button 
-        class="submit-btn"
-        :disabled="isSubmitting"
-        @click="handleSubmit"
-      >
-        {{ isSubmitting ? '登录中...' : '登录' }}
+      <button class="submit-btn" :disabled="isSubmitting" @click="handleSubmit">
+        {{ isSubmitting ? "登录中..." : "登录" }}
       </button>
-      
+
       <div class="bottom-actions">
         <div class="privacy-policy">
           登录即表示同意
@@ -64,67 +54,80 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import PrivacyPolicyDialog from '@/components/PrivacyPolicyDialog.vue'
+import { ref, reactive } from "vue";
+import { useRouter } from "vue-router";
+import PrivacyPolicyDialog from "@/components/PrivacyPolicyDialog.vue";
+import { loginByPassword } from "@/services/api/user";
 
-const router = useRouter()
-const showPassword = ref(false)
-const isSubmitting = ref(false)
-const showPrivacyPolicyDialog = ref(false)
+const router = useRouter();
+const showPassword = ref(false);
+const isSubmitting = ref(false);
+const showPrivacyPolicyDialog = ref(false);
 
 const form = reactive({
-  username: '',
-  password: '',
-  rememberMe: false
-})
+  username: "",
+  password: "",
+  rememberMe: false,
+});
 
 const errors = reactive({
-  username: '',
-  password: ''
-})
+  username: "",
+  password: "",
+});
 
 const validateForm = () => {
-  let isValid = true
-  errors.username = ''
-  errors.password = ''
+  let isValid = true;
+  errors.username = "";
+  errors.password = "";
 
   if (!form.username) {
-    errors.username = '请输入用户名或手机号'
-    isValid = false
+    errors.username = "请输入用户名或手机号";
+    isValid = false;
   }
 
   if (!form.password) {
-    errors.password = '请输入密码'
-    isValid = false
+    errors.password = "请输入密码";
+    isValid = false;
   }
 
-  return isValid
-}
+  return isValid;
+};
 
 const handleSubmit = async () => {
-  if (!validateForm()) return
-  
-  isSubmitting.value = true
+  if (!validateForm()) return;
+
+  isSubmitting.value = true;
   try {
     // 模拟登录请求
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    const redirect = router.currentRoute.value.query.redirect as string
-    router.push(redirect || '/home')
+    const request = await loginByPassword({
+      username: form.username,
+      password: form.password,
+    });
+    console.log(request)
+    if (request.status === 200) {
+      localStorage.setItem("token", request.data.token);
+      alert("登录成功！！！，即将跳转首页");
+      setTimeout(() => {
+        router.push("/home");
+      }, 1000);
+    } else {
+      alert(request);
+      errors.username = "用户名或密码错误";
+    }
   } catch (error: any) {
-    errors.username = '用户名或密码错误'
+    errors.username = "用户名或密码错误";
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
-}
+};
 
 const showPrivacyPolicy = () => {
-  showPrivacyPolicyDialog.value = true
-}
+  showPrivacyPolicyDialog.value = true;
+};
 </script>
 
 <style scoped>
-@import './styles/auth.css';
+@import "./styles/auth.css";
 
 .login-options {
   display: flex;

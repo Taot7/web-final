@@ -2,40 +2,33 @@
   <div class="auth-container">
     <div class="auth-box">
       <h2>注册账号</h2>
-      
-      <div class="form-item">
-        <input
-          v-model="form.username"
-          type="text"
-          placeholder="请输入用户名"
-          :class="{ error: errors.username }"
+
+      <!-- 添加注册类型切换tabs -->
+      <div class="register-tabs">
+        <div
+          class="tab-item"
+          :class="{ active: registerType === 'student' }"
+          @click="registerType = 'student'"
         >
-        <div class="error-tip">{{ errors.username }}</div>
+          学生注册
+        </div>
+        <div
+          class="tab-item"
+          :class="{ active: registerType === 'teacher' }"
+          @click="registerType = 'teacher'"
+        >
+          教师注册
+        </div>
       </div>
 
       <div class="form-item">
         <input
-          v-model="form.mobile"
+          v-model="form.userId"
           type="text"
-          placeholder="请输入手机号"
-          :class="{ error: errors.mobile }"
+          :placeholder="registerType === 'student' ? '请输入学号' : '请输入教职工号'"
+          :class="{ error: errors.userId }"
         >
-        <div class="error-tip">{{ errors.mobile }}</div>
-      </div>
-
-      <div class="form-item verification-code">
-        <input
-          v-model="form.verificationCode"
-          type="text"
-          placeholder="验证码"
-        >
-        <button 
-          class="send-code-btn"
-          :disabled="countdown > 0"
-          @click="sendVerificationCode"
-        >
-          {{ countdown > 0 ? `${countdown}s后重新发送` : '发送验证码' }}
-        </button>
+        <div class="error-tip">{{ errors.userId }}</div>
       </div>
 
       <div class="form-item">
@@ -86,50 +79,36 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import PrivacyPolicyDialog from '@/components/PrivacyPolicyDialog.vue'
+import { request } from 'http';
+import { registerForStudent, registerForTeacher } from '@/services/api/user';
 
 const router = useRouter()
 const showPassword = ref(false)
 const isSubmitting = ref(false)
 const countdown = ref(0)
 const showPrivacyPolicyDialog = ref(false)
+const registerType = ref<'student' | 'teacher'>('student')
 
 const form = reactive({
-  username: '',
-  mobile: '',
-  verificationCode: '',
+  userId: '', // 学号或教职工号
   password: '',
   confirmPassword: ''
 })
 
 const errors = reactive({
-  username: '',
-  mobile: '',
+  userId: '',
   password: '',
   confirmPassword: ''
 })
 
 const validateForm = () => {
   let isValid = true
-  errors.username = ''
-  errors.mobile = ''
+  errors.userId = ''
   errors.password = ''
   errors.confirmPassword = ''
 
-  if (!form.username) {
-    errors.username = '请输入用户名'
-    isValid = false
-  } else if (form.username.length < 4) {
-    errors.username = '用户名长度不能少于4位'
-    isValid = false
-  }
-
-  if (!/^1[3-9]\d{9}$/.test(form.mobile)) {
-    errors.mobile = '请输入正确的手机号'
-    isValid = false
-  }
-
-  if (!form.verificationCode) {
-    errors.mobile = '请输入验证码'
+  if (!form.userId) {
+    errors.userId = registerType.value === 'student' ? '请输入学号' : '请输入教职工号'
     isValid = false
   }
 
@@ -155,37 +134,37 @@ const handleSubmit = async () => {
   isSubmitting.value = true
   try {
     // 模拟注册请求
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/login?registered=true')
+    let request = null
+    if(registerType.value === 'student'){
+      request = await registerForStudent({
+        studentId: form.userId,
+        password: form.password
+      });
+    }else{
+      request = await registerForTeacher({
+        username: form.userId,
+        password: form.password
+      });
+    }
+    // 注册成功
+    if(request.status === 200){
+      localStorage.setItem('token', request.data.token)
+      alert('注册成功！！！，即将跳转首页')
+      setTimeout(() => {
+        router.push('/home')
+      }, 1000)
+    }
+    // 注册失败
+    else{
+      alert(request.data.message)
+      errors.userId = '注册失败，请重试'
+    }
   } catch (error: any) {
-    errors.username = '注册失败，请重试'
+    alert('用户名重复，请重新注册')
+    errors.userId = '注册失败，请重试'
   } finally {
     isSubmitting.value = false
   }
-}
-
-const sendVerificationCode = async () => {
-  if (!/^1[3-9]\d{9}$/.test(form.mobile)) {
-    errors.mobile = '请输入正确的手机号'
-    return
-  }
-  
-  try {
-    await new Promise(resolve => setTimeout(resolve, 500))
-    startCountdown()
-  } catch (error: any) {
-    errors.mobile = '发送验证码失败'
-  }
-}
-
-const startCountdown = () => {
-  countdown.value = 60
-  const timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(timer)
-    }
-  }, 1000)
 }
 
 const showPrivacyPolicy = () => {
@@ -201,32 +180,27 @@ const showPrivacyPolicy = () => {
   position: relative;
 }
 
-.verification-code {
+/* 注册类型切换tabs样式 */
+.register-tabs {
   display: flex;
-  gap: 12px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
 }
 
-.verification-code input {
+.tab-item {
   flex: 1;
-}
-
-.send-code-btn {
-  padding: 0 20px;
-  white-space: nowrap;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 8px;
+  text-align: center;
+  padding: 12px;
   cursor: pointer;
-  font-size: 14px;
+  transition: all 0.3s;
 }
 
-.send-code-btn:hover:not(:disabled) {
-  background: #2980b9;
+.tab-item.active {
+  color: #3498db;
+  border-bottom: 2px solid #3498db;
 }
 
-.send-code-btn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
+.tab-item:hover {
+  color: #3498db;
 }
 </style>
