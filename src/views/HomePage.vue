@@ -5,7 +5,6 @@
     <header >
 
       <div class="logo">
-        <img src="https://assets.uooconline.com/upload/uooc-www/org/logo/2018/11/05/181105102853_356892_%E4%BC%98%E8%AF%BE%E8%81%94%E7%9B%9Flogo.png" alt="logo" class="logo-img">
         <h1>课程平台</h1>
       </div>
       <div class="ss">
