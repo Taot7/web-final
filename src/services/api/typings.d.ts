@@ -575,6 +575,10 @@ declare namespace API {
     id: number;
   };
 
+  type getCourseMaterialsByCourseIdParams = {
+    courseId: number;
+  };
+
   type getCourseMaterialsParams = {
     current?: number;
     pageSize?: number;
@@ -643,6 +647,10 @@ declare namespace API {
     current?: number;
     pageSize?: number;
     param: QuestionBankQuery;
+  };
+
+  type getQuestionParams = {
+    id: number;
   };
 
   type getRoleParams = {
@@ -781,6 +789,8 @@ declare namespace API {
     questionId?: number;
     /** 创建者ID */
     creatorId?: number;
+    /** 所属课程ID */
+    courseId?: number;
     /** 题目类型：0-单选、1-多选、2-判断、3-填空、4-问答 */
     type?: number;
     /** 题目内容 */
@@ -798,6 +808,8 @@ declare namespace API {
     questionId?: number;
     /** 创建者ID */
     creatorId?: number;
+    /** 所属课程ID */
+    courseId?: number;
     /** 题目类型：0-单选、1-多选、2-判断、3-填空、4-问答 */
     type?: number;
     /** 题目内容 */
@@ -815,6 +827,8 @@ declare namespace API {
     questionId?: number;
     /** 创建者ID */
     creatorId?: number;
+    /** 所属课程ID */
+    courseId?: number;
     /** 题目类型：0-单选、1-多选、2-判断、3-填空、4-问答 */
     type?: number;
     /** 题目内容 */

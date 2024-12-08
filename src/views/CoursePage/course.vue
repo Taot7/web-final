@@ -1,40 +1,47 @@
 <template>
   <!-- 添加导航栏 -->
   <NavBar />
-  
+
   <!-- 为了防止内容被导航栏遮挡，添加顶部间距 -->
   <div class="class-page" style="padding-top: 60px;">
-    <!-- 顶部背景区域 -->
-    <div class="profile-header">
-      <div class="header-content">
-        <!-- 添加课程封面图 -->
-        <div class="course-cover">
-          <img 
-            src="@/assets/try2.png" 
-            alt="课程封面"
-            class="cover-image"
-          >
-        </div>
-        
-        <!-- 课程信息部分 -->
-        <div class="course-info">
-          <h1>云计算基础及应用</h1>
-          <div class="meta-info">
-            <span>本课程分: 70分</span>
-            <span>课程时长: 1小时30分钟</span>
+    <!-- 使用v-if确保数据加载后再显示内容 -->
+    <template v-if="course">
+      <!-- 顶部背景区域 -->
+      <div class="profile-header">
+        <div class="header-content">
+          <!-- 添加课程封面图 -->
+          <div class="course-cover">
+            <img 
+              :src="course.coverImage"
+              :alt="course.title"
+              class="cover-image"
+            >
           </div>
-          <div class="join-course">
-            <button class="join-button orange-button" @click="showJoinDialog = true">
-              加入课程
-            </button>
-            <div class="course-stats">
-              <span class="stats-item"><i class="heart-icon">❤️</i> 90人关注</span>
-              <span class="stats-item"><i class="share-icon">📤</i> 分享课程</span>
+          
+          <!-- 课程信息部分 -->
+          <div class="course-info">
+            <h1>{{ course.title }}</h1>
+            <div class="meta-info">
+              <span>浏览量: {{ course.viewCount }}</span>
+              <span>学生数: {{ course.studentCount }}</span>
+              <span>点赞数: {{ course.likeCount }}</span>
+            </div>
+            <div class="join-course">
+              <button class="join-button orange-button" @click="showJoinDialog = true">
+                加入课程
+              </button>
+              <div class="course-stats">
+                <span class="stats-item">
+                  <i class="heart-icon">❤️</i> {{ course.likeCount }}人关注
+                </span>
+                <span class="stats-item" v-if="course.allowComment">
+                  <i class="share-icon">📤</i> 分享课程
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
     <!-- 加入课程确认弹窗 -->
     <div class="dialog-overlay" v-if="showJoinDialog" @click="showJoinDialog = false">
@@ -49,166 +56,223 @@
           <p class="target-audience">适用人群: 计算机及相关专业学生</p>
         </div>
         <div class="dialog-footer">
-          <button class="confirm-btn" @click="handleConfirmJoin">确定</button>
+          <button class="confirm-btn" @click="handleConfirmJoin(course.courseId)">确定</button>
           <button class="cancel-btn" @click="showJoinDialog = false">取消</button>
         </div>
       </div>
     </div>
 
-    <div class="main-content">
-      <!-- 左侧主要内容区域 -->
-      <div class="content-left">
-        <!-- 课程导航 -->
-        <div class="course-nav">
-          <ul>
-            <li 
-              v-for="tab in tabs" 
-              :key="tab.key"
-              :class="{ active: currentTab === tab.key }"
-              @click="currentTab = tab.key"
-            >
-              {{ tab.name }}
-            </li>
-          </ul>
-        </div>
-
-        <!-- 课程内容区域 -->
-        <div class="course-content">
-          <!-- 课程介绍 -->
-          <div v-if="currentTab === 'intro'" class="intro-section">
-            <h2>课程简介</h2>
-            <p>本课程主要介绍房地产经纪人的基本工作内容、工作流程及相关法律法规等内容。通过本课程的学习，学员可以掌握房地产经纪人的基本工作技能和专业知识。</p>
-            
-            <h3>课程目标</h3>
+      <div class="main-content">
+        <!-- 左侧主要内容区域 -->
+        <div class="content-left">
+          <!-- 课程导航 -->
+          <div class="course-nav">
             <ul>
-              <li>了解房地产经纪行业的基本概况</li>
-              <li>掌握房地产交易流程</li>
-              <li>熟悉相关法律法规</li>
-              <li>提升专业服务能力</li>
+              <li 
+                v-for="tab in tabs" 
+                :key="tab.key"
+                :class="{ active: currentTab === tab.key }"
+                @click="currentTab = tab.key"
+              >
+                {{ tab.name }}
+              </li>
             </ul>
           </div>
 
-          <!-- 课程内容 -->
-          <div v-if="currentTab === 'content'" class="content-section">
-            <h2>课程内容</h2>
-            <!-- 这里添加课程内容的具体展示 -->
-          </div>
+          <!-- 课程内容区域 -->
+          <div class="course-content">
+            <!-- 课程介绍 -->
+            <div v-if="currentTab === 'intro'" class="intro-section">
+              <h2>课程简介</h2>
+              <p style="white-space: pre-wrap">{{ course.description }}</p>
+              
+              <h3>课程分类</h3>
+              <p>{{ course.category?.name }}</p>
+            </div>
 
-          <!-- 考核内容 -->
-          <div v-if="currentTab === 'exam'" class="exam-section">
-            <h2>考核内容</h2>
-            <!-- 这里添加考核内容的具体展示 -->
-          </div>
+            <!-- 课程内容 -->
+            <div v-if="currentTab === 'content'" class="content-section">
+              <h2>课程内容</h2>
+              <div class="materials-list">
+                <div 
+                  v-for="material in courseMaterials" 
+                  :key="material.materialId"
+                  class="material-item"
+                  @click="handleFileClick(material)"
+                >
+                  <div class="material-icon">
+                    {{ getFileTypeIcon(material.type) }}
+                  </div>
+                  <div class="material-info">
+                    <div class="material-title">{{ material.title }}</div>
+                    <div class="material-meta">
+                      <span class="material-time">{{ material.createTime }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div v-if="courseMaterials.length === 0" class="empty-state">
+                  暂无课程内容
+                </div>
+              </div>
+            </div>
 
-          <!-- 技能认证 -->
-          <div v-if="currentTab === 'cert'" class="cert-section">
-            <h2>技能认证</h2>
-            <!-- 这里添加技能认证的具体展示 -->
-          </div>
+            <!-- 考核内容 -->
+            <div v-if="currentTab === 'exam'" class="exam-section">
+              <h2>考核内容</h2>
+              <!-- 这里添加考核内容的具体展示 -->
+            </div>
 
-          <!-- 认证流程 -->
-          <div v-if="currentTab === 'process'" class="process-section">
-            <h2>认证流程</h2>
-            <!-- 这里添加认证流程的具体展示 -->
+            <!-- 技能认证 -->
+            <div v-if="currentTab === 'cert'" class="cert-section">
+              <h2>技能认证</h2>
+              <!-- 这里添加技能认证的具体展示 -->
+            </div>
+
+            <!-- 认证流程 -->
+            <div v-if="currentTab === 'process'" class="process-section">
+              <h2>认证流程</h2>
+              <!-- 这里添加认证流程的具体展示 -->
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 右侧课程信息和教师团队 -->
-      <div class="content-right">
-        <!-- 课程基本信息 -->
-        <div class="course-info-card">
-          <h3>2024秋季学期</h3>
-          <div class="info-item">
-            <span class="label">开课时间:</span>
-            <span>2024.09.01 - 2024.12.18</span>
+        <!-- 右侧课程信息和教师团队 -->
+        <div class="content-right">
+          <!-- 课程基本信息 -->
+          <div class="course-info-card">
+            <h3>课程信息</h3>
+            <div class="info-item">
+              <span class="label">创建时间:</span>
+              <span>{{ formatDate(course.createTime) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">更新时间:</span>
+              <span>{{ formatDate(course.updateTime) }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">课程状态:</span>
+              <span>{{ course.status === 1 ? '已发布' : '未发布' }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">是否推荐:</span>
+              <span>{{ course.isRecommended ? '是' : '否' }}</span>
+            </div>
           </div>
-          <div class="info-item">
-            <span class="label">建议学分:</span>
-            <span>2.0分</span>
-          </div>
-          <div class="info-item">
-            <span class="label">建议学时:</span>
-            <span>36学时</span>
-          </div>
-          <div class="info-item">
-            <span class="label">教学模式:</span>
-            <span>阅兴模式</span>
-          </div>
-        </div>
 
-        <!-- 教师团队 -->
-        <div class="teachers-card">
-          <h3>教学团队</h3>
-          <div class="teacher-list">
-            <div class="teacher-item" v-for="teacher in teachers" :key="teacher.id">
-              <img :src="teacher.avatar" :alt="teacher.name">
-              <div class="teacher-info">
-                <div class="teacher-name">{{ teacher.name }}</div>
-                <div class="teacher-title">{{ teacher.title }}</div>
-                <div class="teacher-school">{{ teacher.school }}</div>
+          <!-- 教师信息 -->
+          <div class="teachers-card">
+            <h3>授课教师</h3>
+            <div class="teacher-list">
+              <div class="teacher-item">
+                <img :src="course.teacher.avatarUrl || defaultAvatar" :alt="course.teacher.nickname">
+                <div class="teacher-info">
+                  <div class="teacher-name">{{ course.teacher.nickname }}</div>
+                  <div class="teacher-title">{{ course.teacher.roles[0]?.cname }}</div>
+                  <div class="teacher-school">{{ course.teacher.signature || '暂无简介' }}</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </template>
+
+    <!-- 添加加载状态显示 -->
+    <div v-else class="loading-state">
+      加载中...
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import NavBar from '@/components/NavBar.vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { getCourse } from '@/services/api/course'
+import { getCourseMaterialsByCourseId } from '@/services/api/courseMaterial'
 
-// 获取路由实例
 const router = useRouter()
-
-// 定义标签页数据
-const tabs = [
-  { key: 'intro', name: '课程介绍' },
-  { key: 'content', name: '课程内容' },
-  { key: 'exam', name: '考核内容' },
-  { key: 'cert', name: '技能认证' },
-  { key: 'process', name: '认证流程' }
-]
-
-// 当前激活的标签页
-const currentTab = ref('intro')
-
-// 教师数据
-const teachers = [
-  {
-    id: 1,
-    name: '明仲',
-    title: '教授',
-    school: '深圳大学',
-    avatar: '/path/to/teacher1.jpg'
-  },
-  {
-    id: 2,
-    name: '李坚强',
-    title: '教授',
-    school: '深圳大学',
-    avatar: '/path/to/teacher2.jpg'
-  }
-]
-
-// 控制弹窗显示
+const route = useRoute()
+const course = ref(null)
 const showJoinDialog = ref(false)
+const currentTab = ref('intro')
+const defaultAvatar = '@/assets/default-avatar.png' // 确保你有默认头像图片
+const courseMaterials = ref([])
 
-// 处理确认加入
+// 格式化日期的函数
+const formatDate = (dateArray) => {
+  if (!dateArray || dateArray.length < 6) return '暂无'
+  return `${dateArray[0]}-${String(dateArray[1]).padStart(2, '0')}-${String(dateArray[2]).padStart(2, '0')}`
+}
+
+// 获取课程数据
+const fetchCourseData = async () => {
+  try {
+    const courseId = route.params.courseId
+    if (!courseId) {
+      console.error('未找到课程ID')
+      return
+    }
+
+    const response = await getCourse({ id: courseId })
+    if (response.status === 200) {
+      course.value = response.data
+    }
+  } catch (error) {
+    console.error('获取课程信息失败:', error)
+  }
+}
+
+// 处理确认加入课程
 const handleConfirmJoin = () => {
   showJoinDialog.value = false
-  // 携带参数跳转
   router.push({
     path: '/online-course',
     query: {
-      courseId: 'xxx', // 课程ID
-      courseName: '云计算基础及应用' // 课程名称
+      courseId: course.value?.courseId,
+      courseName: course.value?.title
     }
   })
 }
+
+// 获取课程内容
+const fetchCourseMaterials = async (courseId) => {
+  try {
+    const response = await getCourseMaterialsByCourseId({ courseId })
+    if (response.data) {
+      courseMaterials.value = response.data.sort((a, b) => a.sortOrder - b.sortOrder)
+    }
+  } catch (error) {
+    console.error('获取课程内容失败:', error)
+  }
+}
+
+// 在课程数据加载后获取课程内容
+watch(() => course.value, (newCourse) => {
+  if (newCourse?.courseId) {
+    fetchCourseMaterials(newCourse.courseId)
+  }
+})
+
+// 格式化文件类型
+const getFileTypeIcon = (type) => {
+  switch (type) {
+    case 1: return '📄' // 文档
+    case 2: return '🎥' // 视频
+    case 3: return '📊' // PPT
+    default: return '📁'
+  }
+}
+
+// 处理文件点击
+const handleFileClick = (material) => {
+  window.open(material.contentUrl, '_blank')
+}
+
+onMounted(() => {
+  fetchCourseData()
+})
 </script>
 
 <style scoped>
@@ -606,6 +670,76 @@ const handleConfirmJoin = () => {
   background-color: #ff5722;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
+}
+
+.materials-list {
+  margin-top: 20px;
+}
+
+.material-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.material-item:hover {
+  background-color: #f5f7fa;
+}
+
+.material-icon {
+  font-size: 24px;
+  margin-right: 15px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+}
+
+.material-info {
+  flex: 1;
+}
+
+.material-title {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.material-meta {
+  font-size: 12px;
+  color: #999;
+}
+
+.material-time {
+  margin-right: 15px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 14px;
+}
+
+.content-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.content-section h2 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
 }
 </style>
 

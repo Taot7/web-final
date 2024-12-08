@@ -78,6 +78,11 @@ const router = createRouter({
       name: 'uploadTest',
       component: ()=> import('@/views/UploadTest.vue')
     },
+    {
+      path: '/course/:courseId',
+      name: 'course-detail',
+      component: () => import('@/views/CoursePage/course.vue')
+    }
   ],
 })
 
