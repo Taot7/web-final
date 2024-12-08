@@ -46,6 +46,20 @@ export async function generateSelfTest(
   });
 }
 
+/** 获取该课程对应得题目 GET /self-test/getQuestion/${param0} */
+export async function getQuestion(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getQuestionParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.QuestionBank[]>(`/self-test/getQuestion/${param0}`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 获取指定自测试卷信息 GET /self-test/info/${param0} */
 export async function getSelfTest(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

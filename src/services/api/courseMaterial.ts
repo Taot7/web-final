@@ -45,6 +45,23 @@ export async function getCourseMaterial(
   });
 }
 
+/** 获取指定课程的课件资料 GET /course-material/info/courseContent/${param0} */
+export async function getCourseMaterialsByCourseId(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getCourseMaterialsByCourseIdParams,
+  options?: { [key: string]: any }
+) {
+  const { courseId: param0, ...queryParams } = params;
+  return request<API.CourseMaterial[]>(
+    `/course-material/info/courseContent/${param0}`,
+    {
+      method: "GET",
+      params: { ...queryParams },
+      ...(options || {}),
+    }
+  );
+}
+
 /** 获取课件资料列表 GET /course-material/list */
 export async function getCourseMaterials(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
