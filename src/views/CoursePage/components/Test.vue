@@ -82,6 +82,10 @@ export default {
     testId: {
       type: [String, Number],
       required: true
+    },
+    courseId: {
+      type: [String, Number],
+      required: true
     }
   },
   data() {
@@ -115,8 +119,11 @@ export default {
     // 获取试卷数据
     async fetchTestData() {
       try {
-        const tempTestId = this.testId
-        const response = await getSelfTest(tempTestId) 
+        const tempTestId = this.$route.params.testId
+        const courseId = this.$route.params.courseId
+        console.log(tempTestId, courseId);
+        
+        const response = await getSelfTest(tempTestId)
         if (response.status === 200 && response.data) {
           this.testData = response.data
           // 格式化创建时间
@@ -148,14 +155,13 @@ export default {
         // 构造提交数据
         const submitData = {
           testId: this.testData.testId,
+          courseId: this.$route.params.courseId,
           answers: Object.entries(this.answers).map(([questionId, answer]) => ({
             questionId: parseInt(questionId),
             answer: Array.isArray(answer) ? answer.join(',') : answer.toString()
           }))
         }
         console.error(submitData)
-        alert(submitData)
-
         // 调用提交API
         const result = await submitTestRecord(submitData)
         

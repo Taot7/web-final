@@ -68,7 +68,7 @@ const router = createRouter({
       component: () => import('@/views/CoursePage/onlineCourse.vue')
     },
     {
-      path: '/test/:testId',
+      path: '/test/:testId/:courseId',
       name: 'Test',
       component: Test,
       props: true

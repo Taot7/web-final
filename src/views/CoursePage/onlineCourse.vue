@@ -29,7 +29,7 @@
           
           <!-- 子菜单 -->
           <transition name="submenu">
-            <ul class="submenu" v-if="showSubMenu && currentMenuItem === 5"> <!-- 5是考核选项的索引 -->
+            <ul class="submenu" v-if="showSubMenu"> <!-- 5是考核选项的索引 -->
               <li v-for="(subItem, subIndex) in examSubMenu" 
                   :key="subIndex"
                   @click="handleSubMenuClick(subItem)">
@@ -174,6 +174,7 @@ export default {
         { name: '课程内容', icon: 'icon-content' },
         { name: '课程讨论', icon: 'icon-discussion' },
         { name: '考核', icon: 'icon-exam', hasSubMenu: true }
+
       ],
       examSubMenu: [
       { name: '测验', icon: 'icon-quiz' },

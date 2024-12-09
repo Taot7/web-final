@@ -25,7 +25,11 @@
             </td>
             <td>{{ quiz.score }}</td>
             <td>
-              <button class="start-btn" @click="startQuiz(quiz)">
+              <button 
+                class="start-btn" 
+                @click="startQuiz(quiz)"
+                v-if="quiz.status === '未提交'"
+              >
                 前往
               </button>
             </td>
@@ -44,23 +48,21 @@ export default {
   data() {
     return {
       quizzes: [
-        { testId: 1, name: '第一章节测试', status: '未提交', score: '--' },
-        { testId: 2, name: '第二章节测试', status: '未提交', score: '--' },
-        { testId: 3, name: '第三章节测试', status: '未提交', score: '--' },
-        { testId: 4, name: '第四章节测试', status: '未提交', score: '--' },
-        { testId: 5, name: '第五章节测试', status: '未提交', score: '--' },
-        { testId: 6, name: '第六章节测试', status: '未提交', score: '--' },
-        { testId: 7, name: '第七章节测试', status: '未提交', score: '--' },
-        { testId: 8, name: '第八章节测试', status: '未提交', score: '--' },
-        { testId: 9, name: '第九章节测试', status: '未提交', score: '--' }
-      ]
+       
+      ],
+      courseId: parseInt(this.$route.query.courseId),
     }
   },
   async created() {
     try {
-      const response = await getMyTestRecords({});
+      const response = await getMyTestRecords({
+        param: {
+          courseId: parseInt(this.$route.query.courseId)
+        } 
+      });
       if (response.status === 200 && response.data) {
         this.quizzes = response.data.list.map(item => ({
+          courseId: parseInt(this.$route.query.courseId),
           testId: item.testId,
           name: item.title,
           status: item.status === 0 ? '未提交' : '已完成',
@@ -76,10 +78,16 @@ export default {
   },
   methods: {
     startQuiz(quiz) {
+      console.log("你好");
+      console.log(quiz);
+      
       // 使用路由导航到测试页面，并传入测试ID
       this.$router.push({
         name: 'Test',
-        params: { testId: quiz.testId }
+        params: { 
+          testId: quiz.testId,
+          courseId: quiz.courseId
+        }
       })
     }
   }

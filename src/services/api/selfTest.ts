@@ -60,16 +60,13 @@ export async function getQuestion(
   });
 }
 
-/** 获取指定自测试卷信息 GET /self-test/info/${param0} */
+/** 获取指定自测试卷信息 GET /self-test/info/${testId} */
 export async function getSelfTest(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getSelfTestParams,
+  testId: string, // 只传入 testId 参数
   options?: { [key: string]: any }
 ) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.SelfTestVO>(`/self-test/info/${param0}`, {
+  return request<API.SelfTestVO>(`/self-test/info/${testId}`, {
     method: "GET",
-    params: { ...queryParams },
     ...(options || {}),
   });
 }

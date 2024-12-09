@@ -865,7 +865,11 @@ export default {
 
     // 查看课程详情
     viewDetails(courseID) {
-      this.$router.push('/course/'+courseID);  // 跳转到关于页面
+      this.$router.push('/course/'+courseID)  // 跳转到关于页面
+      .then(()=>{
+        location.reload()
+      })
+      
       return
       this.modalCourse = { ...course };
       this.showModal = true;
