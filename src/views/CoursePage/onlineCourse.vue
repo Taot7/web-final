@@ -54,7 +54,7 @@
           <CourseHomework />
         </template>
         <template v-else-if="currentMenuItem === 4">
-          <CourseDiscussion />
+          <CourseDiscussion :courseId="currentCourseId" />
         </template>
         <template v-else>
           <!-- 原有的成绩进度内容 -->
@@ -141,6 +141,7 @@ import CourseQuiz from './components/CourseQuiz.vue';
 import CourseHomework from './components/CourseHomework.vue';
 import CourseDiscussion from './components/CourseDiscussion.vue';
 import { getCourse } from '@/services/api/course';
+import { currentUser } from '@/utils/userAuth';
 
 export default {
   components: {
@@ -210,12 +211,14 @@ export default {
           ]
         }
       ],
-      selectedLesson: null
+      selectedLesson: null,
+      currentCourseId: 0,
     };
   },
   async created() {
     const courseId = this.$route.query.courseId;
     if (courseId) {
+      this.currentCourseId = courseId;
       try {
         const response = await getCourse({ id: courseId });
         if (response.status === 200) {

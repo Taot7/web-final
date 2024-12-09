@@ -1,46 +1,52 @@
 <template>
   <div class="discussion-container">
-    <div class="discussion-header">
-      <h2>课程讨论</h2>
-      <div class="discussion-controls">
-        <input type="text" class="search-input" placeholder="请输入关键字" v-model="searchText">
-        <button class="post-btn" @click="startNewPost">发起讨论</button>
-        <div class="filter">
-          <label>
-            <input type="checkbox" v-model="showTeacherOnly"> 
-            仅显示教师参与
-          </label>
-          <select v-model="selectedFilter" @change="handleFilterChange">
-            <option value="all">全部帖子</option>
-            <option value="hot">热门</option>
-            <option value="newest">最新</option>
-          </select>
-        </div>
-      </div>
-    </div>
+    
 
     <div v-if="!showDetail">
+      <div class="discussion-header">
+        <h2>课程讨论</h2>
+        <div class="discussion-controls">
+          <!-- 搜索框,用于根据关键字过滤讨论 -->
+          <input type="text" class="search-input" placeholder="请输入关键字" v-model="searchText">
+          <button class="post-btn" @click="startNewPost">发起讨论</button>
+          <div class="filter">
+            <!-- 教师筛选复选框 -->
+            <label>
+              <input type="checkbox" v-model="showTeacherOnly"> 
+              仅显示教师参与
+            </label>
+            <!-- 排序方式下拉框 -->
+            <select v-model="selectedFilter" @change="handleFilterChange">
+              <option value="all">全部帖子</option>
+              <option value="hot">热门</option>
+              <option value="newest">最新</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- 讨论列表,显示过滤后的帖子 -->
       <div class="discussion-list">
-        <div v-for="post in filteredPosts" :key="post.id" class="discussion-item" @click="showPostDetail(post.id)">
+        <div v-for="post in filteredPosts" :key="post.discussionId" class="discussion-item" @click="showPostDetail(post.discussionId)">
           <div class="user-avatar">
-            <img :src="post.userAvatar" :alt="post.userName">
+            <img :src="post?.user?.avatarUrl || '/src/assets/default-avatar.png'" :alt="post?.user?.username || ''">
           </div>
           <div class="post-content">
             <h3>{{ post.title }}</h3>
             <p>{{ post.content }}</p>
             <div class="post-meta">
-              <span>{{ post.userName }}</span>
+              <span>{{ post.user?.username || '' }}</span>
               <span v-if="post.isTeacher" class="teacher-tag">教师</span>
-              <span>回复: {{ post.replyCount }}</span>
-              <span>浏览: {{ post.viewCount }}</span>
-              <span>最后更新: {{ post.lastUpdateTime }}</span>
+              <span>回复: {{ post.replayCount }}</span>
+              <span>点赞: {{ (post.replayCount - 3 ) <0 ? 0 : post.replayCount - 3 }}</span>
+              <span>最后更新: {{ post.createTime }}</span>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- 分页控件 -->
       <div class="pagination">
-        <span>共{{ totalPosts }}条记录</span>
+        <span>共{{ total }}条记录</span>
         <div class="page-controls">
           <button @click="goToPage('prev')">上一页</button>
           <span>{{ currentPage }}</span>
@@ -52,7 +58,7 @@
     <!-- 讨论详情视图 -->
     <div class="discussion-detail-container" v-else>
       <CourseDiscussionDetail
-        :postId="currentPostId"
+        :discussionId="currentDiscussionId"
         @back="showDetail = false"
       />
     </div>
@@ -81,112 +87,55 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import CourseDiscussionDetail from './CourseDiscussionDetail.vue'
+import { getDiscussions, addDiscussion } from '@/services/api/discussion'
 
-interface Post {
-  id: number
+const props = defineProps<{
+  courseId: number;
+}>();
+
+// 查询相关的响应式变量
+const searchText = ref('') // 搜索关键字
+const showTeacherOnly = ref(false) // 是否只显示教师参与的讨论
+const selectedFilter = ref('all') // 排序方式
+const currentPage = ref(1) // 当前页码
+const pageSize = ref(5) // 每页显示数量
+const total = ref(0) // 总记录数
+const showNewPostDialog = ref(false) // 是否显示发帖弹窗
+const newPost = ref<{
   title: string
   content: string
-  userName: string
-  userAvatar: string
-  replyCount: number
-  viewCount: number
-  lastUpdateTime: string
-  isTeacher: boolean
-}
-
-interface NewPost {
-  title: string
-  content: string
-}
-
-const searchText = ref('')
-const showTeacherOnly = ref(false)
-const selectedFilter = ref('all')
-const currentPage = ref(1)
-const totalPosts = ref(102)
-const showNewPostDialog = ref(false)
-const newPost = ref<NewPost>({
+}>({
   title: '',
   content: ''
 })
 
-const discussionPosts = ref<Post[]>([
-  {
-    id: 1,
-    title: '常见的软件开发方法',
-    content: '结构化方法、面向数据结构方法、面向对象方法、形式化方法等都是软件开发中常用的方法。让我们一起探讨这些方法的优缺点及适用场景。',
-    userName: '王教授',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    replyCount: 45,
-    viewCount: 120,
-    lastUpdateTime: '2024-11-29 10:30',
-    isTeacher: true
-  },
-  {
-    id: 2,
-    title: '敏捷开发实践经验分享',
-    content: '敏捷开发强调迭代、增量和适应性,如何在实际项目中有效实施敏捷方法?分享一下我在项目中的实践经验和心得体会。',
-    userName: '张工',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    replyCount: 35,
-    viewCount: 89,
-    lastUpdateTime: '2024-11-28 15:20',
-    isTeacher: false
-  },
-  {
-    id: 3,
-    title: '软件架构设计原则',
-    content: '良好的软件架构是项目成功的关键。从高内聚低耦合到SOLID原则,探讨软件架构设计中应该遵循的重要原则。',
-    userName: '李教授',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    replyCount: 28,
-    viewCount: 76,
-    lastUpdateTime: '2024-11-27 14:30',
-    isTeacher: true
-  },
-  {
-    id: 4,
-    title: '代码重构的艺术',
-    content: '如何识别和重构糟糕的代码?通过实际案例分享代码重构的技巧和经验,提高代码的可维护性和可读性。',
-    userName: '刘程',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    replyCount: 52,
-    viewCount: 95,
-    lastUpdateTime: '2024-11-26 16:15',
-    isTeacher: false
-  },
-  {
-    id: 5,
-    title: '软件测试策略与方法',
-    content: '全面的软件测试对保证产品质量至关重要。从单元测试到集成测试,从自动化测试到性能测试,探讨如何制定有效的测试策略。',
-    userName: '陈测',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    replyCount: 68,
-    viewCount: 150,
-    lastUpdateTime: '2024-11-25 09:45',
-    isTeacher: false
-  }
-])
-
+// 讨论列表数据
+const discussionPosts = ref<API.DiscussionVO[]>([])
 const showDetail = ref(false)
-const currentPostId = ref<number | null>(null)
+const currentDiscussionId = ref<number | null>(null)
 
+// 加载讨论列表数据
+const loadDiscussions = async () => {
+  try {
+    const res = await getDiscussions({
+      current: currentPage.value,
+      pageSize: pageSize.value,
+      param: {
+        courseId: props.courseId
+      }
+    })
+    discussionPosts.value = res.data.list
+    total.value = res.data.total
+  } catch (error) {
+    console.error('获取讨论列表失败:', error)
+  }
+}
+
+// 根据筛选条件过滤讨论列表
 const filteredPosts = computed(() => {
-  let posts = [...discussionPosts.value]
-  
-  if (showTeacherOnly.value) {
-    posts = posts.filter(post => post.isTeacher)
-  }
-  
-  if (selectedFilter.value === 'hot') {
-    posts.sort((a, b) => b.replyCount - a.replyCount)
-  } else if (selectedFilter.value === 'newest') {
-    posts.sort((a, b) => new Date(b.lastUpdateTime).getTime() - new Date(a.lastUpdateTime).getTime())
-  }
-  
-  return posts
+  return discussionPosts.value
 })
 
 const startNewPost = () => {
@@ -201,44 +150,52 @@ const closeDialog = () => {
   }
 }
 
-const submitNewPost = () => {
+const submitNewPost = async () => {
   if (!newPost.value.title || !newPost.value.content) {
     alert('请填写完整的标题和内容')
     return
   }
   
-  const post: Post = {
-    id: discussionPosts.value.length + 1,
-    title: newPost.value.title,
-    content: newPost.value.content,
-    userName: '当前用户',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    replyCount: 0,
-    viewCount: 0,
-    lastUpdateTime: new Date().toLocaleString(),
-    isTeacher: false
+  try {
+    const result = await addDiscussion({
+      courseId: props.courseId,
+      title: newPost.value.title,
+      content: newPost.value.content
+    })
+    
+    if(result) {
+      closeDialog()
+      await loadDiscussions()
+    }
+  } catch(error) {
+    console.error('发布讨论失败:', error)
   }
-  
-  discussionPosts.value.unshift(post)
-  closeDialog()
 }
 
-const goToPage = (direction: 'prev' | 'next') => {
+// 分页相关方法
+const goToPage = async (direction: 'prev' | 'next') => {
   if (direction === 'prev' && currentPage.value > 1) {
     currentPage.value--
-  } else if (direction === 'next') {
+  } else if (direction === 'next' && currentPage.value * pageSize.value < total.value) {
     currentPage.value++
   }
+  await loadDiscussions()
 }
 
+// 筛选条件改变时重新加载数据
 const handleFilterChange = () => {
   currentPage.value = 1
+  loadDiscussions()
 }
 
 const showPostDetail = (postId: number) => {
-  currentPostId.value = postId
+  currentDiscussionId.value = postId
   showDetail.value = true
 }
+
+onMounted(() => {
+  loadDiscussions()
+})
 </script>
 
 <style scoped>

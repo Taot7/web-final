@@ -10,23 +10,33 @@
     <!-- 主贴内容 -->
     <div class="main-post">
       <div class="post-header">
-        <h2 class="post-title">{{ post.title }}</h2>
+        <h2 class="post-title">{{ discussion.title }}</h2>
         <div class="post-info">
           <div class="user-info">
-            <img :src="post.userAvatar" :alt="post.userName" class="avatar">
-            <span class="username">{{ post.userName }}</span>
-            <span v-if="post.isTeacher" class="teacher-tag">教师</span>
+            <img
+              :src="
+                discussion?.user?.avatarUrl || '/src/assets/default-avatar.png'
+              "
+              :alt="discussion?.user?.username || '用户'"
+              class="avatar"
+            />
+            <span class="username">{{
+              discussion?.user?.username || "用户"
+            }}</span>
+            <span v-if="discussion?.isTeacher || false" class="teacher-tag"
+              >教师</span
+            >
           </div>
-          <span class="post-time">发布于 {{ post.createTime }}</span>
+          <span class="post-time">发布于 {{ discussion?.createTime }}</span>
         </div>
       </div>
       <div class="post-content">
-        {{ post.content }}
+        {{ discussion?.content }}
       </div>
       <div class="post-actions">
         <div class="action-buttons">
           <button class="action-btn like-btn" @click="handleLike">
-            <i class="like-icon">👍</i> {{ post.likes }}
+            <i class="like-icon">👍</i> {{ (discussion?.replayCount -2 ) <0?0: discussion?.replayCount -2 }}
           </button>
           <button class="action-btn reply-btn" @click="focusReply">
             <i class="reply-icon">💬</i> 回复
@@ -39,11 +49,19 @@
     <div class="replies-section">
       <h3 class="replies-title">全部回复 ({{ totalReplies }})</h3>
       <div class="reply-list">
-        <div v-for="reply in paginatedReplies" :key="reply.id" class="reply-item">
+        <div
+          v-for="reply in paginatedReplies"
+          :key="reply.replyId"
+          class="reply-item"
+        >
           <div class="reply-header">
             <div class="user-info">
-              <img :src="reply.userAvatar" :alt="reply.userName" class="avatar">
-              <span class="username">{{ reply.userName }}</span>
+              <img
+                :src="reply.user?.avatarUrl || '/src/assets/default-avatar.png'"
+                :alt="reply.user?.username || '用户'"
+                class="avatar"
+              />
+              <span class="username">{{ reply.user?.username || '用户' }}</span>
               <span v-if="reply.isTeacher" class="teacher-tag">教师</span>
             </div>
             <span class="reply-time">{{ reply.createTime }}</span>
@@ -53,41 +71,71 @@
           </div>
           <div class="reply-actions">
             <div class="action-buttons">
-              <button class="action-btn like-btn" @click="handleReplyLike(reply)">
-                <i class="like-icon">👍</i> {{ reply.likes }}
+              <button
+                class="action-btn like-btn"
+                @click="handleReplyLike(reply)"
+              >
+                <i class="like-icon">👍</i> {{ reply.likeCount }}
               </button>
-              <button class="action-btn reply-btn" @click="handleReplyToReply(reply)">
+              <button
+                class="action-btn reply-btn"
+                @click="handleReplyToReply(reply)"
+              >
                 回复
               </button>
             </div>
           </div>
 
           <!-- 子回复列表 -->
-          <div v-if="reply.subReplies && reply.subReplies.length > 0" class="sub-replies-container">
+          <div
+            v-if="reply.subReplies && reply.subReplies.length > 0"
+            class="sub-replies-container"
+          >
             <div class="sub-replies-header" @click="toggleSubReplies(reply)">
-              <span>{{ reply.showSubReplies ? '收起' : '展开' }}{{ reply.subReplies.length }}条回复</span>
-              <i class="toggle-icon" :class="{ 'rotated': reply.showSubReplies }">▼</i>
+              <span
+                >{{ reply.showSubReplies ? "收起" : "展开"
+                }}{{ reply.subReplies.length }}条回复</span
+              >
+              <i class="toggle-icon" :class="{ rotated: reply.showSubReplies }"
+                >▼</i
+              >
             </div>
             <div class="sub-replies" v-show="reply.showSubReplies">
-              <div v-for="subReply in reply.subReplies" :key="subReply.id" class="sub-reply-item">
+              <div
+                v-for="subReply in reply.subReplies"
+                :key="subReply.replyId"
+                class="sub-reply-item"
+              >
                 <div class="sub-reply-header">
                   <div class="user-info">
-                    <img :src="subReply.userAvatar" :alt="subReply.userName" class="sub-avatar">
-                    <span class="sub-username">{{ subReply.userName }}</span>
-                    <span v-if="subReply.isTeacher" class="teacher-tag">教师</span>
+                    <img
+                      :src="subReply.user?.avatarUrl || '/src/assets/default-avatar.png'"
+                      :alt="subReply.user?.username || '用户'"
+                      class="sub-avatar"
+                    />
+                    <span class="sub-username">{{ subReply.user?.username || '用户' }}</span>
+                    <span v-if="subReply.isTeacher" class="teacher-tag"
+                      >教师</span
+                    >
                   </div>
                   <span class="sub-reply-time">{{ subReply.createTime }}</span>
                 </div>
                 <div class="sub-reply-content">
-                  <span class="reply-to">回复 @{{ subReply.replyTo }}:</span>
+                  <span class="reply-to">回复 @{{ subReply.replyTo?.username || '用户' }}:</span>
                   {{ subReply.content }}
                 </div>
                 <div class="reply-actions">
                   <div class="action-buttons">
-                    <button class="action-btn like-btn" @click="handleSubReplyLike(subReply)">
-                      <i class="like-icon">👍</i> {{ subReply.likes }}
+                    <button
+                      class="action-btn like-btn"
+                      @click="handleSubReplyLike(subReply as BaseReply)"
+                    >
+                      <i class="like-icon">👍</i> {{ subReply.likeCount }}
                     </button>
-                    <button class="action-btn reply-btn" @click="handleReplyToSubReply(reply, subReply)">
+                    <button
+                      class="action-btn reply-btn"
+                      @click="handleReplyToSubReply(reply, subReply as BaseReply)"
+                    >
                       回复
                     </button>
                   </div>
@@ -100,15 +148,15 @@
 
       <!-- 分页控件 -->
       <div class="pagination">
-        <button 
-          class="page-btn" 
+        <button
+          class="page-btn"
           :disabled="currentPage === 1"
           @click="changePage(currentPage - 1)"
         >
           上一页
         </button>
         <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-        <button 
+        <button
           class="page-btn"
           :disabled="currentPage === totalPages"
           @click="changePage(currentPage + 1)"
@@ -120,9 +168,9 @@
 
     <!-- 回复输入框 -->
     <div class="reply-input-section" ref="replySection">
-      <textarea 
-        v-model="newReply" 
-        placeholder="写下你的回复..." 
+      <textarea
+        v-model="newReply"
+        placeholder="写下你的回复..."
         class="reply-input"
         rows="4"
       ></textarea>
@@ -132,208 +180,152 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-
-interface SubReply {
-  id: number
-  content: string
-  userName: string
-  userAvatar: string
-  createTime: string
-  likes: number
-  isTeacher: boolean
-  replyTo: string
-}
-
-interface Reply {
-  id: number
-  content: string
-  userName: string
-  userAvatar: string
-  createTime: string
-  likes: number
-  isTeacher: boolean
-  showSubReplies: boolean
-  subReplies: SubReply[]
-}
-
-interface Post {
-  id: number
-  title: string
-  content: string
-  userName: string
-  userAvatar: string
-  createTime: string
-  likes: number
-  isTeacher: boolean
-}
-
-interface ReplyingTo {
-  reply: Reply
-  subReply?: SubReply
-  type: 'main' | 'sub'
-}
+import {
+  addReply,
+  getDiscussion,
+  getDiscussionReplies,
+} from "@/services/api/discussion";
+import { ref, computed, onMounted } from "vue";
 
 interface Props {
-  postId: string | number
+  discussionId: string | number;
+}
+interface BaseReply extends API.DiscussionReplyWithSubVO {
+  showSubReplies: boolean;
 }
 
-const props = defineProps<Props>()
-const emit = defineEmits(['back'])
+const props = defineProps<Props>();
+const emit = defineEmits(["back"]);
 
-const post = ref<Post>({
-  id: 1,
-  title: '常见的软件开发方法',
-  content: '结构化方法 面向数据结构方法 面向对象方法 形式化方法',
-  userName: '李信宸',
-  userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-  createTime: '2024-11-29 09:45',
-  likes: 15,
-  isTeacher: true
-})
+const discussion = ref<API.DiscussionVO>({});
+const replies = ref<BaseReply[]>([]);
+const newReply = ref("");
+const currentPage = ref(1);
+const pageSize = ref(10);
+const replyingTo = ref<{ reply: BaseReply; type: "main" | "sub" } | null>(null);
+const totalReplies = ref(0);
+const replySection = ref<HTMLElement | null>(null);
 
-const replies = ref<Reply[]>([
-  {
-    id: 1,
-    content: '面向对象方法是现在最常用的开发方法之一，它具有良好的可复用性和可维护性。',
-    userName: '张同学',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    createTime: '2024-11-29 10:30',
-    likes: 5,
-    isTeacher: false,
-    showSubReplies: false,
-    subReplies: [
-      {
-        id: 101,
-        content: '确实如此,面向对象编程让代码更容易理解和维护',
-        userName: '李同学',
-        userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-        createTime: '2024-11-29 10:35',
-        likes: 2,
-        isTeacher: false,
-        replyTo: '张同学'
-      }
-    ]
-  },
-  {
-    id: 2,
-    content: '补充一点：形式化方法在一些对软件正确性要求极高的领域非常重要，比如航天软件、医疗系统等。',
-    userName: '王教授',
-    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-    createTime: '2024-11-29 11:15',
-    likes: 8,
-    isTeacher: true,
-    showSubReplies: false,
-    subReplies: []
-  }
-])
-
-const newReply = ref('')
-const currentPage = ref(1)
-const pageSize = ref(10)
-const replyingTo = ref<ReplyingTo | null>(null)
-const replySection = ref<HTMLElement | null>(null)
-
-const totalReplies = computed(() => replies.value.length)
-
-const totalPages = computed(() => Math.ceil(totalReplies.value / pageSize.value))
+const totalPages = computed(() =>
+  Math.ceil(totalReplies.value / pageSize.value)
+);
 
 const paginatedReplies = computed(() => {
-  const start = (currentPage.value - 1) * pageSize.value
-  const end = start + pageSize.value
-  return replies.value.slice(start, end)
-})
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return replies.value.slice(start, end);
+});
+
+// 获取评论详情和评论列表
+const fetchData = async () => {
+  // 获取讨论详情
+  const discussionData = await getDiscussion({
+    id: Number(props.discussionId),
+  });
+  discussion.value = discussionData.data;
+
+  // 获取回复列表
+  const repliesData = await getDiscussionReplies({
+    current: currentPage.value,
+    pageSize: pageSize.value,
+    param: {
+      discussionId: Number(props.discussionId),
+      //@ts-ignore
+      'sorter.column': "createTime",
+      //@ts-ignore
+      'sorter.mode': "asc",
+    },
+  });
+  replies.value =
+    repliesData.data?.list.map((reply) => ({
+      ...reply,
+      showSubReplies: false,
+    })) || [];
+  totalReplies.value = repliesData.data.total;
+};
+
+// 获取讨论详情
+onMounted(async () => {
+  await fetchData();
+});
 
 const goBack = () => {
-  emit('back')
-}
+  emit("back");
+};
 
 const handleLike = () => {
-  post.value.likes++
-}
+  // discussion.value.likeCount++
+};
 
-const handleReplyLike = (reply: Reply) => {
-  reply.likes++
-}
+const handleReplyLike = (reply: BaseReply) => {
+  reply.likeCount++;
+};
 
-const handleSubReplyLike = (subReply: SubReply) => {
-  subReply.likes++
-}
+const handleSubReplyLike = (subReply: BaseReply) => {
+  subReply.likeCount++;
+};
 
 const focusReply = () => {
-  replySection.value?.scrollIntoView({ behavior: 'smooth' })
-}
+  replySection.value?.scrollIntoView({ behavior: "smooth" });
+};
 
-const handleReplyToReply = (reply: Reply) => {
-  replyingTo.value = {reply: reply, type: 'main'}
-  newReply.value = `@${reply.userName} `
-  focusReply()
-}
+const handleReplyToReply = (reply: BaseReply) => {
+  replyingTo.value = { reply: reply, type: "main" };
+  newReply.value = `@${reply.user?.username || "用户"} `;
+  focusReply();
+};
 
-const handleReplyToSubReply = (mainReply: Reply, subReply: SubReply) => {
-  replyingTo.value = {reply: mainReply, subReply: subReply, type: 'sub'}
-  newReply.value = `@${subReply.userName} `
-  focusReply()
-}
+const handleReplyToSubReply = (mainReply: BaseReply, subReply: BaseReply) => {
+  replyingTo.value = { reply: mainReply, type: "sub" };
+  newReply.value = `@${subReply.user?.username || "用户"} `;
+  focusReply();
+};
 
-const toggleSubReplies = (reply: Reply) => {
-  reply.showSubReplies = !reply.showSubReplies
-}
+const toggleSubReplies = (reply: BaseReply) => {
+  reply.showSubReplies = !reply.showSubReplies;
+};
 
-const submitReply = () => {
+const submitReply = async () => {
   if (!newReply.value.trim()) {
-    alert('请输入回复内容')
-    return
+    alert("请输入回复内容");
+    return;
   }
 
-  if (replyingTo.value) {
-    // 添加子回复
-    const subReply: SubReply = {
-      id: Date.now(),
-      content: newReply.value,
-      userName: '当前用户',
-      userAvatar: '/default-avatar.png',
-      createTime: new Date().toLocaleString(),
-      likes: 0,
-      isTeacher: false,
-      replyTo: replyingTo.value.type === 'main' ? 
-        replyingTo.value.reply.userName : 
-        replyingTo.value.subReply!.userName
+  try {
+    if (replyingTo.value) {
+      // 添加子回复
+      const subReplyData = await addReply({
+        discussionId: Number(props.discussionId),
+        replyId: replyingTo.value.reply.replyId,
+        content: newReply.value,
+      });
+
+      replyingTo.value.reply.showSubReplies = true;
+    } else {
+      // 添加主回复
+      const replyData = await addReply({
+        discussionId: Number(props.discussionId),
+        content: newReply.value,
+      });
     }
 
-    if (!replyingTo.value.reply.subReplies) {
-      replyingTo.value.reply.subReplies = []
-    }
-    replyingTo.value.reply.subReplies.push(subReply)
-    replyingTo.value.reply.showSubReplies = true
-  } else {
-    // 添加主回复
-    const reply: Reply = {
-      id: replies.value.length + 1,
-      content: newReply.value,
-      userName: '当前用户',
-      userAvatar: '/default-avatar.png',
-      createTime: new Date().toLocaleString(),
-      likes: 0,
-      isTeacher: false,
-      showSubReplies: false,
-      subReplies: []
-    }
-    replies.value.push(reply)
+    newReply.value = "";
+    replyingTo.value = null;
+
+    // 添加新回复后跳转到最后一页
+    currentPage.value = totalPages.value;
+    await fetchData();
+  } catch (error) {
+    console.error("提交回复失败:", error);
+    alert("提交回复失败,请重试");
   }
-
-  newReply.value = ''
-  replyingTo.value = null
-  
-  // 添加新回复后跳转到最后一页
-  currentPage.value = totalPages.value
-}
+};
 
 const changePage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
-    currentPage.value = page
+    currentPage.value = page;
   }
-}
+};
 </script>
 
 <style scoped>
@@ -341,9 +333,9 @@ const changePage = (page: number) => {
   padding: 40px;
   background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 100%;
 }
 
 .detail-header {
@@ -403,13 +395,13 @@ const changePage = (page: number) => {
   height: 50px;
   border-radius: 50%;
   border: 3px solid #fff;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .avatar:hover {
   transform: scale(1.1);
-  box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
 }
 
 .username {
@@ -419,13 +411,13 @@ const changePage = (page: number) => {
 }
 
 .teacher-tag {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
+  background: linear-gradient(135deg, #4caf50, #45a049);
   color: white;
   padding: 5px 10px;
   border-radius: 8px;
   font-size: 0.9em;
   font-weight: 600;
-  box-shadow: 0 2px 4px rgba(76,175,80,0.3);
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
 }
 
 .post-content {
@@ -436,7 +428,7 @@ const changePage = (page: number) => {
   padding: 25px;
   background: #f8f9fa;
   border-radius: 12px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .action-buttons {
@@ -454,7 +446,7 @@ const changePage = (page: number) => {
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .like-btn {
@@ -495,7 +487,7 @@ const changePage = (page: number) => {
 
 .reply-item:hover {
   background: #f8f9fa;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .reply-content {
@@ -576,7 +568,7 @@ const changePage = (page: number) => {
   background: linear-gradient(145deg, #f8f9fa, #e9ecef);
   padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .reply-input {
@@ -593,12 +585,12 @@ const changePage = (page: number) => {
 
 .reply-input:focus {
   outline: none;
-  border-color: #4CAF50;
-  box-shadow: 0 0 0 3px rgba(76,175,80,0.2);
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
 }
 
 .submit-btn {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
+  background: linear-gradient(135deg, #4caf50, #45a049);
   color: white;
   border: none;
   padding: 14px 28px;
@@ -607,16 +599,17 @@ const changePage = (page: number) => {
   font-weight: 600;
   font-size: 1.1em;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(76,175,80,0.3);
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
 }
 
 .submit-btn:hover {
   background: linear-gradient(135deg, #45a049, #3d8b40);
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(76,175,80,0.4);
+  box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
 }
 
-.post-time, .reply-time {
+.post-time,
+.reply-time {
   color: #868e96;
   font-size: 0.95em;
   font-weight: 500;
