@@ -61,17 +61,14 @@ export async function getQuestion(
 }
 
 /** 获取指定自测试卷信息 GET /self-test/info/${param0} */
-export async function getSelfTest(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getSelfTestParams,
-  options?: { [key: string]: any }
-) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.SelfTestVO>(`/self-test/info/${param0}`, {
-    method: "GET",
-    params: { ...queryParams },
-    ...(options || {}),
-  });
+export async function getSelfTest(id) {
+  if (!id || isNaN(Number(id))) {
+    return Promise.reject(new Error('无效的试卷ID'))
+  }
+  return request({
+    url: `/self-test/info/${id}`,
+    method: 'get'
+  })
 }
 
 /** 获取自测试卷列表 GET /self-test/list */

@@ -63,12 +63,19 @@
 
     <!-- 提交按钮 -->
     <div class="submit-area">
-      <button class="submit-btn" @click="submitTest">提交试卷</button>
+      <button class="submit-btn" @click="submitTest" :disabled="isSubmitting">
+        {{ isSubmitting ? '提交中...' : '提交试卷' }}
+      </button>
+      <button class="back-btn" @click="$router.back()" :disabled="isSubmitting">返回</button>
     </div>
   </div>
 </template>
 
 <script>
+import { reactive } from 'vue'
+import { getSelfTest } from '@/services/api/selfTest'
+import { submitTestRecord } from '@/services/api/testRecord'
+
 export default {
   name: 'Test',
   props: {
@@ -88,7 +95,8 @@ export default {
         createTime: '',
         questions: []
       },
-      answers: {}
+      answers: reactive({}),
+      isSubmitting: false
     }
   },
   methods: {
@@ -104,33 +112,77 @@ export default {
       return types[type] || '未知题型'
     },
 
-    // 提交试卷
-    submitTest() {
-      console.log('提交的答案：', this.answers)
-      // TODO: 调用API提交答案
+    // 获取试卷数据
+    async fetchTestData() {
+      try {
+        const tempTestId = this.testId
+        const response = await getSelfTest(tempTestId) 
+        if (response.status === 200 && response.data) {
+          this.testData = response.data
+          // 格式化创建时间
+          this.testData.createTime = new Date(this.testData.createTime).toLocaleString()
+          this.initializeAnswers()
+        }
+      } catch (error) {
+        console.error('获取试卷数据失败：', error)
+      }
+    },
+
+    // 修改提交试卷方法
+    async submitTest() {
+      if (this.isSubmitting) return
+      
+      // 验证所有题目是否已答
+      const unansweredQuestions = this.testData.questions.filter(question => {
+        const answer = this.answers[question.questionId]
+        return !answer || (Array.isArray(answer) && answer.length === 0)
+      })
+
+      if (unansweredQuestions.length > 0) {
+        console.warn(`还有 ${unansweredQuestions.length} 道题目未完成`)
+        return
+      }
+
+      this.isSubmitting = true
+      try {
+        // 构造提交数据
+        const submitData = {
+          testId: this.testData.testId,
+          answers: Object.entries(this.answers).map(([questionId, answer]) => ({
+            questionId: parseInt(questionId),
+            answer: Array.isArray(answer) ? answer.join(',') : answer.toString()
+          }))
+        }
+        console.error(submitData)
+        alert(submitData)
+
+        // 调用提交API
+        const result = await submitTestRecord(submitData)
+        
+        if (result) {
+          console.log('试卷提交成功！')
+          this.$router.push('/course/test-result')
+        } else {
+          console.error('提交失败，请重试')
+        }
+      } catch (error) {
+        console.error('提交试卷失败：', error)
+      } finally {
+        this.isSubmitting = false
+      }
     },
 
     // 初始化答案对象
     initializeAnswers() {
       this.testData.questions.forEach(question => {
-        // 如果是多选题，初始化为空数组
-        if (question.type === 1) {
-          this.$set(this.answers, question.questionId, [])
-        } else {
-          this.$set(this.answers, question.questionId, '')
+        if (question.type === 1) { // 多选题
+          this.answers[question.questionId] = []
+        } else if (question.type === 2) { // 判断题
+          this.answers[question.questionId] = null
+        } else { // 单选题和其他题型
+          this.answers[question.questionId] = ''
         }
       })
-    },
-
-    // 获取试卷数据
-    async fetchTestData() {
-      try {
-        // 使用 props 中的 testId 获取试卷数据
-        // this.testData = await getTestData(this.testId)
-        this.initializeAnswers()
-      } catch (error) {
-        console.error('获取试卷数据失败：', error)
-      }
     }
   },
   created() {

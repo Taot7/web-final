@@ -37,6 +37,8 @@
 </template>
 
 <script>
+import { getMyTestRecords } from '@/services/api/testRecord';
+
 export default {
   name: 'CourseQuiz',
   data() {
@@ -52,6 +54,24 @@ export default {
         { testId: 8, name: '第八章节测试', status: '未提交', score: '--' },
         { testId: 9, name: '第九章节测试', status: '未提交', score: '--' }
       ]
+    }
+  },
+  async created() {
+    try {
+      const response = await getMyTestRecords({});
+      if (response.status === 200 && response.data) {
+        this.quizzes = response.data.list.map(item => ({
+          testId: item.testId,
+          name: item.title,
+          status: item.status === 0 ? '未提交' : '已完成',
+          score: item.score || '--',
+          completeTime: item.completeTime
+        }));
+      }
+    } catch (error) {
+      console.error('获取测试记录失败:', error);
+      // 显示错误提示
+      this.$message.error('获取测试记录失败，请稍后重试');
     }
   },
   methods: {

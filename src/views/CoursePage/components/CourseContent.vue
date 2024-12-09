@@ -38,7 +38,9 @@ const courseMaterials = ref([])
 const fetchCourseMaterials = async () => {
   try {
     // 从路由中获取courseId
-    const courseId = route.params.courseId || route.query.courseId
+    const courseId = route.query.courseId
+    console.log('当前路由参数:', route.query.courseId)
+    console.log('当前查询参数:', route.query) 
     
     if (!courseId) {
       console.error('未找到课程ID')

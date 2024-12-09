@@ -9,7 +9,7 @@
             <input v-model="searchQuery.courseId" type="text" placeholder="课程ID" class="input" />
             <input v-model="searchQuery.courseName" type="text" placeholder="课程名称" class="input" />
             <input v-model="searchQuery.teacherName" type="text" placeholder="讲师姓名" class="input" />
-            <button class="button">搜索</button>
+            <button class="button" @click="queryCourse">搜索</button>
         </div>
 
         <!-- 课程表格 -->
@@ -45,8 +45,8 @@
         <div>首页轮播图次序：</div>
         <div class="gallery-container">
             <div 
-                v-for="(course, index) in filteredCourses" 
-                :key="course.id" 
+                v-for="(carousel, index) in carousels" 
+                :key="carousel.carouselId" 
                 class="gallery-item"
                 draggable="true"
                 @dragstart="handleDragStart(index)"
@@ -54,24 +54,37 @@
                 @drop="handleDrop(index)"
             >
                 <img 
-                    :src="course.cover || 'default-placeholder.png'" 
+                    :src="carousel.imageUrl || 'default-placeholder.png'" 
                     alt="课程封面" 
                     class="gallery-img" 
                 />
-                <div class="image-number">编号：{{ index + 1 }}</div>
             </div>
+        </div>
+        <div class="button-container">
+            <button class="confirm-upload-btn" @click="confirmUpdateCarousel">确定修改轮播图次序</button>
         </div>
 
         <!-- 发布新课程 -->
         <div class="new-course">
             <h3>发布新课程</h3>
-            <input v-model="newCourse.name" type="text" placeholder="课程名称" class="input" />
-            <input v-model="newCourse.category" type="text" placeholder="课程类别" class="input" />
-            <input v-model="newCourse.teacher" type="text" placeholder="教师姓名" class="input" />
+            <input v-model="newCourse.title" type="text" placeholder="课程名称" class="input" />
+            <select v-model="selectedCategory" >
+                <option v-for="category in categories" :key="category.categoryId" :value="category">
+                    {{ category.name }}
+                </option>   
+            </select>
+            <!-- <input v-model="newCourse.category" type="text" placeholder="课程类别" class="input" /> -->
+            <select v-model="selectedTeacher">
+                <option v-for="teacher in teachers" :key="teacher.teacherId" :value="teacher">
+                    {{ teacher.teacherName }}
+                </option> 
+            </select>
+         
+            <!-- <input v-model="newCourse.teacher" type="text" placeholder="教师姓名" class="input" /> -->
             <textarea v-model="newCourse.description" placeholder="课程简介" class="textarea"></textarea>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" v-model="newCourse.allowComments" /> 打开评论区
+                    <input type="checkbox" v-model="newCourse.allowComment" /> 打开评论区
                 </label>
                 <label>
                     <input type="checkbox" v-model="newCourse.allowNotes" /> 打开笔记区
@@ -111,7 +124,7 @@
             <h2>课程详情</h2>
             <div class="course-preview">
                 <div class="preview-image">
-                    <img :src="searchResult?.images[0] || 'default-placeholder.png'" alt="课程封面" />
+                    <img :src="searchResult?.coverImage || 'default-placeholder.png'" alt="课程封面" />
                 </div>
                 <div class="preview-info">
                     <h3>{{ searchResult?.name || "课程名称" }}</h3>
@@ -195,7 +208,7 @@
                         <img :src="previewImage" alt="课程封面" />
                     </div>
                     <div class="preview-info">
-                        <h3>{{ newCourse.name || "课程名称" }}</h3>
+                        <h3>{{ newCourse.title || "课程名称" }}</h3>
                         <p>创建时间：{{ new Date().toISOString().split('T')[0] }}</p>
                         <p>状态：进行中</p>
                     </div>
@@ -209,19 +222,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive} from "vue";
+import { onMounted, ref, computed} from "vue";
+import request from "../../../../config/axios.config";
 
 interface Course {
     id: number;
     name: string;
     category: string;
     teacher: string;
-    description: string;
     status: string; // "已发布" 或 "未发布"
+    description: string;
+    coverImage: string; // 新增字段用于存储图片
     allowComments: boolean;
+    allowNotes: boolean
+}
+interface Carousel{
+    carouselId: number;
+    imageUrl: string;
+    sortOrder: number;
+}
+
+interface NewCourse{
+    title:string;
+    categoryId: number ;
+    teacherId: number;
+    description:string ;
+    allowComment: boolean;
     allowNotes: boolean;
-    images: string[]; // 新增字段用于存储图片
-    cover: string; 
+    coverImage: string;
+}
+
+interface Category{
+    categoryId: number,
+    name: string
 }
 
 interface Assignment {
@@ -230,14 +263,133 @@ interface Assignment {
     dueDate: string;
     selectedCourse: number | null; // 记录选中的课程ID
 }
+interface Teacher {
+    teacherId: number,
+    teacherName: string
+}
 
-const courses = ref<Course[]>([
-    { id: 1, name: "HTML基础", category: "Web前端", teacher: "王老师", description: "HTML入门课程", status: "已发布", allowComments: true, allowNotes: false, cover: "/src/assets/try1.png", images: ["/src/assets/try1.png"] },
-    { id: 2, name: "JavaScript进阶", category: "Web前端", teacher: "李老师", description: "JS进阶知识", status: "未发布", allowComments: false, allowNotes: true, cover: "/src/assets/try2.png",images: ["/src/assets/try2.png"] },
-    { id: 3, name: "CSS布局", category: "Web前端", teacher: "张老师", description: "CSS布局技巧", status: "已发布", allowComments: true, allowNotes: false, cover: "/src/assets/try3.png",images: ["/src/assets/try3.png"] },
-    { id: 4, name: "Vue.js入门", category: "前端框架", teacher: "陈老师", description: "Vue.js基础知识", status: "未发布", allowComments: false, allowNotes: true, cover: "/src/assets/try4.png",images: ["/src/assets/try4.png"] },
-    { id: 5, name: "React.js进阶", category: "前端框架", teacher: "刘老师", description: "深入理解React.js", status: "已发布", allowComments: true, allowNotes: false, cover: "/src/assets/try5.png",images: ["/src/assets/try5.png"] },
-]);
+const courses = ref<Course[]>([]);
+const selectedCourse = ref<Course>();
+const carousels = ref<Carousel[]>([]);
+const categories = ref<Category[]>([])
+const teachers = ref<Teacher[]>([])
+const selectedCategory = ref<Category>()
+const selectedTeacher = ref<Teacher>()
+
+// 初始化一个空的 Course 对象
+const emptyCourse: Course = {
+  id: 0, // 默认值
+  name: "",
+  category: "",
+  teacher: "",
+  status: "",
+  description: "",
+  coverImage: "",
+  allowComments: false, // 布尔值默认初始化为 false
+  allowNotes: false,    // 布尔值默认初始化为 false
+};
+const emptyNewCourse: NewCourse = {
+    title: "",
+    categoryId: 0,
+    teacherId: 0,
+    description: "",
+    allowComment: false,
+    allowNotes: false,
+    coverImage: ""
+}
+
+
+const newCourse = ref<NewCourse>(emptyNewCourse);
+
+const retrieveCourses = async () => {
+
+    const resp = await request.get('/course/list', {
+    params: {
+      current: 1, 
+      pageSize: 100
+    }
+  })
+  resp.data.list.forEach((item)=>{
+    console.log(item)
+
+    let statusStr = ""
+    if (item.status == 0) statusStr = "未发布"
+    else if (item.status == 1) statusStr = "已发布"
+    else if (item.status == 2) statusStr = "已归档"
+    else statusStr = "未知状态"
+    courses.value.push({
+        id: item.courseId,
+        name: item.title,
+        category: item.category?.name,
+        teacher: item.teacherName,
+        status: statusStr, // "已发布" 或 "未发布"
+        description: item.description,
+        coverImage: item.coverImage, // 新增字段用于存储图片
+        allowComments: item.allowComments,
+        allowNotes: item.allowNotes
+    })
+  })
+  selectedCourse.value = courses.value[0]
+  filteredCourses.value = courses.value
+  filteredCourses.value.sort((a, b)=> a.id - b.id)
+}
+
+const retrieveCarousels = async () => {
+    const resp = await request.get('/course-carousel/list', {
+    params: {
+      current: 1, 
+      pageSize: 100
+    }
+  })
+  resp.data.list.forEach((item)=>{
+    carousels.value.push({
+        carouselId: item.carouselId,
+        imageUrl: item.imageUrl,
+        sortOrder: item.sortOrder
+    })
+  })
+  carousels.value.sort((a, b) => a.sortOrder - b.sortOrder)
+  console.log(carousels)
+}
+const retrieveCategories = async () => {
+    const resp = await request.get('/course-category/list', {
+    params: {
+      current: 1, 
+      pageSize: 100
+    }
+  })
+  resp.data.list.forEach((item)=>{
+    categories.value.push({
+        categoryId: item.categoryId,
+        name: item.name
+    })
+  })
+  selectedCategory.value = categories.value[0]
+  console.log(categories)
+}
+const retrieveTeachers = async () => {
+    const resp = await request.get('/user-management/list?roleId=2', {
+    params: {
+      current: 1, 
+      pageSize: 100
+    }
+  })
+  console.log('teachers: ', resp.data.list)
+  resp.data.list.forEach((item)=>{
+    teachers.value.push({
+        teacherId: item.userId,
+        teacherName: item.username
+    })
+  })
+  selectedTeacher.value = teachers.value[0]
+}
+
+onMounted(async ()=>{
+    await retrieveCourses()
+    await retrieveCarousels()
+    await retrieveCategories()
+    await retrieveTeachers()
+})
 
 const searchQuery = ref({
     courseId: "",
@@ -245,18 +397,10 @@ const searchQuery = ref({
     teacherName: "",
 });
 
-const newCourse = ref<Course>({
-    id: 0,
-    name: "",
-    category: "",
-    teacher: "", 
-    description: "",
-    status: "已发布",
-    allowComments: false,
-    allowNotes: false,
-    images: [],
-    cover:""
-});
+const postCourse = () => {
+    // newcourses.value = newcourses.value
+
+}
 
 const assignment = ref<Assignment>({
     title: "",
@@ -265,16 +409,20 @@ const assignment = ref<Assignment>({
     selectedCourse: null,
 });
 
-
-const filteredCourses = computed(() =>
-    courses.value.filter((course) => {
+const filteredCourses = ref<Course[]>([emptyCourse])
+const queryCourse = () => {
+    filteredCourses.value = courses.value
+    console.log(searchQuery)
+    filteredCourses.value = filteredCourses.value.filter((course) => {
         return (
-            (!searchQuery.value.courseId || course.id.toString().includes(searchQuery.value.courseId)) &&
+            (!searchQuery.value.courseId || course.id.toString() == (searchQuery.value.courseId)) &&
             (!searchQuery.value.courseName || course.name.includes(searchQuery.value.courseName)) &&
             (!searchQuery.value.teacherName || course.teacher.includes(searchQuery.value.teacherName))
         );
     })
-);
+    filteredCourses.value = filteredCourses.value.sort((a, b)=> a.id - b.id)
+
+}
 
 const isSearchModalVisible = ref(false); // 控制查找模态框的显示
 const searchResult = ref<Course | null>(null); // 当前查找到的课程
@@ -320,7 +468,7 @@ const updateCourseImage = (event: Event) => {
         const reader = new FileReader();
         reader.onload = (e) => {
             if (typeof e.target?.result === "string" && editTargetCourse.value) {
-                editTargetCourse.value.images = [e.target.result]; // 更新图片路径
+                editTargetCourse.value.coverImage = e.target.result; // 更新图片路径
             }
         };
         reader.readAsDataURL(files[0]);
@@ -338,15 +486,32 @@ const deleteCourse = (index: number) => {
 
 const previewImage = ref<string>("");
 
-const publishCourse = () => {
-    if (!newCourse.value.name || !newCourse.value.category) {
-        alert("请填写完整课程信息");
-        return;
+const publishCourse = async () => {
+    // if (!newCourse.value.title || !selectedCategory.value.categoryId || !selectedTeacher.value.teacherId
+    //     || !newCourse.value.description || !newCourse.value.coverImage
+    // ) {
+    //     alert("请填写完整课程信息");
+    //     return;
+    // }
+    // const nextId = courses.value.length > 0 ? Math.max(...courses.value.map(course => course.id)) + 1 : 1;
+    // courses.value.push({ ...newCourse.value, id: nextId });
+    const temp = {
+        "title": newCourse.value.title,
+        "categoryId": selectedCategory.value.categoryId,
+        "teacherId": selectedTeacher.value.teacherId,
+        "description": newCourse.value.description,
+        "allowComment": newCourse.value.allowComment,
+        "allowNotes": newCourse.value.allowNotes,
+        "coverImage": newCourse.value.coverImage
     }
-    const nextId = courses.value.length > 0 ? Math.max(...courses.value.map(course => course.id)) + 1 : 1;
-    courses.value.push({ ...newCourse.value, id: nextId });
+    console.log(temp)
+    const resp = await request.post('/course/add', temp)
+
+    console.log(resp.data)
+    courses.value = []
+    retrieveCourses()
     alert("课程发布成功！");
-    resetNewCourse();
+    // resetNewCourse();
 };
 
 const handleImageUpload = (event: Event) => {
@@ -356,6 +521,7 @@ const handleImageUpload = (event: Event) => {
         reader.onload = (e) => {
             if (typeof e.target?.result === "string") {
                 previewImage.value = e.target.result;
+                newCourse.value.coverImage = URL.createObjectURL(files[0]);
             }
         };
         reader.readAsDataURL(files[0]);
@@ -374,14 +540,31 @@ const handleDrop = (targetIndex: number) => {
     if (draggedIndex === -1 || draggedIndex === targetIndex) return;
 
     // 更新图片顺序
-    const draggedItem = filteredCourses.value[draggedIndex];
-    filteredCourses.value.splice(draggedIndex, 1); // 移除拖拽的图片
-    filteredCourses.value.splice(targetIndex, 0, draggedItem); // 插入到目标位置
+    const draggedItem = carousels.value[draggedIndex];
+    carousels.value.splice(draggedIndex, 1); // 移除拖拽的图片
+    carousels.value.splice(targetIndex, 0, draggedItem); // 插入到目标位置
+
+    // 更新轮播图次序
+    carousels.value.forEach((item, index)=>{
+        item.sortOrder = index + 1
+    })
+    console.log(carousels.value)
 
     // 更新课程顺序数据
-    updateCourseIds();
+    // updateCourseIds();
     draggedIndex = -1; // 重置拖拽索引
 };
+// 确认更新轮播图次序
+const confirmUpdateCarousel = () => {
+    carousels.value.forEach(async (item) => {
+        const resp = await request.put('/course-carousel/update/' + item.carouselId, {
+                "carouselId": item.carouselId,
+                "sortOrder": item.sortOrder,
+            })
+        console.log(resp)
+    })
+    confirm('轮播图次序更新成功！')
+}
 
 const updateCourseIds = () => {
     courses.value.forEach((course, index) => {
@@ -393,18 +576,7 @@ const updateCourseIds = () => {
 };
 
 const resetNewCourse = () => {
-    newCourse.value = {
-        id: 0,
-        name: "",
-        category: "",
-        teacher: "默认教师",
-        description: "",
-        status: "未发布",
-        allowComments: false,
-        allowNotes: false,
-        images: [],
-        cover:""
-    };
+    location.reload();
 };
 
 const assignHomework = () => {
@@ -423,7 +595,7 @@ const assignHomework = () => {
 const isModalVisible = ref(false);
 
 const showPreview = () => {
-    if (!newCourse.value.name || !previewImage.value) {
+    if (!newCourse.value.title || !previewImage.value) {
         alert("请确保填写课程名称并上传封面！");
         return;
     }
@@ -694,5 +866,23 @@ const closeModal = () => {
     margin-top: 5px;
     font-size: 14px;
     color: #555;
+}
+
+.button-container {
+    margin-top:50px;
+    display: flex;
+    justify-content: flex-end; /* 将按钮对齐到右侧 */
+    margin-right: 100px; /* 添加右边距 */
+    margin-bottom: 30px; /* 添加底部间距 */
+}
+
+.confirm-upload-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #59bcf5;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
 </style>
