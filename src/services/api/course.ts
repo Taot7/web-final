@@ -83,6 +83,27 @@ export async function getCourseAssignments(
   );
 }
 
+/** 获取我的课程信息列表 GET /course/list-self */
+export async function getMyCourses(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getMyCoursesParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultCourseVO>("/course/list-self", {
+    method: "GET",
+    params: {
+      // current has a default value: 1
+      current: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+      ...params,
+      param: undefined,
+      ...params["param"],
+    },
+    ...(options || {}),
+  });
+}
+
 /** 对应课程下的所有学生账号 GET /course/list-student/${param0} */
 export async function getCourseStudents(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

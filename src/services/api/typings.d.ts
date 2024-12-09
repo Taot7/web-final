@@ -29,6 +29,57 @@ declare namespace API {
     createTime?: string;
   };
 
+  type AssignmentDetailQuery = {
+    /** 作业ID */
+    assignmentId?: number;
+    /** 课程ID */
+    courseId: number;
+    /** 作业标题 */
+    title: string;
+    /** 作业描述 */
+    description: string;
+    /** 截止时间 */
+    deadline: string;
+    /** 创建时间 */
+    createTime?: string;
+    /** 学生Id */
+    studentId?: number;
+    /** 作业提交信息Id */
+    submissionId?: number;
+    /** 作业提交状态 */
+    submissionStatus?: "0" | "1" | "2";
+    /** 作业提交状态值 */
+    submissionStatusList?: ("0" | "1" | "2")[];
+    /** 作业提交时间 */
+    submitTime?: string;
+  };
+
+  type AssignmentDetailVO = {
+    /** 作业ID */
+    assignmentId?: number;
+    /** 课程ID */
+    courseId: number;
+    /** 作业标题 */
+    title: string;
+    /** 作业描述 */
+    description: string;
+    /** 截止时间 */
+    deadline: string;
+    /** 创建时间 */
+    createTime?: string;
+    course?: CourseVO;
+    /** 学生Id */
+    studentId?: number;
+    student?: UserVO;
+    /** 作业提交信息Id */
+    submissionId?: number;
+    /** 作业提交状态 */
+    submissionStatus?: "0" | "1" | "2";
+    /** 作业提交时间 */
+    submitTime?: number;
+    submission?: AssignmentSubmission;
+  };
+
   type AssignmentFeedbackParam = {
     /** 提交ID */
     submissionId?: number;
@@ -53,6 +104,27 @@ declare namespace API {
     createTime?: string;
   };
 
+  type AssignmentSubmission = {
+    /** 提交ID */
+    submissionId?: number;
+    /** 作业ID */
+    assignmentId: number;
+    /** 学生ID */
+    studentId?: number;
+    /** 提交内容 */
+    content?: string;
+    /** 文件URL */
+    fileUrl?: string;
+    /** 状态：0-未提交、1-未批改、2-已批改 */
+    status?: "0" | "1" | "2";
+    /** 得分 */
+    score?: number;
+    /** 反馈内容 */
+    feedback?: string;
+    /** 提交时间 */
+    submitTime?: string;
+  };
+
   type AssignmentSubmissionCommitParam = {
     /** 提交内容 */
     content?: string;
@@ -64,7 +136,7 @@ declare namespace API {
     /** 提交ID */
     submissionId?: number;
     /** 作业ID */
-    assignmentId?: number;
+    assignmentId: number;
     /** 学生ID */
     studentId?: number;
     /** 提交内容 */
@@ -85,7 +157,7 @@ declare namespace API {
     /** 提交ID */
     submissionId?: number;
     /** 作业ID */
-    assignmentId?: number;
+    assignmentId: number;
     /** 学生ID */
     studentId?: number;
     /** 提交内容 */
@@ -102,6 +174,17 @@ declare namespace API {
     submitTime?: string;
     assignment?: AssignmentVO;
     student?: UserVO;
+  };
+
+  type AssignmentSubmitParam = {
+    /** 作业ID */
+    assignmentId: number;
+    /** 学生id,根据身份获取 */
+    studentId?: number;
+    /** 提交内容 */
+    content: string;
+    /** 文件URL */
+    fileUrl: string;
   };
 
   type AssignmentSubmitStatVO = {
@@ -128,7 +211,6 @@ declare namespace API {
     deadline: string;
     /** 创建时间 */
     createTime?: string;
-    submitStat?: AssignmentSubmitStatVO;
     course?: CourseVO;
   };
 
@@ -372,6 +454,8 @@ declare namespace API {
     /** 更新时间 */
     updateTime?: string;
     sorter?: Sorter;
+    /** 状态值多选 */
+    statuses?: ("0" | "1" | "2")[];
     /** 课程id */
     courseIds?: number[];
   };
@@ -506,6 +590,7 @@ declare namespace API {
     content?: string;
     /** 创建时间 */
     createTime?: string;
+    sorter?: Sorter;
   };
 
   type DiscussionReplyForm = {
@@ -620,6 +705,12 @@ declare namespace API {
     id: number;
   };
 
+  type getAssignmentDetailsParams = {
+    current?: number;
+    pageSize?: number;
+    param: AssignmentDetailQuery;
+  };
+
   type getAssignmentParams = {
     id: number;
   };
@@ -722,6 +813,12 @@ declare namespace API {
     param: DiscussionQuery;
   };
 
+  type getMyAssignmentDetailsParams = {
+    current?: number;
+    pageSize?: number;
+    param: AssignmentDetailQuery;
+  };
+
   type getMyAssignmentSubmissionsParams = {
     current?: number;
     pageSize?: number;
@@ -732,6 +829,12 @@ declare namespace API {
     current?: number;
     pageSize?: number;
     param: CourseEnrollmentQuery;
+  };
+
+  type getMyCoursesParams = {
+    current?: number;
+    pageSize?: number;
+    param: CourseQuery;
   };
 
   type getMyDiscussionsParams = {
@@ -820,6 +923,11 @@ declare namespace API {
     current?: number;
     pageSize?: number;
     param: UserQuery;
+  };
+
+  type ListResultAssignmentDetailVO = {
+    list?: AssignmentDetailVO[];
+    total?: number;
   };
 
   type ListResultAssignmentSubmissionVO = {

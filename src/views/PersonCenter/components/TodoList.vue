@@ -42,19 +42,19 @@
             :key="item.submissionId"
           >
             <div class="item-header">
-              <span :class="['status-badge', getStatusClass(item.status)]">
-                {{ ASSIGNMENT_SUBMISSION_STATUS[item.status] || "" }}
+              <span :class="['status-badge', getStatusClass(item?.submissionStatus)]">
+                {{ ASSIGNMENT_SUBMISSION_STATUS[item?.submissionStatus] || "" }}
               </span>
             </div>
             <div class="item-content">
-              <h3>{{ item?.assignment?.title || "" }}</h3>
-              <p>{{ item?.assignment?.description || "" }}</p>
+              <h3>{{ item?.title || "" }}</h3>
+              <p>{{ item?.description || "" }}</p>
               <div class="item-footer">
-                <span class="deadline">截止日期: {{ item?.assignment?.deadline || "" }}</span>
+                <span class="deadline">截止日期: {{ item?.deadline || "" }}</span>
                 <button
                   class="btn btn-primary btn-small"
-                  v-if="item.status == '0'"
-                  @click="goToOnlineCourse(item.assignment.courseId)"
+                  v-if="item?.submissionStatus == '0'"
+                  @click="goToOnlineCourse(item.courseId)"
                 >
                   提交作业
                 </button>
@@ -106,7 +106,7 @@
                 </div>
                 <button
                   class="btn btn-primary btn-small"
-                  v-if="item.status === '0'"
+                  v-if="item.status == '0'"
                   @click.stop="goToOnlineCourse(item.courseId)"
                 >
                   开始测试
@@ -125,7 +125,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ASSIGNMENT_SUBMISSION_STATUS } from "@/constant/assignment";
 import { SELF_TEST_RECORD_STATUS } from "@/constant/test";
-import { getMyAssignmentSubmissions } from "@/services/api/assignmentSubmission";
+import { getMyAssignmentDetails } from "@/services/api/assignment";
 import { getMyTestRecords } from "@/services/api/testRecord";
 
 const router = useRouter();
@@ -133,7 +133,7 @@ const currentTab = ref("homework");
 
 interface CourseHomework {
   course: API.CourseVO;
-  assignments: API.AssignmentSubmissionVO[];
+  assignments: API.AssignmentDetailVO[];
 }
 
 interface CourseTest {
@@ -163,24 +163,25 @@ const isCollapsed = (courseId: number) => {
 // 获取作业列表并按课程聚合
 const fetchHomeworkList = async () => {
   try {
-    const res = await getMyAssignmentSubmissions({
+    const res = await getMyAssignmentDetails({
       current: 1,
       pageSize: 100000,
+      //@ts-ignore
       param: {
-        status: "0",
+        submissionStatus: "0",
       },
     });
     if (res.data) {
       // 使用reduce方法按课程id对作业进行聚合
       courseHomeworks.value = res.data.list.reduce((acc: CourseHomework[], assignment) => {
         const existingCourse = acc.find(
-          item => item.course.courseId === assignment?.assignment?.course?.courseId
+          item => item.course.courseId === assignment?.courseId
         );
         if (existingCourse) {
           existingCourse.assignments.push(assignment);
         } else {
           acc.push({
-            course: assignment.assignment.course,
+            course: assignment?.course,
             assignments: [assignment],
           });
         }
