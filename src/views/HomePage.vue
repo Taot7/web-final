@@ -121,7 +121,7 @@
           <button @click="viewDetails(course.courseId)">查看详情</button>
         </div>
       </div>
-    
+
 
 
       <!-- 横向滑动容器 -->
@@ -301,6 +301,19 @@ import NavUser from '@/components/NavUser.vue'
 var recommendedCourses_ID = [1,2,3,4,5,6,7];
 var popularCourses_ID = [3, 4, 5,8];
 var newCourses_ID = [6, 7, 8,9];
+const mapping = {
+  1: "理学·工学",
+  9: "教育·语言",
+  11: "文学·艺术",
+  12: "计算机",
+  13: "创业·职场",
+  14: "哲史·文化",
+  15: "经济·管理",
+  16: "医学",
+  17: "心理学",
+  18: "社会·法律",
+  19: "农学",
+};
 export default {
   components: {
     NavUser
@@ -320,11 +333,17 @@ export default {
       newCourses: [],
       courseCategories: [
         { name: "全部" },
-        { name: "前端" },
-        { name: "后端" },
-        { name: "算法" },
-        { name: "数据库" },
-        { name: "多线程" },
+        { name: "理学·工学" },
+        { name: "教育·语言" },
+        { name: "文学·艺术" },
+        { name: "计算机" },
+        { name: "医学" },
+        { name: "创业·职场" },
+        { name: "哲史·文化" },
+        { name: "经济·管理" },
+        { name:"心理学"},
+        { name:"社会·法律"},
+        { name:"农学"}
       ],
       showModal: false,
       modalCourse: {},
@@ -722,11 +741,21 @@ export default {
       if(this.selectedCategory=="全部"){
         this.filteredCourses=this.courses;
       }else{
+
         this.filteredCourses = this.courses.filter(
-            (course) => course.categoryName === category
+
+            (course) => course.categoryId ==this.getKeyByValue(mapping,category)
         );
       }
 
+    },
+    getKeyByValue(obj, value) {
+      for (let key in obj) {
+        if (obj[key] === value) {
+          return key;
+        }
+      }
+      return null; // 如果没找到对应的值
     },
     // 按指定字段排序课程
     sortCourses() {
@@ -775,6 +804,7 @@ export default {
           // 使用本地数据作为备用数据
           this.filteredCourses = this.courses;
           console.log("获取全部数据成功");
+          console.log(this.courses)
         } else {
           throw new Error("未能获取到有效的课程数据");
         }
