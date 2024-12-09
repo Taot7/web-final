@@ -27,8 +27,29 @@
       <div class="form-item">
         <label>姓名 <span class="required">*</span></label>
         <div class="input-wrapper">
-          <input v-model="userInfo.realName" type="text" placeholder="请输入姓名" />
+          <input v-model="userInfo.username" type="text" placeholder="请输入姓名" />
           <span class="error-msg" v-if="errors.realName">{{ errors.realName }}</span>
+        </div>
+      </div>
+      <div class="form-item">
+        <label>学号/教职工号</label>
+        <div class="input-wrapper">
+          <input v-model="userInfo.studentId" type="text" disabled />
+        </div>
+      </div>
+      <div class="form-item">
+        <label>学院 <span class="required">*</span></label>
+        <div class="input-wrapper">
+          <input v-model="userInfo.department" type="text" placeholder="请输入所属学院" />
+          <span class="error-msg" v-if="errors.department">{{ errors.department }}</span>
+        </div>
+      </div>
+
+      <div class="form-item">
+        <label>个性签名</label>
+        <div class="input-wrapper">
+          <input v-model="userInfo.signature" type="text" placeholder="请输入个性签名" />
+          <span class="error-msg" v-if="errors.signature">{{ errors.signature }}</span>
         </div>
       </div>
 
@@ -36,15 +57,15 @@
         <label>性别 <span class="required">*</span></label>
         <div class="input-wrapper radio-group">
           <label class="radio-label">
-            <input type="radio" v-model="userInfo.gender" value="male" />
+            <input type="radio" v-model="userInfo.gender" value="1" />
             男
           </label>
           <label class="radio-label">
-            <input type="radio" v-model="userInfo.gender" value="female" />
+            <input type="radio" v-model="userInfo.gender" value="2" />
             女
           </label>
           <label class="radio-label">
-            <input type="radio" v-model="userInfo.gender" value="private" />
+            <input type="radio" v-model="userInfo.gender" value="0" />
             不公开
           </label>
           <span class="error-msg" v-if="errors.gender">{{ errors.gender }}</span>
@@ -62,7 +83,7 @@
       <div class="form-item">
         <label>手机号</label>
         <div class="input-wrapper">
-          <input v-model="userInfo.phone" type="tel" placeholder="请输入手机号（选填）" />
+          <input v-model="otherInfo.phone" type="tel" placeholder="请输入手机号（选填）" />
           <span class="error-msg" v-if="errors.phone">{{ errors.phone }}</span>
         </div>
       </div>
@@ -70,7 +91,7 @@
       <div class="form-item">
         <label>生日</label>
         <div class="input-wrapper">
-          <input v-model="userInfo.birthday" type="date" />
+          <input v-model="otherInfo.birthday" type="date" />
           <span class="error-msg" v-if="errors.birthday">{{ errors.birthday }}</span>
         </div>
       </div>
@@ -78,13 +99,13 @@
       <div class="form-item">
         <label>地区</label>
         <div class="input-wrapper location-group">
-          <select v-model="userInfo.province" @change="onProvinceChange">
+          <select v-model="otherInfo.province" @change="onProvinceChange">
             <option value="">请选择省份（选填）</option>
             <option v-for="province in provinces" :key="province.code" :value="province.code">
               {{ province.name }}
             </option>
           </select>
-          <select v-model="userInfo.city">
+          <select v-model="otherInfo.city">
             <option value="">请选择城市（选填）</option>
             <option v-for="city in cities" :key="city.code" :value="city.code">
               {{ city.name }}
@@ -100,7 +121,7 @@
           <label class="checkbox-label" v-for="interest in interests" :key="interest.value">
             <input type="checkbox" 
                    :value="interest.value" 
-                   v-model="userInfo.selectedInterests" />
+                   v-model="otherInfo.selectedInterests" />
             {{ interest.label }}
           </label>
           <span class="error-msg" v-if="errors.interests">{{ errors.interests }}</span>
@@ -145,9 +166,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, defineExpose, defineProps } from 'vue'
+import { updatePassword } from '@/services/api/user'
+import { updateUser } from '@/services/api/userManagement'
+import { useUser } from '@/utils/userAuth';
+import router from '@/router';
+
+// 在 script setup 的开始处添加
+interface UserSettingsExpose {
+  
+}
+// 定义props
+const props = defineProps<{
+  initialUserInfo: API.UserVO
+}>()
+
+const emit = defineEmits(['save-info', 'save-password'])
 
 const currentTab = ref('basic')
+
+// 用户信息状态
+const userInfo = ref<API.UserVO>({...props.initialUserInfo})
 
 const interests = [
   { label: '运动', value: 'sports' },
@@ -207,15 +246,13 @@ const cityMap = {
 // 修改 cities 的定义
 const cities = ref<City[]>([])
 
-// 初始化用户信息
-const userInfo = ref({
-  nickname: 'Jscomet',
-  realName: '黄静嘉',
-  gender: 'male',
-  email: 'liming@szu.edu.cn',
+const otherInfo=ref({
   phone: '13800138000',
+  
   birthday: '2022-01-01',
+  
   province: 'GD',
+  
   city: 'SZ',
   selectedInterests: ['sports', 'reading']
 })
@@ -237,19 +274,21 @@ const errors = reactive({
   interests: '',
   oldPassword: '',
   newPassword: '',
-  confirmPassword: ''
+  confirmPassword: '',
+  department: '',
+  signature: ''
 })
 
 // 根据选择的省份更新城市列表
 const onProvinceChange = () => {
-  userInfo.value.city = ''
-  cities.value = cityMap[userInfo.value.province as keyof typeof cityMap] || []
+  otherInfo.value.city = ''
+  cities.value = cityMap[otherInfo.value.province as keyof typeof cityMap] || []
 }
 
 // 组件挂载时初始化城市列表
 onMounted(() => {
-  if (userInfo.value.province) {
-    cities.value = cityMap[userInfo.value.province as keyof typeof cityMap] || []
+  if (otherInfo.value.province) {
+    cities.value = cityMap[otherInfo.value.province as keyof typeof cityMap] || []
   }
 })
 
@@ -258,16 +297,17 @@ const validateUserInfo = () => {
   
   // 只验证必填字段
   errors.nickname = !userInfo.value.nickname ? '昵称不能为空' : ''
-  errors.realName = !userInfo.value.realName ? '姓名不能为空' : ''
+  errors.realName = !userInfo.value.username ? '姓名不能为空' : ''
   errors.gender = !userInfo.value.gender ? '请选择性别' : ''
+  errors.department = !userInfo.value.department ? '请输入所属学院' : ''
   
   // 可选字段仅在填写时验证格式
   if (userInfo.value.email) {
     errors.email = !/^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$/.test(userInfo.value.email) ? '邮箱格式不正确' : ''
   }
   
-  if (userInfo.value.phone) {
-    errors.phone = !/^1[3-9]\d{9}$/.test(userInfo.value.phone) ? '手机号格式不正确' : ''
+  if (otherInfo.value.phone) {
+    errors.phone = !/^1[3-9]\d{9}$/.test(otherInfo.value.phone) ? '手机号格式不正确' : ''
   }
 
   return !Object.values(errors).some(error => error)
@@ -283,17 +323,74 @@ const validatePassword = () => {
   return !Object.values(errors).some(error => error)
 }
 
-const saveUserInfo = () => {
+// 更新用户数据的方法
+const updateUserData = (newData: API.UserVO) => {
+  userInfo.value = {...newData}
+}
+// 保存用户信息方法
+const saveUserInfo = async () => {
   if (validateUserInfo()) {
-    // TODO: 实现保存用户信息的逻辑
+    try {
+      const updateData = userInfo.value
+      
+      const res=await updateUser({
+        id: userInfo.value.userId
+      }, updateData)
+      
+      //弹出保存成功
+      if(res.status === 200){
+        alert('个人信息保存成功')
+      }else{
+        //@ts-ignore
+        alert(res.message)
+      } 
+      emit('save-info')
+    } catch (error) {
+        alert(error.response.data.message)      
+    }
   }
 }
 
-const changePassword = () => {
+// 修改密码方法
+const changePassword = async () => {
   if (validatePassword()) {
-    // TODO: 实现修改密码的逻辑
+    try {
+      const res=await updatePassword({
+        userId:userInfo.value.userId,
+        oldPassword: passwordForm.value.oldPassword,
+        newPassword: passwordForm.value.newPassword
+      })
+
+      if(res.status === 200){
+        alert('密码修改成功')
+        // 清空密码表单
+        passwordForm.value = {
+          oldPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        }
+        //清空缓存
+        useUser().logout()
+        //跳转到登录页面
+        router.push('/login')
+      }else{
+        //@ts-ignore
+        alert(res.message)
+      }
+      
+     
+      
+    } catch (error) {
+      alert(error.response.data.message)      
+    }
   }
 }
+
+// 暴露方法供父组件调用
+defineExpose({
+  saveUserInfo,
+  updateUserData
+})
 </script>
 
 <style scoped>
@@ -389,6 +486,12 @@ const changePassword = () => {
   border-color: #1890ff;
   box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
   outline: none;
+}
+
+.form-item input:disabled {
+  background-color: #f5f7fa;
+  cursor: not-allowed;
+  color: #909399;
 }
 
 .radio-group,

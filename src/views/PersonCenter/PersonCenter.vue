@@ -35,15 +35,15 @@
       <!-- 统计数据 -->
       <div class="stats">
         <div class="stat-item">
-          <div class="number">{{ stats.studying }}</div>
+          <div class="number">{{ stats.studying ||3 }}</div>
           <div class="label">正在学习课程</div>
         </div>
         <div class="stat-item">
-          <div class="number">{{ stats.completed }}</div>
+          <div class="number">{{ stats.total ||12 }}</div>
           <div class="label">累计学习课程</div>
         </div>
         <div class="stat-item">
-          <div class="number">{{ stats.posts }}</div>
+          <div class="number">{{ stats.posts ||25 }}</div>
           <div class="label">发布的讨论</div>
         </div>
       </div>
@@ -99,36 +99,6 @@
       <div class="right-content">
         <!-- 我的课程模块 -->
         <div v-if="currentTab === 'courses'" class="content-section">
-          <div class="tab-header">
-            <div
-              class="tab-item"
-              :class="{ active: subTab === 'learning' }"
-              @click="subTab = 'learning'"
-            >
-              开课中
-            </div>
-            <div
-              class="tab-item"
-              :class="{ active: subTab === 'upcoming' }"
-              @click="subTab = 'upcoming'"
-            >
-              即将开始
-            </div>
-            <div
-              class="tab-item"
-              :class="{ active: subTab === 'completed' }"
-              @click="subTab = 'completed'"
-            >
-              已结束
-            </div>
-            <div
-              class="tab-item"
-              :class="{ active: subTab === 'favorite' }"
-              @click="subTab = 'favorite'"
-            >
-              关注的课程
-            </div>
-          </div>
           <CourseList />
         </div>
 
@@ -149,7 +119,12 @@
 
         <!-- 信息设置模块 -->
         <div v-if="currentTab === 'settings'" class="content-section">
-          <UserSettings />
+          <UserSettings 
+            ref="userSettingsRef"
+            :initial-user-info="userInfo"
+            @save-info="handleSaveUserInfo"
+            @update-user-data="handleSaveUserInfo"
+          />
         </div>
       </div>
     </div>
@@ -166,10 +141,16 @@ import UserSettings from "@/views/PersonCenter/components/UserSettings.vue";
 import { uploadImage } from "@/services/api/commonController";
 import { updateUser } from "@/services/api/userManagement";
 import { useUser } from "@/utils/userAuth";
-const { isLoggedIn,isTeacher,isStudent,isAdmin,getCurrentUserInfo} = useUser();
+import { getMyCourseEnrollments } from "@/services/api/courseEnrollment";
+import { getCurrentUser } from '@/services/api/user'
+import type { ComponentPublicInstance } from 'vue'
+import { getMyDiscussions } from "@/services/api/discussion";
+const { isTeacher,getCurrentUserInfo} = useUser();
 const currentTab = ref("courses");
-const subTab = ref("learning");
 const fileInput = ref<HTMLInputElement | null>(null);
+
+// 定义 UserSettings 组件的 ref
+const userSettingsRef = ref<InstanceType<typeof UserSettings> | null>(null)
 
 const userInfo = ref<API.UserVO>({
   nickname: "Jscomet",
@@ -180,24 +161,52 @@ const userInfo = ref<API.UserVO>({
   email: "liming@szu.edu.cn",
 });
 
+
 const reloadUserInfo=async()=>{
 
   const request = await getCurrentUserInfo()
   userInfo.value = request;
   console.log('userInfo',userInfo.value)
 }
+const stats = ref({
+  studying: 3,
+  total: 12,
+  posts: 25,
+});
+//获取统计数据
+const reloadStats=async ()=>{
+  const studyingCourese=await getMyCourseEnrollments(
+    {
+      current:1,
+      pageSize:1,
+      param:{
+        status:"1"
+      }
+    }
+  )
+  //进行中的课程
+  stats.value.studying=studyingCourese.data.total
+  const totalCoures= await getMyCourseEnrollments({
+    current:1,
+    pageSize:1,
+    param:{
+    }
+  }) 
+  stats.value.total=totalCoures.data.total
+  //发起的讨论
+  const discussionPosts=await getMyDiscussions({
+    current:1,
+    pageSize:1,
+    param:{}
+  })
+  stats.value.posts=discussionPosts.data.total
+}
 //进入页面时获取用户信息
 onMounted(async () => {
   userInfo.value = await getCurrentUserInfo()
-  
+  await reloadStats()
   
   console.log('isTeacher',isTeacher)
-});
-
-const stats = ref({
-  studying: 3,
-  completed: 12,
-  posts: 25,
 });
 
 // 触发文件选择
@@ -235,6 +244,35 @@ const handleAvatarChange = async (event: Event) => {
     alert("上传失败,请重试");
   }
 };
+
+// 加载用户信息
+const loadUserInfo = async () => {
+  try {
+    const response = await getCurrentUser()
+    userInfo.value = response.data
+    // 更新子组件的用户信息
+    if (userSettingsRef.value) {
+      userSettingsRef.value.updateUserData(response.data)
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+}
+
+// 处理保存用户信息
+const handleSaveUserInfo = async () => {
+  if (userSettingsRef.value) {
+    console.log('PersonCenter,刷新用户信息')
+    await loadUserInfo()
+    await reloadStats() 
+  }
+}
+
+onMounted(async () => {
+  await loadUserInfo()
+  await reloadStats()
+})
+
 </script>
 
 <style scoped>

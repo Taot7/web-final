@@ -1,94 +1,141 @@
 <template>
   <div class="course-list">
-    <div class="course-header">
-      <h2>我的课程</h2>
+    <div class="tab-header">
+      <div
+        v-for="tab in tabs"
+        :key="tab.value"
+        class="tab-item"
+        :class="{ active: currentTab === tab.value }"
+        @click="handleTabChange(tab.value)"
+      >
+        {{ tab.label }}
+      </div>
     </div>
 
     <div class="course-container">
-      <div v-for="course in courseList" :key="course.id" class="course-item">
-        <div class="course-cover" @click="goToCourse(course.id)">
-          <img :src="course.coverImage" alt="课程封面">
+      <div
+        v-for="enrollment in courseList"
+        :key="enrollment.enrollmentId"
+        class="course-item"
+      >
+        <div class="course-cover" @click="goToCourse(enrollment.courseId)">
+          <img :src="enrollment.course.coverImage" alt="课程封面" />
         </div>
         <div class="course-info">
-          <h3 class="course-title">{{ course.name }}</h3>
+          <h3 class="course-title">{{ enrollment?.course?.title || "" }}</h3>
           <div class="progress-info">
             <div class="progress-text">
-              <span>待完成作业: {{ course.assignments || 0 }}</span>
-              <span>已完成进度: {{ course.progress }}%</span>
+              <span v-if="currentTab !== 'upcoming'">待完成作业: {{ 0 }}</span>
+              <span>已完成进度: {{ currentTab === 'upcoming' ? 0 : enrollment.progress }}%</span>
             </div>
             <div class="progress-bar">
-              <div class="progress" :style="{ width: course.progress + '%' }"></div>
+              <div
+                class="progress"
+                :style="{ width: currentTab === 'upcoming' ? '0%' : enrollment.progress + '%' }"
+              ></div>
             </div>
           </div>
           <div class="course-meta">
             <span class="course-date">
               <i class="iconfont icon-time"></i>
-              创建时间: {{ course.createTime }}
+              {{ currentTab === 'upcoming' ? '发布时间: 2025-02-14' : '创建时间: ' + enrollment.createTime }}
             </span>
             <span class="course-status">
               <i class="iconfont icon-status"></i>
-              状态: {{ course.status === 1 ? '进行中' : course.status === 2 ? '已完成' : '未开始' }}
+              状态:
+              {{ COURSE_ENROLLMENT_STATUS[enrollment.status] }}
             </span>
           </div>
         </div>
         <div class="course-actions">
-          <button class="continue-btn" @click="goToOnlineCourse(course.id)">继续学习</button>
+          <button
+            class="continue-btn"
+            @click="goToOnlineCourse(enrollment.courseId)"
+          >
+            继续学习
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+<script setup lang="ts">
+import { COURSE_ENROLLMENT_STATUS } from "@/constant/course";
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import { getMyCourseEnrollments } from "@/services/api/courseEnrollment";
 
-const router = useRouter()
+const router = useRouter();
 
-const goToCourse = (courseId) => {
-  router.push('/course',{
+const goToCourse = (courseId: number) => {
+  router.push({
+    path: "/course",
     query: {
-      courseId: courseId
-    }
-  })
-}
-const goToOnlineCourse = (courseId) => {
-  router.push('/online-course',{
+      courseId: courseId,
+    },
+  });
+};
+const goToOnlineCourse = (courseId: number) => {
+  router.push({
+    path: "/online-course",
     query: {
-      courseId: courseId
-    }
-  })
-}
+      courseId: courseId,
+    },
+  });
+};
 
-const courseList = ref([
-  {
-    id: 1,
-    name: '大学生心理健康',
-    coverImage: 'http://47.115.57.164:81/api/common/view/image?filename=20241204.f4a658b24a1d4c78bf2fcc5fcc603fca.course1.png',
-    progress: 75,
-    createTime: "2024-01-01",
-    status: 1,
-    assignments: 2
-  },
-  {
-    id: 2, 
-    name: '软件工程',
-    coverImage: 'http://47.115.57.164:81/api/common/view/image?filename=20241204.176a8c98198643cea4021f2cf41e1412.coures2.png',
-    progress: 30,
-    createTime: "2024-01-15", 
-    status: 1,
-    assignments: 1
-  },
-  {
-    id: 3,
-    name: '计算机网络',
-    coverImage: 'http://47.115.57.164:81/api/common/view/image?filename=20241204.3670ef8f8e584ca7a155aa45d531098e.coures3.png',
-    progress: 0,
-    createTime: "2024-02-01",
-    status: 0,
-    assignments: 0
+
+const tabs = [
+  { label: "开课中", value: "learning" },
+  { label: "即将开始", value: "upcoming" },
+  { label: "已结束", value: "completed" },
+  { label: "关注的课程", value: "favorite" },
+];
+
+const currentTab = ref<"learning" | "upcoming" | "completed" | "favorite">(
+  "learning"
+);
+const courseList = ref<API.CourseEnrollmentVO[]>([]);
+
+const loadCourseList = async () => {
+  let status: "0" | "1" | "2" | "3" = undefined;
+
+  switch (currentTab.value) {
+    case "learning":
+      status = "1";
+      break;
+    case "upcoming":
+      status = "0";
+      break;
+    case "completed":
+      status = "2";
+      break;
+    case "favorite":
+      status = "3";
+      break;
   }
-])
+
+  try {
+    const response = await getMyCourseEnrollments({
+      current: 1,
+      pageSize: 100,
+      param: { status },
+    });
+    courseList.value = response.data.list;
+  } catch (error) {
+    console.error("获取课程列表失败", error);
+  }
+};
+
+const handleTabChange = (tab: string) => {
+  currentTab.value = tab as typeof currentTab.value;
+  loadCourseList();
+};
+
+onMounted(() => {
+  loadCourseList();
+});
 </script>
 
 <style scoped>
@@ -190,4 +237,27 @@ const courseList = ref([
 .continue-btn:hover {
   background: #1565c0;
 }
-</style> 
+
+.tab-header {
+  display: flex;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 25px;
+}
+
+.tab-item {
+  padding: 12px 25px;
+  cursor: pointer;
+  color: #666;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tab-item:hover {
+  color: #667eea;
+}
+
+.tab-item.active {
+  color: #667eea;
+  border-bottom: 2px solid #667eea;
+}
+</style>

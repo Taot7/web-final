@@ -124,20 +124,25 @@ const handleSubmit = async () => {
       
   }
   isSubmitting.value = true
-  // 在这里可以添加提交表单的逻辑
-  const res = await forgetPassword({
-      studentId: form.userId,
-      username: form.name,
-      password: form.newPassword,
+  try{
+    // 在这里可以添加提交表单的逻辑
+    const res = await forgetPassword({
+        studentId: form.userId,
+        username: form.name,
+        password: form.newPassword,
     })
+    console.log('res',res)
     if(res.status === 200) {
-      // 提示用户密码重置成功
-      alert('密码重置成功,请重新登录')
-      router.push('/login')
-    }else{
-      alert('密码重置失败,请重试')
+        // 提示用户密码重置成功
+        alert('密码重置成功,请重新登录')
+        router.push('/login')
     }
-  isSubmitting.value = false
+  } catch (error) {
+    console.log(error)
+    alert(error.response.data.message)
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
