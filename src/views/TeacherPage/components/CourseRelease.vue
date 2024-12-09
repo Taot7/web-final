@@ -68,13 +68,15 @@
         <div class="new-course">
             <h3>发布新课程</h3>
             <input v-model="newCourse.title" type="text" placeholder="课程名称" class="input" />
-            <select v-model="selectedCategory" >
+            <select v-model="selectedCategory" class="course-select">
+                <option disabled value="">选择课程</option>
                 <option v-for="category in categories" :key="category.categoryId" :value="category">
                     {{ category.name }}
                 </option>   
             </select>
             <!-- <input v-model="newCourse.category" type="text" placeholder="课程类别" class="input" /> -->
-            <select v-model="selectedTeacher">
+            <select v-model="selectedTeacher" class="course-select">
+                <option disabled value="">选择教师</option>
                 <option v-for="teacher in teachers" :key="teacher.teacherId" :value="teacher">
                     {{ teacher.teacherName }}
                 </option> 
@@ -106,15 +108,15 @@
             <h3>布置作业</h3>
             <input v-model="assignment.title" type="text" placeholder="作业标题" class="input" />
             <!-- 添加下拉框选择课程 -->
-            <select id="course-select" v-model="assignment.selectedCourse" class="course-select">
+            <select id="course-select" v-model="assignment.courseId" class="course-select">
                 <option disabled value="">选择课程</option>
                 <option v-for="course in courses" :key="course.id" :value="course.id">
                     {{ course.name }}
                 </option>
             </select>
-            <textarea v-model="assignment.requirements" placeholder="作业要求" class="textarea"></textarea>
+            <textarea v-model="assignment.description" placeholder="作业要求" class="textarea"></textarea>
             <div class="ddl">截至日期：</div>
-            <input v-model="assignment.dueDate" type="date" class="input" />
+            <input v-model="assignment.deadline" type="date" class="input" />
             <button @click="assignHomework" class="button primary">布置作业</button>
         </div>
 
@@ -258,11 +260,12 @@ interface Category{
 }
 
 interface Assignment {
+    courseId: number; 
     title: string;
-    requirements: string;
-    dueDate: string;
-    selectedCourse: number | null; // 记录选中的课程ID
+    description: string;
+    deadline: string;
 }
+
 interface Teacher {
     teacherId: number,
     teacherName: string
@@ -397,16 +400,12 @@ const searchQuery = ref({
     teacherName: "",
 });
 
-const postCourse = () => {
-    // newcourses.value = newcourses.value
-
-}
 
 const assignment = ref<Assignment>({
     title: "",
-    requirements: "",
-    dueDate: "",
-    selectedCourse: null,
+    description: "",
+    deadline: "",
+    courseId: null,
 });
 
 const filteredCourses = ref<Course[]>([emptyCourse])
@@ -476,12 +475,32 @@ const updateCourseImage = (event: Event) => {
 };
 
 
-const deleteCourse = (index: number) => {
-    if (confirm("确认删除该课程吗？")) {
-        courses.value.splice(index, 1);
-        updateCourseIds();
+const deleteCourse = async (index: number) => {
+    const courseToDelete = courses.value[index]; // 获取要删除的课程
+    if (!courseToDelete) {
+        alert("无法找到要删除的课程！");
+        return;
+    }
+
+    if (confirm(`确认删除课程 "${courseToDelete.name}" 吗？`)) {
+        try {
+            // 调用后台接口删除课程
+            const resp = await request.delete(`/course/delete/${courseToDelete.id}`);
+            if (resp.status === 200) {
+                // 如果删除成功，更新前端数据
+                courses.value.splice(index, 1);
+                updateCourseIds();
+                alert("课程已成功删除！");
+            } else {
+                alert("删除课程失败，请重试！");
+            }
+        } catch (error) {
+            console.error("删除课程出错：", error);
+            alert("删除课程时发生错误，请稍后再试！");
+        }
     }
 };
+
 
 
 const previewImage = ref<string>("");
@@ -575,21 +594,49 @@ const updateCourseIds = () => {
     });
 };
 
-const resetNewCourse = () => {
-    location.reload();
-};
-
-const assignHomework = () => {
-    if (!assignment.value.title || !assignment.value.requirements || !assignment.value.dueDate || !assignment.value.selectedCourse) {
-        alert("请填写完整作业信息并选择课程");
+const assignHomework = async () => {
+    if (
+        !assignment.value.title ||
+        !assignment.value.description ||
+        !assignment.value.deadline ||
+        !assignment.value.courseId
+    ) {
+        alert("请填写完整作业信息并选择课程！");
         return;
     }
-    const selectedCourse = courses.value.find(course => course.id === assignment.value.selectedCourse);
-    if (selectedCourse) {
-        alert(`作业 "${assignment.value.title}" 已布置给课程 "${selectedCourse.name}"，截止日期为 ${assignment.value.dueDate}`);
-        assignment.value = { title: "", requirements: "", dueDate: "", selectedCourse: null }; // 重置作业信息
+
+    // 准备要发送给后端的数据
+    // const temp = {
+        
+    // };
+    // console.log(assignment.value)
+    try {
+        // 发送 POST 请求到后端
+        const payload = {
+            "courseId": assignment.value.courseId, // 课程 ID
+            "title": assignment.value.title, // 作业标题
+            "description": assignment.value.description, // 作业要求
+            "deadline": assignment.value.deadline + ' 23:59:00', // 截止日期
+        }
+        console.log(payload)
+        const response = await request.post("/assignment/publish", payload);
+
+        if (response.status === 200) {
+            // 提示成功信息
+            alert(`作业 "${assignment.value.title}" 已成功布置！`);
+            // 重置作业输入框
+            assignment.value = { title: "", description: "", deadline: "", courseId: null };
+        } else {
+            // 如果后端返回异常信息
+            alert(`布置作业失败，请稍后再试！`);
+            console.error("后端返回的错误信息：", response.data);
+        }
+    } catch (error) {
+        console.error("布置作业请求出错：", error);
+        alert("布置作业时发生错误，请稍后再试！");
     }
 };
+
 
 
 const isModalVisible = ref(false);
@@ -819,6 +866,7 @@ const closeModal = () => {
     padding: 2px;
     font-size: 14px;
     width: 150px;
+    margin-right:10px;
 }
 
 .image-container {

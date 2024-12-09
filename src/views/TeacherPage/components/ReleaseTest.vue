@@ -8,9 +8,12 @@
     <!-- 自测题库管理 -->
     <div class="question-bank">
       <h3>自测题库</h3>
-      <div class="add-question">
-        <button @click="createQuestion">新增题目</button>
-      </div>
+      <select v-model="selectedCourse" class="course-select" @change="initQuestionBank(selectedCourse.courseId)" >
+            <option disabled value="">选择课程</option>
+            <option v-for="(course, index) in courses" :key="course.courseId" :value="course">
+              {{ course.title }}
+            </option>
+          </select>
       <table class="question-table">
         <thead>
           <tr>
@@ -23,20 +26,21 @@
         </thead>
         <tbody>
           <tr v-for="(question, index) in questions" :key="index">
-            <td>{{ question.type }}</td>
-            <td>{{ question.content }}</td>
+            <td>{{ questionType(question.type) }}</td>
+            <td>{{ question.questionText }}</td>
             <!-- 选项部分 -->
             <td v-if="question.type !== '简答题'">
-              <div v-for="(option, optIndex) in question.options" :key="optIndex">
-                {{ String.fromCharCode(65 + optIndex) }}: {{ option }}
+              <div v-for="(val, key) in JSON.parse(question.options)" :key="key">
+                {{ key }}: {{ val }}
               </div>
             </td>
             <td v-else>无选项</td>
             <!-- 答案部分 -->
-            <td v-if="question.type === '单选' || question.type === '多选'">
-              {{ question.answer }}
+            <td>{{ question.correctAnswer }}</td>
+            <!-- <td v-if="question.type === '单选' || question.type === '多选'">
+              {{ question.correctAnswer }}
             </td>
-            <td v-else>空</td>
+            <td v-else>空</td> -->
             <!-- 操作部分 -->
             <td>
               <div class="action-buttons">
@@ -86,17 +90,6 @@
           <input type="checkbox" v-model="testPaper.allowBacktrack" />
           允许回退答题
         </label>
-        
-        <!-- 选择课程部分 -->
-        <label>
-          选择课程：
-          <select v-model="selectedCourse" class="course-select">
-            <option disabled value="">选择课程</option>
-            <option v-for="(course, index) in courses" :key="index" :value="course">
-              {{ course }}
-            </option>
-          </select>
-        </label>
   
         <button type="submit">生成试卷</button>
       </form>
@@ -127,114 +120,142 @@
       </table>
     </div>
   </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        questions: [
-          {
-            type: "单选",
-            content: "Vue是什么框架？",
-            options: ["前端框架", "后端框架", "数据库", "操作系统"],
-            answer: "A",
-          },
-          {
-            type: "多选",
-            content: "JavaScript的特性有哪些？",
-            options: ["动态类型", "面向对象", "跨平台", "编译执行"],
-            answer: "A,B,C",
-          },
-          {
-            type: "简答题",
-            content: "请简述Vue的核心概念。",
-            options: [],
-            answer: "",
-          },
-        ],
-        courses: [
-          "计算机科学基础",
-          "数据结构与算法",
-          "前端开发",
-          "数据库管理系统",
-          "操作系统原理",
-        ],
-        selectedCourse: "",
-        testPaper: {
-          name: "",
-          questions: [],
-          selectionMode: "random",
-          randomizeOptions: false,
-          allowReview: false,
-          allowBacktrack: false,
-        },
-        publishedTests: [],
-      };
-    },
-    methods: {
-      createQuestion() {
-        alert("新增题目功能");
-      },
-      editQuestion(index) {
-        alert(`编辑题目：${this.questions[index].content}`);
-      },
-      deleteQuestion(index) {
-        this.questions.splice(index, 1);
-        alert("题目已删除");
-      },
-      generateTest() {
-        let selectedQuestions;
-        if (this.testPaper.selectionMode === "random") {
-          selectedQuestions = this.questions.sort(() => 0.5 - Math.random()).slice(0, 5);
-        } else {
-          selectedQuestions = this.testPaper.questions.map((index) => this.questions[index]);
-        }
-  
-        if (this.testPaper.randomizeOptions) {
-          selectedQuestions = selectedQuestions.map((q) => {
-            if (q.type === "单选" || q.type === "多选") {
-              return {
-                ...q,
-                options: q.options.sort(() => 0.5 - Math.random()),
-              };
-            }
-            return q;
-          });
-        }
-  
-        const newTest = {
-          ...this.testPaper,
-          questions: selectedQuestions,
-          status: "未发布",
+
+<script setup>
+import { onMounted, ref } from 'vue';
+import { getQuestionBanks } from '@/services/api/questionBank';
+import { getCourses } from '@/services/api/course';
+const questions = ref([])
+
+const courses = ref([])
+const selectedCourse = ref()
+const initCourses = async () => {
+  const resp = await getCourses({})
+  console.log(resp)
+  courses.value = resp.data.list
+  selectedCourse.value = courses[0]
+}
+const initQuestionBank = async (courseId) => {
+  const resp = await getQuestionBanks({courseId: courseId})
+  console.log(resp)
+  questions.value = resp.data.list
+}
+onMounted(async ()=>{
+  await initCourses()
+  // await initQuestionBank()
+
+})
+
+// const questions = [
+//     {
+//       type: "单选",
+//       content: "Vue是什么框架？",
+//       options: ["前端框架", "后端框架", "数据库", "操作系统"],
+//       answer: "A",
+//     },
+//     {
+//       type: "多选",
+//       content: "JavaScript的特性有哪些？",
+//       options: ["动态类型", "面向对象", "跨平台", "编译执行"],
+//       answer: "A,B,C",
+//     },
+//     {
+//       type: "简答题",
+//       content: "请简述Vue的核心概念。",
+//       options: [],
+//       answer: "",
+//     },
+//   ]
+// const courses = [
+//     "计算机科学基础",
+//     "数据结构与算法",
+//     "前端开发",
+//     "数据库管理系统",
+//     "操作系统原理",
+//   ]
+// const selectedCourse = ""
+const testPaper = {
+    name: "",
+    questions: [],
+    selectionMode: "random",
+    randomizeOptions: false,
+    allowReview: false,
+    allowBacktrack: false,
+  }
+const publishedTests = []
+
+const questionType = (type) => {
+  switch (type) {
+    case 0: return '单选'
+    case 1: return '多选'
+    case 2: return '判断'
+    case 3: return '填空'
+    case 4: return '问答'
+  }
+}
+
+const createQuestion = () => {
+      alert("新增题目功能");
+}
+const editQuestion = (index) => {
+  alert(`编辑题目：${this.questions[index].content}`);
+}
+const deleteQuestion = (index) => {
+  this.questions.splice(index, 1);
+  alert("题目已删除");
+}
+const generateTest = () => {
+  let selectedQuestions;
+  if (this.testPaper.selectionMode === "random") {
+    selectedQuestions = this.questions.sort(() => 0.5 - Math.random()).slice(0, 5);
+  } else {
+    selectedQuestions = this.testPaper.questions.map((index) => this.questions[index]);
+  }
+
+  if (this.testPaper.randomizeOptions) {
+    selectedQuestions = selectedQuestions.map((q) => {
+      if (q.type === "单选" || q.type === "多选") {
+        return {
+          ...q,
+          options: q.options.sort(() => 0.5 - Math.random()),
         };
-        this.publishedTests.push(newTest);
-        this.resetTestPaper();
-        alert("试卷生成成功！");
-      },
-      resetTestPaper() {
-        this.testPaper = {
-          name: "",
-          questions: [],
-          selectionMode: "random",
-          randomizeOptions: false,
-          allowReview: false,
-          allowBacktrack: false,
-        };
-      },
-      publishTest(index) {
-        this.publishedTests[index].status = "已发布";
-        alert("试卷已发布！");
-      },
-      viewResults(index) {
-        alert(`查看试卷 "${this.publishedTests[index].name}" 的答题情况`);
-      },
-      deleteTest(index) {
-        this.publishedTests.splice(index, 1);
-        alert("试卷已删除");
-      },
-    },
+      }
+      return q;
+    });
+  }
+
+  const newTest = {
+    ...this.testPaper,
+    questions: selectedQuestions,
+    status: "未发布",
   };
-  </script>
+  this.publishedTests.push(newTest);
+  this.resetTestPaper();
+  alert("试卷生成成功！");
+}
+const resetTestPaper = () => {
+  this.testPaper = {
+    name: "",
+    questions: [],
+    selectionMode: "random",
+    randomizeOptions: false,
+    allowReview: false,
+    allowBacktrack: false,
+  };
+}
+const publishTest = (index) => {
+  this.publishedTests[index].status = "已发布";
+  alert("试卷已发布！");
+}
+const viewResults = (index) => {
+  alert(`查看试卷 "${this.publishedTests[index].name}" 的答题情况`);
+}
+const deleteTest = (index)=>{
+  this.publishedTests.splice(index, 1);
+  alert("试卷已删除");
+}
+</script>
+
   
   <style scoped>
   .teacher-module {
@@ -283,7 +304,6 @@
   .course-select {
     padding: 3px;
     font-size: 14px;
-    margin-left: 35px;
     width: 150px;
   }
   </style>
