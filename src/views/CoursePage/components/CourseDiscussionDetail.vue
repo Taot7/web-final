@@ -131,163 +131,207 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'CourseDiscussionDetail',
-  props: {
-    postId: {
-      type: [String, Number],
-      required: true
-    }
-  },
-  data() {
-    return {
-      post: {
-        id: 1,
-        title: '常见的软件开发方法',
-        content: '结构化方法 面向数据结构方法 面向对象方法 形式化方法',
-        userName: '李信宸',
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+interface SubReply {
+  id: number
+  content: string
+  userName: string
+  userAvatar: string
+  createTime: string
+  likes: number
+  isTeacher: boolean
+  replyTo: string
+}
+
+interface Reply {
+  id: number
+  content: string
+  userName: string
+  userAvatar: string
+  createTime: string
+  likes: number
+  isTeacher: boolean
+  showSubReplies: boolean
+  subReplies: SubReply[]
+}
+
+interface Post {
+  id: number
+  title: string
+  content: string
+  userName: string
+  userAvatar: string
+  createTime: string
+  likes: number
+  isTeacher: boolean
+}
+
+interface ReplyingTo {
+  reply: Reply
+  subReply?: SubReply
+  type: 'main' | 'sub'
+}
+
+interface Props {
+  postId: string | number
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits(['back'])
+
+const post = ref<Post>({
+  id: 1,
+  title: '常见的软件开发方法',
+  content: '结构化方法 面向数据结构方法 面向对象方法 形式化方法',
+  userName: '李信宸',
+  userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
+  createTime: '2024-11-29 09:45',
+  likes: 15,
+  isTeacher: true
+})
+
+const replies = ref<Reply[]>([
+  {
+    id: 1,
+    content: '面向对象方法是现在最常用的开发方法之一，它具有良好的可复用性和可维护性。',
+    userName: '张同学',
+    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
+    createTime: '2024-11-29 10:30',
+    likes: 5,
+    isTeacher: false,
+    showSubReplies: false,
+    subReplies: [
+      {
+        id: 101,
+        content: '确实如此,面向对象编程让代码更容易理解和维护',
+        userName: '李同学',
         userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-        createTime: '2024-11-29 09:45',
-        likes: 15,
-        isTeacher: true
-      },
-      replies: [
-        {
-          id: 1,
-          content: '面向对象方法是现在最常用的开发方法之一，它具有良好的可复用性和可维护性。',
-          userName: '张同学',
-          userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-          createTime: '2024-11-29 10:30',
-          likes: 5,
-          isTeacher: false,
-          showSubReplies: false,
-          subReplies: [
-            {
-              id: 101,
-              content: '确实如此,面向对象编程让代码更容易理解和维护',
-              userName: '李同学',
-              userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-              createTime: '2024-11-29 10:35',
-              likes: 2,
-              isTeacher: false,
-              replyTo: '张同学'
-            }
-          ]
-        },
-        {
-          id: 2,
-          content: '补充一点：形式化方法在一些对软件正确性要求极高的领域非常重要，比如航天软件、医疗系统等。',
-          userName: '王教授',
-          userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
-          createTime: '2024-11-29 11:15',
-          likes: 8,
-          isTeacher: true,
-          showSubReplies: false,
-          subReplies: []
-        }
-      ],
-      newReply: '',
-      currentPage: 1,
-      pageSize: 10,
-      replyingTo: null // 记录当前回复的对象
-    }
+        createTime: '2024-11-29 10:35',
+        likes: 2,
+        isTeacher: false,
+        replyTo: '张同学'
+      }
+    ]
   },
-  computed: {
-    totalReplies() {
-      return this.replies.length;
-    },
-    totalPages() {
-      return Math.ceil(this.totalReplies / this.pageSize);
-    },
-    paginatedReplies() {
-      const start = (this.currentPage - 1) * this.pageSize;
-      const end = start + this.pageSize;
-      return this.replies.slice(start, end);
+  {
+    id: 2,
+    content: '补充一点：形式化方法在一些对软件正确性要求极高的领域非常重要，比如航天软件、医疗系统等。',
+    userName: '王教授',
+    userAvatar: 'http://47.115.57.164:81/api/common/view/image?filename=20241208.b5bd6fddbb464e45a80a8a8aefd70727.%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20240912152837.png',
+    createTime: '2024-11-29 11:15',
+    likes: 8,
+    isTeacher: true,
+    showSubReplies: false,
+    subReplies: []
+  }
+])
+
+const newReply = ref('')
+const currentPage = ref(1)
+const pageSize = ref(10)
+const replyingTo = ref<ReplyingTo | null>(null)
+const replySection = ref<HTMLElement | null>(null)
+
+const totalReplies = computed(() => replies.value.length)
+
+const totalPages = computed(() => Math.ceil(totalReplies.value / pageSize.value))
+
+const paginatedReplies = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return replies.value.slice(start, end)
+})
+
+const goBack = () => {
+  emit('back')
+}
+
+const handleLike = () => {
+  post.value.likes++
+}
+
+const handleReplyLike = (reply: Reply) => {
+  reply.likes++
+}
+
+const handleSubReplyLike = (subReply: SubReply) => {
+  subReply.likes++
+}
+
+const focusReply = () => {
+  replySection.value?.scrollIntoView({ behavior: 'smooth' })
+}
+
+const handleReplyToReply = (reply: Reply) => {
+  replyingTo.value = {reply: reply, type: 'main'}
+  newReply.value = `@${reply.userName} `
+  focusReply()
+}
+
+const handleReplyToSubReply = (mainReply: Reply, subReply: SubReply) => {
+  replyingTo.value = {reply: mainReply, subReply: subReply, type: 'sub'}
+  newReply.value = `@${subReply.userName} `
+  focusReply()
+}
+
+const toggleSubReplies = (reply: Reply) => {
+  reply.showSubReplies = !reply.showSubReplies
+}
+
+const submitReply = () => {
+  if (!newReply.value.trim()) {
+    alert('请输入回复内容')
+    return
+  }
+
+  if (replyingTo.value) {
+    // 添加子回复
+    const subReply: SubReply = {
+      id: Date.now(),
+      content: newReply.value,
+      userName: '当前用户',
+      userAvatar: '/default-avatar.png',
+      createTime: new Date().toLocaleString(),
+      likes: 0,
+      isTeacher: false,
+      replyTo: replyingTo.value.type === 'main' ? 
+        replyingTo.value.reply.userName : 
+        replyingTo.value.subReply!.userName
     }
-  },
-  methods: {
-    goBack() {
-      this.$emit('back');
-    },
-    handleLike() {
-      this.post.likes++;
-    },
-    handleReplyLike(reply) {
-      reply.likes++;
-    },
-    handleSubReplyLike(subReply) {
-      subReply.likes++;
-    },
-    focusReply() {
-      this.$refs.replySection.scrollIntoView({ behavior: 'smooth' });
-    },
-    handleReplyToReply(reply) {
-      this.replyingTo = {reply: reply, type: 'main'};
-      this.newReply = `@${reply.userName} `;
-      this.focusReply();
-    },
-    handleReplyToSubReply(mainReply, subReply) {
-      this.replyingTo = {reply: mainReply, subReply: subReply, type: 'sub'};
-      this.newReply = `@${subReply.userName} `;
-      this.focusReply();
-    },
-    toggleSubReplies(reply) {
-      reply.showSubReplies = !reply.showSubReplies;
-    },
-    submitReply() {
-      if (!this.newReply.trim()) {
-        alert('请输入回复内容');
-        return;
-      }
 
-      if (this.replyingTo) {
-        // 添加子回复
-        const subReply = {
-          id: Date.now(),
-          content: this.newReply,
-          userName: '当前用户',
-          userAvatar: '/default-avatar.png',
-          createTime: new Date().toLocaleString(),
-          likes: 0,
-          isTeacher: false,
-          replyTo: this.replyingTo.type === 'main' ? 
-            this.replyingTo.reply.userName : 
-            this.replyingTo.subReply.userName
-        };
-
-        if (!this.replyingTo.reply.subReplies) {
-          this.replyingTo.reply.subReplies = [];
-        }
-        this.replyingTo.reply.subReplies.push(subReply);
-        this.replyingTo.reply.showSubReplies = true; // 自动展开子回复
-      } else {
-        // 添加主回复
-        const reply = {
-          id: this.replies.length + 1,
-          content: this.newReply,
-          userName: '当前用户',
-          userAvatar: '/default-avatar.png',
-          createTime: new Date().toLocaleString(),
-          likes: 0,
-          isTeacher: false,
-          showSubReplies: false,
-          subReplies: []
-        };
-        this.replies.push(reply);
-      }
-
-      this.newReply = '';
-      this.replyingTo = null;
-      
-      // 添加新回复后跳转到最后一页
-      this.currentPage = this.totalPages;
-    },
-    changePage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-      }
+    if (!replyingTo.value.reply.subReplies) {
+      replyingTo.value.reply.subReplies = []
     }
+    replyingTo.value.reply.subReplies.push(subReply)
+    replyingTo.value.reply.showSubReplies = true
+  } else {
+    // 添加主回复
+    const reply: Reply = {
+      id: replies.value.length + 1,
+      content: newReply.value,
+      userName: '当前用户',
+      userAvatar: '/default-avatar.png',
+      createTime: new Date().toLocaleString(),
+      likes: 0,
+      isTeacher: false,
+      showSubReplies: false,
+      subReplies: []
+    }
+    replies.value.push(reply)
+  }
+
+  newReply.value = ''
+  replyingTo.value = null
+  
+  // 添加新回复后跳转到最后一页
+  currentPage.value = totalPages.value
+}
+
+const changePage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
   }
 }
 </script>
@@ -612,4 +656,4 @@ export default {
   color: #343a40;
   font-weight: 600;
 }
-</style> 
+</style>
