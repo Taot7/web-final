@@ -1,0 +1,275 @@
+/* 列表容器通用样式 */
+.list-container {
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* 列表头部通用样式 */
+.list-header {
+  margin-bottom: 30px;
+  border-bottom: 2px solid #f0f2f5;
+  padding-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-header h2 {
+  color: #333;
+  font-size: 24px;
+}
+
+/* 通用添加按钮样式 */
+.primary-btn {
+  background: #1976d2;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.3s ease;
+}
+
+.primary-btn:hover {
+  background: #1565c0;
+  transform: translateY(-2px);
+}
+
+/* 课程分组通用样式 */
+.course-group {
+  margin-bottom: 40px;
+}
+
+/* 课程标题通用样式 */
+.course-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 8px;
+  background: #f5f7fa;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.course-title:hover {
+  background: #e8eaed;
+}
+
+.course-title-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.course-title h3 {
+  color: #2c3e50;
+  font-size: 20px;
+  margin: 0;
+}
+
+/* 折叠箭头通用样式 */
+.icon-arrow {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>') no-repeat center;
+  transform: rotate(0deg);
+}
+
+.icon-arrow-down {
+  transform: rotate(90deg);
+}
+
+/* 计数标签通用样式 */
+.count-badge {
+  color: #666;
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 15px;
+  font-size: 14px;
+}
+
+/* 按钮基础样式 */
+.btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  border: none;
+  transition: all 0.3s ease;
+  font-size: 15px;
+}
+
+.btn i {
+  font-size: 18px;
+}
+
+/* 主要按钮样式 */
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* 次按钮样式 */
+.btn-secondary {
+  background: #f0f4ff;
+  color: #667eea;
+}
+
+.btn-secondary:hover {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* 危险按钮样式 */
+.btn-danger {
+  background: #fff1f0;
+  color: #ff4d4f;
+}
+
+.btn-danger:hover {
+  background: #ff4d4f;
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* 文本按钮样式 */
+.btn-text {
+  background: transparent;
+  color: #666;
+  padding: 6px 12px;
+}
+
+.btn-text:hover {
+  color: #333;
+  background: #f5f5f5;
+}
+
+/* 禁用状态 */
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 按钮尺寸 */
+.btn-small {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.btn-large {
+  padding: 14px 28px;
+  font-size: 16px;
+}
+
+/* 圆形按钮 */
+.btn-circle {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* 带图标的按钮组 */
+.btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+/* 加载状态 */
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn-loading:before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: btn-spin 0.75s linear infinite;
+}
+
+@keyframes btn-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tab切换通用样式 */
+.tab-group {
+  display: flex;
+  gap: 10px;
+  padding: 4px;
+  background: #f5f7fa;
+  border-radius: 8px;
+}
+
+.tab-item {
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  color: #666;
+}
+
+.tab-item:hover {
+  color: #667eea;
+}
+
+.tab-item.active {
+  background: #fff;
+  color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+/* Tab内容切换动画 */
+.tab-content {
+  animation: tabFadeIn 0.3s ease;
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+ 

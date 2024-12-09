@@ -1,21 +1,29 @@
 <template>
-  <div class="user-settings">
-    <h2 class="settings-title">用户设置</h2>
-
-    <!-- 顶部标签栏 -->
-    <div class="tab-bar">
-      <div class="tab-item" :class="{ active: currentTab === 'basic' }" @click="currentTab = 'basic'">
-        <i class="iconfont icon-user"></i>
-        基本信息
-      </div>
-      <div class="tab-item" :class="{ active: currentTab === 'password' }" @click="currentTab = 'password'">
-        <i class="iconfont icon-lock"></i>
-        密码修改
+  <div class="user-settings list-container">
+    <div class="list-header">
+      <h2>用户设置</h2>
+      <div class="tab-group">
+        <div 
+          class="tab-item" 
+          :class="{ active: currentTab === 'basic' }"
+          @click="currentTab = 'basic'"
+        >
+          <i class="iconfont icon-user"></i>
+          基本信息
+        </div>
+        <div 
+          class="tab-item" 
+          :class="{ active: currentTab === 'password' }"
+          @click="currentTab = 'password'"
+        >
+          <i class="iconfont icon-lock"></i>
+          密码修改
+        </div>
       </div>
     </div>
 
     <!-- 基本信息设置 -->
-    <div v-if="currentTab === 'basic'" class="settings-section">
+    <div v-if="currentTab === 'basic'" class="tab-content settings-section">
       <div class="form-item">
         <label>昵称 <span class="required">*</span></label>
         <div class="input-wrapper">
@@ -135,7 +143,7 @@
     </div>
 
     <!-- 密码修改 -->
-    <div v-if="currentTab === 'password'" class="settings-section">
+    <div v-if="currentTab === 'password'" class="tab-content settings-section">
       <div class="form-item">
         <label>原密码 <span class="required">*</span></label>
         <div class="input-wrapper">
@@ -394,46 +402,7 @@ defineExpose({
 </script>
 
 <style scoped>
-.user-settings {
-  padding: 30px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-}
-
-.settings-title {
-  font-size: 24px;
-  color: #2c3e50;
-  margin-bottom: 30px;
-  font-weight: 600;
-}
-
-.tab-bar {
-  display: flex;
-  margin-bottom: 30px;
-  border-bottom: 2px solid #f0f0f0;
-}
-
-.tab-item {
-  padding: 12px 24px;
-  cursor: pointer;
-  margin-right: 30px;
-  font-size: 16px;
-  transition: all 0.3s;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.tab-item i {
-  font-size: 18px;
-}
-
-.tab-item.active {
-  color: #1890ff;
-  border-bottom: 2px solid #1890ff;
-  font-weight: 500;
-}
+@import '../styles/common.css';
 
 .settings-section {
   padding: 30px;

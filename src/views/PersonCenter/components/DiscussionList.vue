@@ -1,33 +1,70 @@
 <template>
-  <div class="discussion-list">
-    <div class="discussion-header">
+  <div class="discussion-list list-container">
+    <div class="list-header">
       <h2>我的讨论</h2>
-      <button class="add-btn" @click="openDiscussionDialog()">
+      <button class="btn btn-primary" @click="openDiscussionDialog()">
         <i class="icon-plus"></i>
         新增讨论
       </button>
     </div>
 
     <!-- 课程讨论列表 -->
-    <div class="course-discussions" v-for="courseDiscussion in courseDiscussions" :key="courseDiscussion?.course?.courseId || 0">
-      <div class="course-title" @click="toggleCourse(courseDiscussion.course.courseId)">
+    <div
+      class="course-group"
+      v-for="courseDiscussion in courseDiscussions"
+      :key="courseDiscussion?.course?.courseId || 0"
+    >
+      <div
+        class="course-title"
+        @click="toggleCourse(courseDiscussion.course.courseId)"
+      >
         <div class="course-title-left">
-          <i :class="['icon-arrow', {'icon-arrow-down': !isCollapsed(courseDiscussion.course.courseId)}]"></i>
-          <h3>{{ courseDiscussion?.course?.title || '' }}</h3>
+          <i
+            :class="[
+              'icon-arrow',
+              {
+                'icon-arrow-down': !isCollapsed(
+                  courseDiscussion.course.courseId
+                ),
+              },
+            ]"
+          ></i>
+          <h3>{{ courseDiscussion?.course?.title || "" }}</h3>
         </div>
-        <span class="discussion-count">{{ courseDiscussion?.discussions.length || 0 }}条讨论</span>
+        <span class="discussion-count"
+          >{{ courseDiscussion?.discussions.length || 0 }}条讨论</span
+        >
       </div>
 
-      <div class="discussions-container" v-show="!isCollapsed(courseDiscussion.course.courseId)">
-        <div class="discussion-item" v-for="discussion in courseDiscussion?.discussions || []" :key="discussion.discussionId" @click="goToDiscussion(courseDiscussion.course.courseId, discussion.discussionId)">
+      <div
+        class="discussions-container"
+        v-show="!isCollapsed(courseDiscussion.course.courseId)"
+      >
+        <div
+          class="discussion-item"
+          v-for="discussion in courseDiscussion?.discussions || []"
+          :key="discussion.discussionId"
+          @click="
+            goToDiscussion(
+              courseDiscussion.course.courseId,
+              discussion.discussionId
+            )
+          "
+        >
           <div class="discussion-meta">
             <span class="discussion-date">{{ discussion.createTime }}</span>
             <div class="discussion-actions">
-              <button class="edit-btn" @click.stop="openDiscussionDialog(discussion)">
+              <button
+                class="btn btn-secondary btn-small"
+                @click.stop="openDiscussionDialog(discussion)"
+              >
                 <i class="icon-edit"></i>
                 编辑
               </button>
-              <button class="delete-btn" @click.stop="removeDiscussion(discussion.discussionId)">
+              <button
+                class="btn btn-danger btn-small"
+                @click.stop="removeDiscussion(discussion.discussionId)"
+              >
                 <i class="icon-delete"></i>
                 删除
               </button>
@@ -35,7 +72,7 @@
           </div>
           <h4 class="discussion-title">{{ discussion?.title }}</h4>
           <div class="discussion-content">{{ discussion?.content }}</div>
-          
+
           <!-- 回复列表 -->
           <div class="replies-section">
             <div class="reply-count">
@@ -43,15 +80,25 @@
               {{ discussion?.replyCount || 0 }}条回复
             </div>
             <div class="reply-list">
-              <div class="reply-item" v-for="reply in discussion.replyList" :key="reply.replyId">
+              <div
+                class="reply-item"
+                v-for="reply in discussion.replyList"
+                :key="reply.replyId"
+              >
                 <div class="reply-header">
                   <div class="reply-user">
-                    <img :src="reply.user.avatarUrl || '/src/assets/images/default-avatar.png'" class="reply-avatar">
-                    {{ reply.user.username || '' }}
+                    <img
+                      :src="
+                        reply.user.avatarUrl ||
+                        '/src/assets/images/default-avatar.png'
+                      "
+                      class="reply-avatar"
+                    />
+                    {{ reply.user.username || "" }}
                   </div>
-                  <div class="reply-time">{{ reply.createTime || '' }}</div>
+                  <div class="reply-time">{{ reply.createTime || "" }}</div>
                 </div>
-                <div class="reply-content">{{ reply.content || '' }}</div>
+                <div class="reply-content">{{ reply.content || "" }}</div>
               </div>
             </div>
           </div>
@@ -66,17 +113,17 @@
           <h3>{{ dialogTitle }}</h3>
           <button class="close-btn" @click="handleClose">×</button>
         </div>
-        
+
         <div class="dialog-body">
           <div class="form-item">
             <label>课程</label>
-            <select 
+            <select
               v-model="discussionForm.courseId"
               :disabled="!!discussionForm.id"
             >
               <option value="">请选择课程</option>
-              <option 
-                v-for="course in courseList" 
+              <option
+                v-for="course in courseList"
                 :key="course.courseId"
                 :value="course.courseId"
               >
@@ -84,17 +131,21 @@
               </option>
             </select>
           </div>
-          
+
           <div class="form-item">
             <label>标题</label>
-            <input type="text" v-model="discussionForm.title" placeholder="请输入讨论标题" />
+            <input
+              type="text"
+              v-model="discussionForm.title"
+              placeholder="请输入讨论标题"
+            />
           </div>
-          
+
           <div class="form-item">
             <label>内容</label>
-            <textarea 
-              v-model="discussionForm.content" 
-              rows="4" 
+            <textarea
+              v-model="discussionForm.content"
+              rows="4"
               placeholder="请输入讨论内容"
             ></textarea>
           </div>
@@ -110,61 +161,66 @@
 </template>
 
 <script setup lang="ts">
-import { deleteDiscussion, getMyDiscussions, addDiscussion, updateDiscussion } from '@/services/api/discussion';
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { getMyCourseEnrollments } from '@/services/api/courseEnrollment'
+import {
+  deleteDiscussion,
+  getMyDiscussions,
+  addDiscussion,
+  updateDiscussion,
+} from "@/services/api/discussion";
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { getMyCourseEnrollments } from "@/services/api/courseEnrollment";
 
-const router = useRouter()
+const router = useRouter();
 
 interface Reply {
-  id: number
-  userName: string
-  userAvatar: string
-  content: string
-  createTime: string
+  id: number;
+  userName: string;
+  userAvatar: string;
+  content: string;
+  createTime: string;
 }
 
 interface Discussion {
-  id: number
-  title: string
-  content: string
-  createTime: string
-  replies: Reply[]
+  id: number;
+  title: string;
+  content: string;
+  createTime: string;
+  replies: Reply[];
 }
 
 interface CourseDiscussion {
-  course: API.CourseVO
-  discussions: API.DiscussionWithReplyVO[]
+  course: API.CourseVO;
+  discussions: API.DiscussionWithReplyVO[];
 }
 
-const courseDiscussions = ref<CourseDiscussion[]>([])
-const discussions = ref<API.DiscussionWithReplyVO[]>([])
-const dialogVisible = ref(false)
-const dialogTitle = ref('新增讨论')
-const courseList = ref<API.CourseVO[]>([])
+const courseDiscussions = ref<CourseDiscussion[]>([]);
+const discussions = ref<API.DiscussionWithReplyVO[]>([]);
+const dialogVisible = ref(false);
+const dialogTitle = ref("新增讨论");
+const courseList = ref<API.CourseVO[]>([]);
 const discussionForm = ref({
   id: undefined,
-  title: '',
-  content: '',
-  courseId: undefined
-})
+  title: "",
+  content: "",
+  courseId: undefined,
+});
 
 // 折叠状态管理
-const collapsedCourses = ref<number[]>([])
+const collapsedCourses = ref<number[]>([]);
 
 const toggleCourse = (courseId: number) => {
-  const index = collapsedCourses.value.indexOf(courseId)
+  const index = collapsedCourses.value.indexOf(courseId);
   if (index === -1) {
-    collapsedCourses.value.push(courseId)
+    collapsedCourses.value.push(courseId);
   } else {
-    collapsedCourses.value.splice(index, 1)
+    collapsedCourses.value.splice(index, 1);
   }
-}
+};
 
 const isCollapsed = (courseId: number) => {
-  return collapsedCourses.value.includes(courseId)
-}
+  return collapsedCourses.value.includes(courseId);
+};
 
 // 获取讨论列表
 const fetchDiscussions = async () => {
@@ -172,62 +228,64 @@ const fetchDiscussions = async () => {
     const res = await getMyDiscussions({
       current: 1,
       pageSize: 100000,
-      param: {
-      }
-    })
+      param: {},
+    });
     if (res.status === 200) {
-        discussions.value = res.data.list || []
-        //使用reduce方法按课程id对讨论进行聚合
-        courseDiscussions.value = discussions.value.reduce((acc: CourseDiscussion[], discussion) => {
-        const existingCourse = acc.find(item => item.course.courseId === discussion?.course?.courseId)
-        if (existingCourse) {
-          existingCourse.discussions.push(discussion)
-        } else {
-          acc.push({
-            course: discussion.course,
-            discussions: [discussion]
-          })
-        }
-        return acc
-      }, [])
-      console.log(courseDiscussions.value)
+      discussions.value = res.data.list || [];
+      //使用reduce方法按课程id对讨论进行聚合
+      courseDiscussions.value = discussions.value.reduce(
+        (acc: CourseDiscussion[], discussion) => {
+          const existingCourse = acc.find(
+            (item) => item.course.courseId === discussion?.course?.courseId
+          );
+          if (existingCourse) {
+            existingCourse.discussions.push(discussion);
+          } else {
+            acc.push({
+              course: discussion.course,
+              discussions: [discussion],
+            });
+          }
+          return acc;
+        },
+        []
+      );
+      console.log(courseDiscussions.value);
     }
   } catch (error) {
-    console.error('获取讨论列表失败:', error)
+    console.error("获取讨论列表失败:", error);
   }
-}
+};
 
 // 模拟数据
 onMounted(() => {
-  fetchDiscussions()
-  loadCourseList()
-})
+  fetchDiscussions();
+  loadCourseList();
+});
 
 const removeDiscussion = async (id: number) => {
   try {
     //使用接口删除
     const res = await deleteDiscussion({
-      id
-    })
+      id,
+    });
     if (res.status === 200) {
-      alert('删除成功')
-      await fetchDiscussions()
+      alert("删除成功");
+      await fetchDiscussions();
     }
   } catch (error) {
-    console.error('删除讨论失败:', error)
+    console.error("删除讨论失败:", error);
   }
-}
+};
 
 const goToDiscussion = (courseId: number, discussionId: number) => {
   router.push({
-    name: 'onlineCourse',
-    params: { courseId },
-    query: { 
-      tab: 'discussion',
-      discussionId
-    }
-  })
-}
+    path: "/online-course",
+    query: {
+      courseId,
+    },
+  });
+};
 
 // 加载课程列表
 const loadCourseList = async () => {
@@ -235,81 +293,85 @@ const loadCourseList = async () => {
     const res = await getMyCourseEnrollments({
       current: 1,
       pageSize: 1000,
-      param: {}
-    })
-    courseList.value = res.data.list.map(item => item.course)
+      param: {},
+    });
+    courseList.value = res.data.list.map((item) => item.course);
   } catch (error) {
-    console.error('获取课程列表失败:', error)
+    console.error("获取课程列表失败:", error);
   }
-}
+};
 
 // 打开对话框
 const openDiscussionDialog = (discussion?: API.DiscussionWithReplyVO) => {
-  dialogVisible.value = true
-  dialogTitle.value = discussion ? '编辑讨论' : '新增讨论'
-  
+  dialogVisible.value = true;
+  dialogTitle.value = discussion ? "编辑讨论" : "新增讨论";
+
   if (discussion) {
     // 编辑时，设置表单数据并禁用课程选择
     discussionForm.value = {
       id: discussion.discussionId,
       title: discussion.title,
       content: discussion.content,
-      courseId: discussion.course.courseId
-    }
+      courseId: discussion.course.courseId,
+    };
   } else {
     // 新增时，重置表单
     discussionForm.value = {
       id: undefined,
-      title: '',
-      content: '',
-      courseId: undefined
-    }
+      title: "",
+      content: "",
+      courseId: undefined,
+    };
   }
-}
+};
 
 // 处理提交
 const handleSubmit = async () => {
   try {
     if (discussionForm.value.id) {
       // 编辑
-      await updateDiscussion({
-        id: discussionForm.value.id
-      }, {
-        title: discussionForm.value.title,
-        content: discussionForm.value.content
-      })
-      alert('编辑成功')
+      await updateDiscussion(
+        {
+          id: discussionForm.value.id,
+        },
+        {
+          title: discussionForm.value.title,
+          content: discussionForm.value.content,
+        }
+      );
+      alert("编辑成功");
     } else {
       // 新增
       await addDiscussion({
         title: discussionForm.value.title,
         content: discussionForm.value.content,
-        courseId: discussionForm.value.courseId
-      })
-      alert('新增成功')
+        courseId: discussionForm.value.courseId,
+      });
+      alert("新增成功");
     }
-    dialogVisible.value = false
-    fetchDiscussions() // 刷新列表
+    dialogVisible.value = false;
+    fetchDiscussions(); // 刷新列表
   } catch (error) {
-    console.error('操作失败:', error)
-    alert('操作失败，请重试')
+    console.error("操作失败:", error);
+    alert("操作失败，请重试");
   }
-}
+};
 
 // 处理关闭
 const handleClose = () => {
-  dialogVisible.value = false
+  dialogVisible.value = false;
   discussionForm.value = {
     id: undefined,
-    title: '',
-    content: '',
-    courseId: undefined
-  }
-}
-
+    title: "",
+    content: "",
+    courseId: undefined,
+  };
+};
 </script>
 
 <style scoped>
+@import '../styles/common.css';
+
 .discussion-list {
   padding: 20px;
   background: #fff;
@@ -531,7 +593,8 @@ const handleClose = () => {
   width: 20px;
   height: 20px;
   transition: transform 0.3s ease;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>') no-repeat center;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>')
+    no-repeat center;
   transform: rotate(0deg);
 }
 
@@ -579,39 +642,6 @@ const handleClose = () => {
   gap: 8px;
 }
 
-.edit-btn,
-.delete-btn {
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  transition: all 0.3s ease;
-}
-
-.edit-btn {
-  background: #f0f2f5;
-  border: none;
-  color: #666;
-}
-
-.edit-btn:hover {
-  background: #e4e6eb;
-  color: #333;
-}
-
-.delete-btn {
-  background: #ff4d4f;
-  border: none;
-  color: white;
-}
-
-.delete-btn:hover {
-  background: #ff7875;
-}
-
 .discussion-title {
   font-size: 18px;
   margin-bottom: 10px;
@@ -629,5 +659,71 @@ const handleClose = () => {
   background-color: #f5f5f5;
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+/* 回复区域样式 */
+.reply-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reply-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.reply-avatar:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.reply-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.reply-time {
+  color: #999;
+  font-size: 12px;
+}
+
+.reply-content {
+  color: #333;
+  line-height: 1.6;
+  margin-left: 46px;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.reply-item {
+  margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease;
+}
+
+.reply-item:hover {
+  background-color: #f5f7fa;
+}
+
+.reply-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.icon-chat {
+  font-size: 16px;
 }
 </style>

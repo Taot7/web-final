@@ -1,21 +1,21 @@
 <template>
-  <div class="note-list">
-    <div class="note-header">
+  <div class="note-list list-container">
+    <div class="list-header">
       <h2>学习笔记</h2>
-      <button class="add-note-btn" @click="addNote">
+      <button class="btn btn-primary" @click="addNote">
         <i class="iconfont icon-plus"></i>
         添加笔记
       </button>
     </div>
 
     <!-- 课程笔记列表 -->
-    <div class="course-notes" v-for="courseNote in courseNotes" :key="courseNote.course.courseId">
+    <div class="course-group" v-for="courseNote in courseNotes" :key="courseNote.course.courseId">
       <div class="course-title" @click="toggleCourse(courseNote.course.courseId)">
         <div class="course-title-left">
-          <i class="iconfont icon-arrow" :class="{ 'icon-arrow-down': !isCollapsed(courseNote.course.courseId) }"></i>
+          <i class="icon-arrow" :class="{ 'icon-arrow-down': !isCollapsed(courseNote.course.courseId) }"></i>
           <h3>{{ courseNote.course.title }}</h3>
         </div>
-        <span class="note-count">{{ courseNote.notes.length }}条笔记</span>
+        <span class="count-badge">{{ courseNote.notes.length }}条笔记</span>
       </div>
       
       <div class="notes-container" v-show="!isCollapsed(courseNote.course.courseId)">
@@ -25,12 +25,12 @@
               <i class="iconfont icon-time"></i>
               {{ note.createTime }}
             </span>
-            <div class="note-actions">
-              <button class="edit-btn" @click.stop="editNote(note)">
+            <div class="btn-group">
+              <button class="btn btn-secondary btn-small" @click.stop="editNote(note)">
                 <i class="iconfont icon-edit"></i>
                 编辑
               </button>
-              <button class="delete-btn" @click.stop="deleteNote(note.noteId)">
+              <button class="btn btn-danger btn-small" @click.stop="deleteNote(note.noteId)">
                 <i class="iconfont icon-delete"></i>
                 删除
               </button>
@@ -45,18 +45,36 @@
     <!-- 添加/编辑笔记弹窗 -->
     <div class="note-modal" v-if="showAddNoteModal" @click.self="showAddNoteModal = false">
       <div class="modal-content">
-        <h3>{{ isEditing ? '编辑笔记' : '添加笔记' }}</h3>
-        <select v-model="currentNote.courseId" class="modal-select" :disabled="isEditing">
-          <option value="" disabled selected>请选择课程</option>
-          <option v-for="course in courses" :key="course.courseId" :value="course.courseId">
-            {{ course.title }}
-          </option>
-        </select>
-        <input v-model="currentNote.title" placeholder="笔记标题" class="modal-input"/>
-        <textarea v-model="currentNote.content" placeholder="笔记内容" class="modal-textarea"></textarea>
-        <div class="modal-actions">
-          <button class="save-btn" @click="saveNote">保存</button>
-          <button class="cancel-btn" @click="showAddNoteModal = false">取消</button>
+        <div class="modal-header">
+          <h3>{{ isEditing ? '编辑笔记' : '添加笔记' }}</h3>
+          <button class="btn btn-text btn-circle" @click="showAddNoteModal = false">×</button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="form-item">
+            <label>选择课程</label>
+            <select v-model="currentNote.courseId" class="modal-select" :disabled="isEditing">
+              <option value="" disabled selected>请选择课程</option>
+              <option v-for="course in courses" :key="course.courseId" :value="course.courseId">
+                {{ course.title }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="form-item">
+            <label>笔记标题</label>
+            <input v-model="currentNote.title" placeholder="请输入笔记标题" class="modal-input"/>
+          </div>
+          
+          <div class="form-item">
+            <label>笔记内容</label>
+            <textarea v-model="currentNote.content" placeholder="请输入笔记内容" class="modal-textarea"></textarea>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button class="btn btn-text" @click="showAddNoteModal = false">取消</button>
+          <button class="btn btn-primary" @click="saveNote">保存</button>
         </div>
       </div>
     </div>
@@ -118,7 +136,6 @@ const fetchCourses = async () => {
       current: 1,
       pageSize: 100000,
       param: {
-        status: "1",
       },
     })
   if(res?.data?.list) {
@@ -231,112 +248,25 @@ const saveNote = async () => {
 
 const goToOnlineCourse = (courseId: number) => {
   router.push({
-    name: 'onlineCourse',
-    params: { courseId: courseId }
+    path: '/online-course',
+    query: { 
+      courseId
+     }
   })
 }
 </script>
 
 <style scoped>
-.note-list {
-  padding: 20px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-}
+@import '../styles/common.css';
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.note-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.note-header h2 {
-  font-size: 24px;
-  color: #2c3e50;
-  font-weight: 600;
-}
-
-.add-note-btn {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
-}
-
-.add-note-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.course-notes {
-  margin-bottom: 40px;
-}
-
-.course-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 10px;
-  border-radius: 8px;
-  background: #f5f7fa;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.course-title:hover {
-  background: #e8eaed;
-}
-
-.course-title-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.course-title h3 {
-  color: #2c3e50;
-  font-size: 20px;
-}
-
-.note-count {
-  color: #666;
-  font-size: 14px;
-  background: #f0f4ff;
-  padding: 4px 12px;
-  border-radius: 20px;
-}
-
+/* 笔记列表特定样式 */
 .note-item {
-  border: 1px solid #eee;
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
   background: #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-  cursor: pointer;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
 }
 
 .note-item:hover {
@@ -347,7 +277,8 @@ const goToOnlineCourse = (courseId: number) => {
 .note-meta {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
+  align-items: center;
+  margin-bottom: 12px;
   color: #666;
 }
 
@@ -358,56 +289,19 @@ const goToOnlineCourse = (courseId: number) => {
   font-size: 14px;
 }
 
-.note-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.note-actions button {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 14px;
-  transition: all 0.3s ease;
-}
-
-.edit-btn {
-  background: #f0f4ff;
-  color: #667eea;
-}
-
-.edit-btn:hover {
-  background: #667eea;
-  color: white;
-}
-
-.delete-btn {
-  background: #fff1f0;
-  color: #ff4d4f;
-}
-
-.delete-btn:hover {
-  background: #ff4d4f;
-  color: white;
-}
-
 .note-title {
   font-size: 18px;
-  margin-bottom: 12px;
   color: #2c3e50;
-  font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .note-content {
   color: #666;
   line-height: 1.6;
-  font-size: 15px;
+  font-size: 14px;
 }
 
+/* 模态框样式 */
 .note-modal {
   position: fixed;
   top: 0;
@@ -419,104 +313,83 @@ const goToOnlineCourse = (courseId: number) => {
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   background: white;
-  padding: 30px;
   border-radius: 12px;
-  width: 600px;
+  width: 500px;
+  max-width: 90%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  animation: modalSlideIn 0.3s ease;
 }
 
-.modal-content h3 {
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
   font-size: 20px;
-  margin-bottom: 20px;
   color: #2c3e50;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.form-item {
+  margin-bottom: 20px;
+}
+
+.form-item label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
 }
 
 .modal-select,
 .modal-input,
 .modal-textarea {
-  width: 100%;
-  margin-bottom: 20px;
-  padding: 12px;
+  width: 95%;
+  padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 15px;
+  font-size: 14px;
   transition: all 0.3s ease;
 }
 
 .modal-select:focus,
 .modal-input:focus,
 .modal-textarea:focus {
-  border-color: #667eea;
   outline: none;
+  border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .modal-textarea {
-  height: 200px;
+  min-height: 150px;
   resize: vertical;
-  line-height: 1.6;
 }
 
-.modal-actions {
+.modal-footer {
+  padding: 20px;
+  border-top: 1px solid #eee;
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 20px;
 }
 
-.modal-actions button {
-  padding: 10px 24px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.save-btn {
-  background: #667eea;
-  color: white;
-}
-
-.save-btn:hover {
-  background: #5a6fd6;
-  transform: translateY(-1px);
-}
-
-.cancel-btn {
-  background: #f0f0f0;
-  color: #666;
-}
-
-.cancel-btn:hover {
-  background: #e0e0e0;
-}
-
-.icon-arrow {
-  width: 20px;
-  height: 20px;
-  transition: transform 0.3s ease;
-  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>') no-repeat center;
-  transform: rotate(0deg);
-}
-
-.icon-arrow-down {
-  transform: rotate(90deg);
-}
-
-.notes-container {
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
+@keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-20px);
   }
   to {
     opacity: 1;

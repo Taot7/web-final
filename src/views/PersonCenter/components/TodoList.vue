@@ -1,17 +1,17 @@
 <template>
-  <div class="todo-list">
-    <div class="todo-header">
+  <div class="todo-list list-container">
+    <div class="list-header">
       <h2>个人待办事项</h2>
-      <div class="tab-bar">
-        <div
-          class="tab-item"
+      <div class="tab-group">
+        <div 
+          class="tab-item" 
           :class="{ active: currentTab === 'homework' }"
           @click="currentTab = 'homework'"
         >
           作业列表
         </div>
-        <div
-          class="tab-item"
+        <div 
+          class="tab-item" 
           :class="{ active: currentTab === 'selfTest' }"
           @click="currentTab = 'selfTest'"
         >
@@ -21,72 +21,98 @@
     </div>
 
     <!-- 作业列表 -->
-    <div v-if="currentTab === 'homework'" class="todo-content">
-      <div
-        v-for="item in homeworkList"
-        :key="item.submissionId"
-        class="todo-item"
+    <div v-if="currentTab === 'homework'" class="tab-content">
+      <div 
+        class="course-group" 
+        v-for="courseHomework in courseHomeworks" 
+        :key="courseHomework.course.courseId"
       >
-        <div class="item-header">
-          <span class="course-name">{{
-            item?.assignment?.course?.title || ""
-          }}</span>
-          <span :class="['status', getStatusClass(item.status)]">{{
-            ASSIGNMENT_SUBMISSION_STATUS[item.status] || ""
-          }}</span>
+        <div class="course-title" @click="toggleCourse(courseHomework.course.courseId)">
+          <div class="course-title-left">
+            <i class="icon-arrow" :class="{ 'icon-arrow-down': !isCollapsed(courseHomework.course.courseId) }"></i>
+            <h3>{{ courseHomework.course.title }}</h3>
+          </div>
+          <span class="count-badge">{{ courseHomework.assignments.length }}个待完成作业</span>
         </div>
-        <div class="item-content">
-          <h3>{{ item?.assignment?.title || "" }}</h3>
-          <p>{{ item?.assignment?.description || "" }}</p>
-          <div class="item-footer">
-            <span class="deadline"
-              >截止日期: {{ item?.assignment?.deadline || "" }}</span
-            >
-            <button
-              class="submit-btn"
-              v-if="item.status == '0'"
-              @click="goToOnlineCourse(item)"
-            >
-              提交作业
-            </button>
+
+        <div class="assignments-container" v-show="!isCollapsed(courseHomework.course.courseId)">
+          <div 
+            class="todo-item" 
+            v-for="item in courseHomework.assignments" 
+            :key="item.submissionId"
+          >
+            <div class="item-header">
+              <span :class="['status-badge', getStatusClass(item.status)]">
+                {{ ASSIGNMENT_SUBMISSION_STATUS[item.status] || "" }}
+              </span>
+            </div>
+            <div class="item-content">
+              <h3>{{ item?.assignment?.title || "" }}</h3>
+              <p>{{ item?.assignment?.description || "" }}</p>
+              <div class="item-footer">
+                <span class="deadline">截止日期: {{ item?.assignment?.deadline || "" }}</span>
+                <button
+                  class="btn btn-primary btn-small"
+                  v-if="item.status == '0'"
+                  @click="goToOnlineCourse(item.assignment.courseId)"
+                >
+                  提交作业
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 自测列表 -->
-    <div v-if="currentTab === 'selfTest'" class="todo-content">
-      <div
-        v-for="item in selfTestList"
-        :key="item.recordId"
-        class="todo-item"
-        @click="goToOnlineCourse(item)"
+    <div v-if="currentTab === 'selfTest'" class="tab-content">
+      <div 
+        class="course-group" 
+        v-for="courseTest in courseTests" 
+        :key="courseTest.course.courseId"
       >
-        <div class="item-header">
-          <span class="course-name">{{ item?.course?.title || "" }}</span>
-          <span :class="['status', getSelfTestStatusClass(item.status)]">{{
-            SELF_TEST_RECORD_STATUS[item.status] || ""
-          }}</span>
-        </div>
-        <div class="item-content">
-          <h3>{{ item.test.title }}</h3>
-          <div class="test-info">
-            <span>题目类型: {{ item.test.questionTypes.join("、") }}</span>
-            <span>题目数量: {{ item.test.questionCount }}题</span>
-            <span>时间限制: 120 分钟</span>
+        <div class="course-title" @click="toggleCourse(courseTest.course.courseId)">
+          <div class="course-title-left">
+            <i class="icon-arrow" :class="{ 'icon-arrow-down': !isCollapsed(courseTest.course.courseId) }"></i>
+            <h3>{{ courseTest.course.title }}</h3>
           </div>
-          <div class="item-footer">
-            <div class="time-info">
-              <span class="publish-time">发布时间: {{ item.test.createTime }}</span>
-              <span class="deadline">截止日期: 2025-01-15 23:59:59 </span>
+          <span class="count-badge">{{ courseTest.tests.length }}个待完成测试</span>
+        </div>
+
+        <div class="tests-container" v-show="!isCollapsed(courseTest.course.courseId)">
+          <div 
+            class="todo-item" 
+            v-for="item in courseTest.tests" 
+            :key="item.recordId"
+            @click="goToOnlineCourse(item.courseId)"
+          >
+            <div class="item-header">
+              <span :class="['status-badge', getSelfTestStatusClass(item.status)]">
+                {{ SELF_TEST_RECORD_STATUS[item.status] || "" }}
+              </span>
             </div>
-            <button
-              class="submit-btn"
-              v-if="item.status === '0'"
-              @click.stop="goToOnlineCourse(item)"
-            >
-              开始测试
-            </button>
+            <div class="item-content">
+              <h3>{{ item.test.title }}</h3>
+              <div class="test-info">
+                <span>题目类型: {{ item.test.questionTypes.join("、") }}</span>
+                <span>题目数量: {{ item.test.questionCount }}题</span>
+                <span>时间限制: 120 分钟</span>
+              </div>
+              <div class="item-footer">
+                <div class="time-info">
+                  <span class="publish-time">发布时间: {{ item.test.createTime }}</span>
+                  <span class="deadline">截止日期: 2025-01-15 23:59:59</span>
+                </div>
+                <button
+                  class="btn btn-primary btn-small"
+                  v-if="item.status === '0'"
+                  @click.stop="goToOnlineCourse(item.courseId)"
+                >
+                  开始测试
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -98,43 +124,43 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ASSIGNMENT_SUBMISSION_STATUS } from "@/constant/assignment";
-import { SELF_TEST_QUESTION_TYPE, SELF_TEST_RECORD_STATUS } from "@/constant/test";
-import { getCourse } from "@/services/api/course";
+import { SELF_TEST_RECORD_STATUS } from "@/constant/test";
 import { getMyAssignmentSubmissions } from "@/services/api/assignmentSubmission";
 import { getMyTestRecords } from "@/services/api/testRecord";
 
 const router = useRouter();
 const currentTab = ref("homework");
 
-interface SelfTestItem extends API.TestRecordVO {
-  selfTest: API.SelfTestVO;
+interface CourseHomework {
   course: API.CourseVO;
-  questionTypes: string[];
-  questionCount: number;
-  createTime: string;
+  assignments: API.AssignmentSubmissionVO[];
 }
 
-const defauthomeworkList = ref<API.AssignmentSubmissionVO[]>([
-  {
-    submissionId: 1,
-    assignment: {
-      assignmentId: 1,
-      courseId: 1,
-      title: "第三章习题",
-      description: "完成课本P78-P80的所有习题",
-      deadline: "2024-01-20 23:59",
-      course: {
-        courseId: 1,
-        title: "高等数学",
-      },
-    },
-    status: "0",
-  },
-]);
-const homeworkList = ref<API.AssignmentSubmissionVO[]>([]);
-const selfTestList = ref<API.TestRecordVO[]>([]);
+interface CourseTest {
+  course: API.CourseVO;
+  tests: API.TestRecordVO[];
+}
 
-// 获取作业列表
+const courseHomeworks = ref<CourseHomework[]>([]);
+const courseTests = ref<CourseTest[]>([]);
+
+// 折叠状态管理
+const collapsedCourses = ref<number[]>([]);
+
+const toggleCourse = (courseId: number) => {
+  const index = collapsedCourses.value.indexOf(courseId);
+  if (index === -1) {
+    collapsedCourses.value.push(courseId);
+  } else {
+    collapsedCourses.value.splice(index, 1);
+  }
+};
+
+const isCollapsed = (courseId: number) => {
+  return collapsedCourses.value.includes(courseId);
+};
+
+// 获取作业列表并按课程聚合
 const fetchHomeworkList = async () => {
   try {
     const res = await getMyAssignmentSubmissions({
@@ -144,15 +170,29 @@ const fetchHomeworkList = async () => {
         status: "0",
       },
     });
-    if(res.data) {
-      homeworkList.value = res.data.list;
+    if (res.data) {
+      // 使用reduce方法按课程id对作业进行聚合
+      courseHomeworks.value = res.data.list.reduce((acc: CourseHomework[], assignment) => {
+        const existingCourse = acc.find(
+          item => item.course.courseId === assignment?.assignment?.course?.courseId
+        );
+        if (existingCourse) {
+          existingCourse.assignments.push(assignment);
+        } else {
+          acc.push({
+            course: assignment.assignment.course,
+            assignments: [assignment],
+          });
+        }
+        return acc;
+      }, []);
     }
   } catch (error) {
-    console.error('获取作业列表失败:', error);
+    console.error("获取作业列表失败:", error);
   }
 };
 
-// 获取自测列表
+// 获取自测列表并按课程聚合
 const fetchSelfTestList = async () => {
   try {
     const res = await getMyTestRecords({
@@ -162,11 +202,25 @@ const fetchSelfTestList = async () => {
         status: "0",
       },
     });
-    if(res.data) {
-        selfTestList.value = res.data.list;
-      }
+    if (res.data) {
+      // 使用reduce方法按课程id对自测进行聚合
+      courseTests.value = res.data.list.reduce((acc: CourseTest[], test) => {
+        const existingCourse = acc.find(
+          item => item.course.courseId === test.courseId
+        );
+        if (existingCourse) {
+          existingCourse.tests.push(test);
+        } else {
+          acc.push({
+            course: test.course,
+            tests: [test],
+          });
+        }
+        return acc;
+      }, []);
+    }
   } catch (error) {
-    console.error('获取自测列表失败:', error);
+    console.error("获取自测列表失败:", error);
   }
 };
 
@@ -174,163 +228,100 @@ onMounted(() => {
   fetchHomeworkList();
   fetchSelfTestList();
 });
-const defaultselfTestList = ref<SelfTestItem[]>([
-  {
-    recordId: 1,
-    selfTest: {
-      title: "第三章自测",
-      description: "有点难度",
-      questions: [
-        {
-          questionId: 1,
-          type: 0,
-        },
-      ],
-    },
-    course: {
-      courseId: 1,
-      title: "高等数学",
-    },
-    questionTypes: ["单选题", "多选题", "判断题"],
-    questionCount: 20,
-    status: "0",
-    createTime: "2024-01-20 23:59:59",
-  },
-  {
-    recordId: 2,
-    selfTest: {
-      title: "第四章自测", 
-      description: "期中考试重点",
-      questions: [
-        {
-          questionId: 2,
-          type: 0,
-        },
-      ],
-    },
-    course: {
-      courseId: 1,
-      title: "高等数学",
-    },
-    questionTypes: ["单选题", "多选题"],
-    questionCount: 15,
-    status: "1",
-    createTime: "2024-01-18 23:59:59",
-  },
-]);
 
 const getStatusClass = (status: string) => {
   const classMap = {
-    "0": "pending",
-    "1": "submitted", 
-    "2": "completed",
+    "0": "status-pending",
+    "1": "status-submitted",
+    "2": "status-completed",
   };
   return classMap[status] || status;
 };
 
 const getSelfTestStatusClass = (status: string) => {
   const classMap = {
-    "0": "not-completed",
-    "1": "completed",
+    "0": "status-not-completed",
+    "1": "status-completed",
   };
   return classMap[status] || status;
 };
 
-const goToOnlineCourse = (item: any) => {
+const goToOnlineCourse = (courseId: number) => {
   router.push({
-    name: "onlineCourse",
-    params: { id: item.id },
+    path: "/online-course",
+    query: {
+      courseId,
+    },
   });
 };
 </script>
 
 <style scoped>
-.todo-list {
-  padding: 20px;
-}
+@import '../styles/common.css';
 
-.todo-header {
-  margin-bottom: 20px;
-}
-
-.todo-header h2 {
-  margin-bottom: 15px;
-}
-
-.tab-bar {
-  display: flex;
-  gap: 20px;
-  border-bottom: 1px solid #eee;
-}
-
-.tab-item {
-  padding: 10px 20px;
-  cursor: pointer;
-}
-
-.tab-item.active {
-  color: #1890ff;
-  border-bottom: 2px solid #1890ff;
-}
-
-.todo-content {
-  margin-top: 20px;
-}
-
+/* 待办事项特定样式 */
 .todo-item {
   background: #fff;
+  border: 1px solid #eee;
   border-radius: 8px;
-  padding: 15px;
+  padding: 20px;
   margin-bottom: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.todo-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .item-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-.course-name {
-  font-weight: bold;
-  color: #666;
-}
-
-.status {
-  padding: 4px 8px;
-  border-radius: 4px;
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
   font-size: 12px;
 }
 
-.status.pending {
+.status-pending {
   background: #fff7e6;
   color: #fa8c16;
 }
 
-.status.submitted {
+.status-submitted {
   background: #e6f7ff;
   color: #1890ff;
 }
 
-.status.completed,
-.status.finished {
+.status-completed {
   background: #f6ffed;
   color: #52c41a;
 }
 
-.status.upcoming {
-  background: #e6f7ff;
-  color: #1890ff;
-}
-
-.status.not-completed {
+.status-not-completed {
   background: #fff1f0;
   color: #f5222d;
 }
 
 .item-content h3 {
+  font-size: 18px;
+  color: #2c3e50;
   margin-bottom: 10px;
+}
+
+.item-content p {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.test-info {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+  color: #666;
+  font-size: 14px;
 }
 
 .item-footer {
@@ -347,28 +338,8 @@ const goToOnlineCourse = (item: any) => {
 }
 
 .deadline,
-.publish-time,
-.test-info span {
+.publish-time {
   color: #666;
   font-size: 14px;
-}
-
-.test-info {
-  display: flex;
-  gap: 20px;
-  margin: 10px 0;
-}
-
-.submit-btn {
-  background: #1890ff;
-  color: white;
-  border: none;
-  padding: 6px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.submit-btn:hover {
-  background: #40a9ff;
 }
 </style>

@@ -1,59 +1,83 @@
 <template>
-  <div class="course-list">
-    <div class="tab-header">
-      <div
-        v-for="tab in tabs"
-        :key="tab.value"
-        class="tab-item"
-        :class="{ active: currentTab === tab.value }"
-        @click="handleTabChange(tab.value)"
-      >
-        {{ tab.label }}
+  <div class="course-list list-container">
+    <div class="list-header">
+      <h2>我的课程</h2>
+      <div class="tab-group">
+        <div 
+          class="tab-item" 
+          :class="{ active: currentTab === 'learning' }"
+          @click="handleTabChange('learning')"
+        >
+          开课中
+        </div>
+        <div 
+          class="tab-item" 
+          :class="{ active: currentTab === 'upcoming' }"
+          @click="handleTabChange('upcoming')"
+        >
+          即将开始
+        </div>
+        <div 
+          class="tab-item" 
+          :class="{ active: currentTab === 'completed' }"
+          @click="handleTabChange('completed')"
+        >
+          已结束
+        </div>
+        <div 
+          class="tab-item" 
+          :class="{ active: currentTab === 'favorite' }"
+          @click="handleTabChange('favorite')"
+        >
+          关注的课程
+        </div>
       </div>
     </div>
 
-    <div class="course-container">
-      <div
-        v-for="enrollment in courseList"
-        :key="enrollment.enrollmentId"
-        class="course-item"
-      >
-        <div class="course-cover" @click="goToCourse(enrollment.courseId)">
-          <img :src="enrollment.course.coverImage" alt="课程封面" />
-        </div>
-        <div class="course-info">
-          <h3 class="course-title">{{ enrollment?.course?.title || "" }}</h3>
-          <div class="progress-info">
-            <div class="progress-text">
-              <span v-if="currentTab !== 'upcoming'">待完成作业: {{ 0 }}</span>
-              <span>已完成进度: {{ currentTab === 'upcoming' ? 0 : enrollment.progress }}%</span>
+    <div class="tab-content">
+      <div class="course-container">
+        <div
+          v-for="enrollment in courseList"
+          :key="enrollment.enrollmentId"
+          class="course-item"
+        >
+          <div class="course-cover" @click="goToCourse(enrollment.courseId)">
+            <img :src="enrollment.course.coverImage" alt="课程封面" />
+          </div>
+          <div class="course-info">
+            <h3 class="course-title">{{ enrollment?.course?.title || "" }}</h3>
+            <div class="progress-info">
+              <div class="progress-text">
+                <span v-if="currentTab !== 'upcoming'">待完成作业: {{ 0 }}</span>
+                <span>已完成进度: {{ currentTab === 'upcoming' ? 0 : enrollment.progress }}%</span>
+              </div>
+              <div class="progress-bar">
+                <div
+                  class="progress"
+                  :style="{ width: currentTab === 'upcoming' ? '0%' : enrollment.progress + '%' }"
+                ></div>
+              </div>
             </div>
-            <div class="progress-bar">
-              <div
-                class="progress"
-                :style="{ width: currentTab === 'upcoming' ? '0%' : enrollment.progress + '%' }"
-              ></div>
+            <div class="course-meta">
+              <span class="course-date">
+                <i class="iconfont icon-time"></i>
+                {{ currentTab === 'upcoming' ? '发布时间: 2025-02-14' : '创建时间: ' + enrollment.createTime }}
+              </span>
+              <span class="course-status">
+                <i class="iconfont icon-status"></i>
+                状态:
+                {{ COURSE_ENROLLMENT_STATUS[enrollment.status] }}
+              </span>
             </div>
           </div>
-          <div class="course-meta">
-            <span class="course-date">
-              <i class="iconfont icon-time"></i>
-              {{ currentTab === 'upcoming' ? '发布时间: 2025-02-14' : '创建时间: ' + enrollment.createTime }}
-            </span>
-            <span class="course-status">
-              <i class="iconfont icon-status"></i>
-              状态:
-              {{ COURSE_ENROLLMENT_STATUS[enrollment.status] }}
-            </span>
+          <div class="course-actions">
+            <button
+              class="continue-btn"
+              @click="goToOnlineCourse(enrollment.courseId)"
+            >
+              继续学习
+            </button>
           </div>
-        </div>
-        <div class="course-actions">
-          <button
-            class="continue-btn"
-            @click="goToOnlineCourse(enrollment.courseId)"
-          >
-            继续学习
-          </button>
         </div>
       </div>
     </div>
@@ -69,18 +93,13 @@ import { getMyCourseEnrollments } from "@/services/api/courseEnrollment";
 const router = useRouter();
 
 const goToCourse = (courseId: number) => {
-  router.push({
-    path: "/course",
-    query: {
-      courseId: courseId,
-    },
-  });
+  router.push("/course/" + courseId);
 };
 const goToOnlineCourse = (courseId: number) => {
   router.push({
     path: "/online-course",
     query: {
-      courseId: courseId,
+      courseId,
     },
   });
 };
@@ -139,6 +158,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
+@import '../styles/common.css';
+
 .course-list {
   padding: 20px;
 }
