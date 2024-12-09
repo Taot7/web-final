@@ -101,6 +101,29 @@
         <button @click="sortCourses">排序</button>
       </div>
 
+      <div class="course-container-horizontal">
+        <div class="course-item-s" v-for="(course, index) in filteredCourses" :key="index">
+          <img :src="course.coverImage" :alt="course.title" />
+          <h3>{{ course.title }}</h3>
+          <p>{{ truncatedDescription(course.description) }}</p>
+          <div class="divider"></div>
+          <p>更新时间: {{ course.updateTime }}</p>
+          <div class="course-stats">
+        <span class="stat-item">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiB2aWV3Qm94PSIwIDAgMTYgMTYiPjxwYXRoIGZpbGw9IiMwMjg0YzciIGQ9Ik03IDE0cy0xIDAtMS0xczEtNCA1LTRzNSAzIDUgNHMtMSAxLTEgMXptNC02YTMgMyAwIDEgMCAwLTZhMyAzIDAgMCAwIDAgNm0tNS43ODQgNkEyLjI0IDIuMjQgMCAwIDEgNSAxM2MwLTEuMzU1LjY4LTIuNzUgMS45MzYtMy43MkE2LjMgNi4zIDAgMCAwIDUgOWMtNCAwLTUgMy01IDRzMSAxIDEgMXpNNC41IDhhMi41IDIuNSAwIDEgMCAwLTVhMi41IDIuNSAwIDAgMCAwIDUiLz48L3N2Zz4=" alt="注册人数" class="icon" />
+          {{ course.studentCount }}
+        </span>
+            <span class="stat-item">
+          <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxnIGZpbGw9Im5vbmUiPjxwYXRoIGQ9Im0xMi41OTQgMjMuMjU4bC0uMDEyLjAwMmwtLjA3MS4wMzVsLS4wMi4wMDRsLS4wMTQtLjAwNGwtLjA3MS0uMDM2cS0uMDE2LS4wMDQtLjAyNC4wMDZsLS4wMDQuMDFsLS4wMTcuNDI4bC4wMDUuMDJsLjAxLjAxM2wuMTA0LjA3NGwuMDE1LjAwNGwuMDEyLS4wMDRsLjEwNC0uMDc0bC4wMTItLjAxNmwuMDA0LS4wMTdsLS4wMTctLjQyN3EtLjAwNC0uMDE2LS4wMTYtLjAxOG0uMjY0LS4xMTNsLS4wMTQuMDAybC0uMTg0LjA5M2wtLjAxLjAxbC0uMDAzLjAxMWwuMDE4LjQzbC4wMDUuMDEybC4wMDguMDA4bC4yMDEuMDkycS4wMTkuMDA1LjAyOS0uMDA4bC4wMDQtLjAxNGwtLjAzNC0uNjE0cS0uMDA1LS4wMTktLjAyLS4wMjJtLS43MTUuMDAyYS4wMi4wMiAwIDAgMC0uMDI3LjAwNmwtLjAwNi4wMTRsLS4wMzQuNjE0cS4wMDEuMDE4LjAxNy4wMjRsLjAxNS0uMDAybC4yMDEtLjA5M2wuMDEtLjAwOGwuMDAzLS4wMTFsLjAxOC0uNDNsLS4wMDMtLjAxMmwtLjAxLS4wMXoiLz48cGF0aCBmaWxsPSIjZTExZDQ4IiBkPSJNOS40OTggNS43OTNjMS40Mi0xLjkwNCAzLjU1NS0yLjQ2IDUuNTE5LTEuOTI1YzIuMTIuNTc3IDMuOTg0IDIuMzk4IDQuNjAzIDQuOTM0cS4wNDguMTk1LjA4My4zOWE0LjQ1IDQuNDUgMCAwIDAtMi43NzQtLjA3Yy0xLjI4Ny0uOTUyLTIuODgxLTEuMTEyLTQuMjk4LS41OWMtMS43NzUuNjU1LTMuMTYxIDIuMzE2LTMuNDgyIDQuNDA2Yy0uNDEgMi42NzYgMS4yMiA1LjA4IDMuNTI1IDcuMTI0bC4zODguMzM2Yy0uMzEzLjAyMi0uNjMxLS4wMjctLjkzNS0uMDkyYTEwIDEwIDAgMCAxLS40NjYtLjExMmwtLjUzNy0uMTVDNi4zNSAxOC43MDEgMy4xNTQgMTYuNiAyLjIzNyAxMy40NmMtLjczMi0yLjUwNi0uMDI4LTUuMDE1IDEuNTItNi41NzVjMS40MzQtMS40NDUgMy41Ni0yLjAzMSA1Ljc0MS0xLjA5Mm0xLjYyOCA3LjQ0OGMuNDI4LTIuNzkyIDMuNjU3LTQuMTY4IDUuMzE1LTEuNzcyYS4xMDQuMTA0IDAgMCAwIC4xNDQuMDI1YzIuMzc3LTEuNjg0IDQuOTQuNzEzIDQuMzg3IDMuNDgzcS0uNDggMi40MS00LjQ3IDRsLS40MzUuMTdsLS4yNjMuMTA4Yy0uMjI3LjA4OS0uNDY3LjE2LS42ODQuMTIyYy0uMjE2LS4wMzgtLjQxNy0uMTg4LS42LS4zNDhsLS4zMS0uMjhxLTMuNDctMi45ODYtMy4wODQtNS41MDgiLz48L2c+PC9zdmc+" alt="点赞人数" class="icon" />
+          {{ course.likeCount }}
+        </span>
+          </div>
+          <button @click="viewDetails(course.courseId)">查看详情</button>
+        </div>
+      </div>
+    
+
+
       <!-- 横向滑动容器 -->
       <h2>推荐课程</h2>
       <div class="course-container-horizontal">
