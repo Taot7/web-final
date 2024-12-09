@@ -61,14 +61,17 @@ export async function getQuestion(
 }
 
 /** 获取指定自测试卷信息 GET /self-test/info/${param0} */
-export async function getSelfTest(id) {
-  if (!id || isNaN(Number(id))) {
-    return Promise.reject(new Error('无效的试卷ID'))
-  }
-  return request({
-    url: `/self-test/info/${id}`,
-    method: 'get'
-  })
+export async function getSelfTest(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getSelfTestParams,
+  options?: { [key: string]: any }
+) {
+  const { id: param0, ...queryParams } = params;
+  return request<API.SelfTestVO>(`/self-test/info/${param0}`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
 }
 
 /** 获取自测试卷列表 GET /self-test/list */
@@ -100,6 +103,20 @@ export async function publishSelfTest(
 ) {
   const { id: param0, courseId: param1, ...queryParams } = params;
   return request<boolean>(`/self-test/publish/${param0}/${param1}`, {
+    method: "POST",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
+/** 自动评分自测试卷 POST /self-test/score/${param0}/${param1} */
+export async function scoreSelfTest(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.scoreSelfTestParams,
+  options?: { [key: string]: any }
+) {
+  const { testId: param0, studentId: param1, ...queryParams } = params;
+  return request<Record<string, any>>(`/self-test/score/${param0}/${param1}`, {
     method: "POST",
     params: { ...queryParams },
     ...(options || {}),

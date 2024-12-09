@@ -7,6 +7,13 @@ declare namespace API {
     courseId: number;
   };
 
+  type Answer = {
+    /** 问题ID */
+    questionId?: number;
+    /** 答案 */
+    answer?: string;
+  };
+
   type Assignment = {
     /** 作业ID */
     assignmentId?: number;
@@ -988,6 +995,11 @@ declare namespace API {
     ename?: string;
   };
 
+  type scoreSelfTestParams = {
+    testId: number;
+    studentId: number;
+  };
+
   type SelfTest = {
     /** 试卷ID */
     testId?: number;
@@ -1050,6 +1062,10 @@ declare namespace API {
     createTime?: string;
     /** 题目列表 */
     questions?: QuestionBank[];
+    /** 题目类型 */
+    questionTypes?: string[];
+    /** 题目数量 */
+    questionCount?: number;
   };
 
   type setEnableUserRegisterParams = {
@@ -1127,6 +1143,8 @@ declare namespace API {
     score?: number;
     /** 完成时间 */
     completeTime?: string;
+    /** 课程标号 */
+    courseId?: number;
   };
 
   type TestRecordCommitParam = {
@@ -1134,8 +1152,10 @@ declare namespace API {
     recordId?: number;
     /** 学生ID */
     studentId?: number;
-    /** 答案JSON */
-    answers?: string;
+    /** 试卷ID */
+    testId?: number;
+    /** 答案列表 */
+    answers?: Answer[];
   };
 
   type TestRecordQuery = {
@@ -1153,6 +1173,8 @@ declare namespace API {
     score?: number;
     /** 完成时间 */
     completeTime?: string;
+    /** 课程标号 */
+    courseId?: number;
   };
 
   type TestRecordVO = {
@@ -1170,6 +1192,12 @@ declare namespace API {
     score?: number;
     /** 完成时间 */
     completeTime?: string;
+    /** 课程标号 */
+    courseId?: number;
+    /** 试卷标题 */
+    title?: string;
+    test?: SelfTestVO;
+    course?: CourseVO;
   };
 
   type updateAssignmentParams = {
@@ -1243,6 +1271,8 @@ declare namespace API {
     /** 性别 */
     gender?: "0" | "1" | "2";
     password?: string;
+    /** 学院/部门 */
+    department?: string;
     /** 管理员有效！！！用户角色id */
     roleIds?: number[];
   };
