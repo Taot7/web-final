@@ -7,7 +7,6 @@
         <span class="nav-item" @click="$router.push({ name: 'home' })">首页</span>
       </div>
       <div class="user-section">
-        <img class="user-avatar" src="https://via.placeholder.com/40" alt="用户头像" />
       </div>
     </div>
 
