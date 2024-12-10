@@ -7,30 +7,36 @@
       <table>
         <thead>
           <tr>
-            <th>章节</th>
-            <th>名称</th>
-            <th>状态</th>
-            <th>分数</th>
-            <th>操作</th>
+            <th style="width: 12%">名称</th>
+            <th style="width: 15%">类型</th>
+            <th style="width: 20%">说明</th>
+            <th style="width: 10%">题目数</th>
+            <th style="width: 12%">发布时间</th>
+            <th style="width: 8%">状态</th>
+            <th style="width: 7%">分数</th>
+            <th style="width: 8%">操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(quiz, index) in quizzes" :key="index">
-            <td>{{ quiz.chapter }}</td>
-            <td>{{ quiz.name }}</td>
+            <td>{{ quiz.title }}</td>
+            <td>{{ quiz?.questionTypes.join('、') ||  '--' }}</td>
+            <td>{{ quiz?.description ||  '--' }}</td>
+            <td>{{ quiz?.questionCount || 0 }}</td>
+            <td>{{ quiz?.createTime ? formatDateTime(quiz.createTime) : '--' }}</td>
             <td>
-              <span :class="['status-tag', quiz.status === '未提交' ? 'pending' : 'completed']">
-                {{ quiz.status }}
+              <span :class="['status-tag', quiz.recordStatus == '0' ? 'pending' : 'completed']">
+                {{ SELF_TEST_RECORD_STATUS[quiz.recordStatus] }}
               </span>
             </td>
-            <td>{{ quiz.score }}</td>
+            <td>{{ quiz.record?.score || '--' }}</td>
             <td>
               <button 
                 class="start-btn" 
                 @click="startQuiz(quiz)"
-                :disabled="quiz.status === '已完成'"
+                v-if="quiz?.recordStatus == '0'"
               >
-                {{ quiz.status === '已完成' ? '已提交' : '前往' }}
+                前往
               </button>
             </td>
           </tr>
@@ -40,57 +46,58 @@
   </div>
 </template>
 
-<script>
-import { getMyTestRecords } from '@/services/api/testRecord';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { getMyTestRecords } from '@/services/api/testRecord'
+import { ElMessage } from 'element-plus'
+import { getMySelfTestsWithRecords } from '@/services/api/selfTest';
+import { SELF_TEST_RECORD_STATUS } from '@/constant/test';
+interface Props {
+  courseId:  number
+}
 
-export default {
-  name: 'CourseQuiz',
-  data() {
-    return {
-      quizzes: [
-       
-      ],
-      courseId: parseInt(this.$route.query.courseId),
-    }
-  },
-  async created() {
-    try {
-      const response = await getMyTestRecords({
-        param: {
-          courseId: parseInt(this.$route.query.courseId)
-        } 
-      });
-      if (response.status === 200 && response.data) {
-        this.quizzes = response.data.list.map(item => ({
-          courseId: parseInt(this.$route.query.courseId),
-          testId: item.testId,
-          name: item.title,
-          status: item.status === 0 ? '未提交' : '已完成',
-          score: item.score || '--',
-          completeTime: item.completeTime
-        }));
+const props = defineProps<Props>()
+
+const route = useRoute()
+const router = useRouter()
+
+const quizzes = ref<API.SelfTestWithRecordVO[]>([])
+const courseId = props.courseId
+
+const formatDateTime = (dateTimeStr: string) => {
+  return dateTimeStr.replace('T', ' ');
+}
+
+onMounted(async () => {
+  try {
+    const response = await getMySelfTestsWithRecords({
+      current: 1,
+      pageSize: 1000,
+      //@ts-ignore
+      param: {
+        courseId:courseId
       }
-    } catch (error) {
-      console.error('获取测试记录失败:', error);
-      // 显示错误提示
-      this.$message.error('获取测试记录失败，请稍后重试');
-    }
-  },
-  methods: {
-    startQuiz(quiz) {
-      console.log("你好");
-      console.log(quiz);
-      
-      // 使用路由导航到测试页面，并传入测试ID
-      this.$router.push({
-        name: 'Test',
-        params: { 
-          testId: quiz.testId,
-          courseId: quiz.courseId
-        }
-      })
-    }
+    })
+    quizzes.value = response.data.list
+
+  } catch (error) {
+    console.error('获取测试记录失败:', error)
+    ElMessage.error('获取测试记录失败，请稍后重试')
   }
+})
+
+const startQuiz = (quiz: API.SelfTestWithRecordVO) => {
+  console.log("你好")
+  console.log(quiz)
+
+  router.push({
+    name: 'Test',
+    params: {
+      testId: quiz.testId,
+      courseId: quiz.courseId
+    }
+  })
 }
 </script>
 

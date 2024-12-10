@@ -48,10 +48,10 @@
           <CourseContent />
         </template>
         <template v-else-if="currentMenuItem === 5">
-          <CourseQuiz />
+          <CourseQuiz :courseId="currentCourseId" />
         </template>
         <template v-else-if="currentMenuItem === 6">
-          <CourseHomework />
+          <CourseHomework :courseId="currentCourseId" />
         </template>
         <template v-else-if="currentMenuItem === 4">
           <CourseDiscussion :courseId="currentCourseId" />
