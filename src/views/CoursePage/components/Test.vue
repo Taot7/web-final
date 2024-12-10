@@ -49,6 +49,32 @@
             </div>
           </div>
 
+          <!-- 判断题选项 -->
+          <div v-else-if="question.type === 2" class="options">
+            <div class="option-item">
+              <label>
+                <input 
+                  type="radio" 
+                  :name="'question_' + question.questionId"
+                  value="是"
+                  v-model="answers[question.questionId]"
+                >
+                是
+              </label>
+            </div>
+            <div class="option-item">
+              <label>
+                <input 
+                  type="radio" 
+                  :name="'question_' + question.questionId"
+                  value="否"
+                  v-model="answers[question.questionId]"
+                >
+                否
+              </label>
+            </div>
+          </div>
+
           <!-- 其他题型的答题区域 -->
           <div v-else class="answer-area">
             <textarea 
@@ -146,7 +172,7 @@ export default {
       })
 
       if (unansweredQuestions.length > 0) {
-        console.warn(`还有 ${unansweredQuestions.length} 道题目未完成`)
+        console.warn(`还�� ${unansweredQuestions.length} 道题目未完成`)
         return
       }
 
@@ -184,7 +210,7 @@ export default {
         if (question.type === 1) { // 多选题
           this.answers[question.questionId] = []
         } else if (question.type === 2) { // 判断题
-          this.answers[question.questionId] = null
+          this.answers[question.questionId] = ''
         } else { // 单选题和其他题型
           this.answers[question.questionId] = ''
         }

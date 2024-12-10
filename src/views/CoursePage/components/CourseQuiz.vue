@@ -28,9 +28,9 @@
               <button 
                 class="start-btn" 
                 @click="startQuiz(quiz)"
-                v-if="quiz.status === '未提交'"
+                :disabled="quiz.status === '已完成'"
               >
-                前往
+                {{ quiz.status === '已完成' ? '已提交' : '前往' }}
               </button>
             </td>
           </tr>
