@@ -245,7 +245,8 @@ const questionType = (type) => {
 const generateTest = async () => {
   console.log('selected questions: ', selectedQuestions)
   if (testPaper.value.selectionMode === "random") {
-    selectedQuestions = questions.value.sort(() => 0.5 - Math.random()).slice(0, 5);
+    selectedQuestions = questions.value.map((question)=>question.questionId)
+    selectedQuestions.sort(() => 0.5 - Math.random()).slice(0, 5);
   }
 
 
