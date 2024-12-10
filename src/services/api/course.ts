@@ -66,30 +66,34 @@ export async function getCourses(
   });
 }
 
-/** 对应课程的作业的提交情况 GET /course/list-assignment/${param0} */
-export async function getCourseAssignments(
+/** 获取课程信息列表，包含注册信息 GET /course/list-enroll */
+export async function getCoursesWithEnroll(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getCourseAssignmentsParams,
+  params: API.getCoursesWithEnrollParams,
   options?: { [key: string]: any }
 ) {
-  const { id: param0, ...queryParams } = params;
-  return request<API.ListResultAssignmentVO>(
-    `/course/list-assignment/${param0}`,
-    {
-      method: "GET",
-      params: { ...queryParams },
-      ...(options || {}),
-    }
-  );
+  return request<API.ListResultCourseWithEnrollVO>("/course/list-enroll", {
+    method: "GET",
+    params: {
+      // current has a default value: 1
+      current: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+      ...params,
+      param: undefined,
+      ...params["param"],
+    },
+    ...(options || {}),
+  });
 }
 
-/** 获取我的课程信息列表 GET /course/list-self */
-export async function getMyCourses(
+/** 获取我的课程信息列表，包含注册信息 GET /course/list-self-enroll */
+export async function getMyCoursesWithEnroll(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getMyCoursesParams,
+  params: API.getMyCoursesWithEnrollParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.ListResultCourseVO>("/course/list-self", {
+  return request<API.ListResultCourseWithEnrollVO>("/course/list-self-enroll", {
     method: "GET",
     params: {
       // current has a default value: 1

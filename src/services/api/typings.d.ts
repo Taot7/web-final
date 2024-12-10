@@ -76,7 +76,7 @@ declare namespace API {
     /** 作业提交状态 */
     submissionStatus?: "0" | "1" | "2";
     /** 作业提交时间 */
-    submitTime?: number;
+    submitTime?: string;
     submission?: AssignmentSubmission;
   };
 
@@ -102,6 +102,17 @@ declare namespace API {
     deadline: string;
     /** 创建时间 */
     createTime?: string;
+  };
+
+  type AssignmentStatVO = {
+    /** 未提交次数 */
+    unCommittedCount?: number;
+    /** 未批改次数 */
+    unCorrectedCount?: number;
+    /** 已批改次数 */
+    correctedCount?: number;
+    /** 总次数 */
+    totalCount?: number;
   };
 
   type AssignmentSubmission = {
@@ -185,17 +196,6 @@ declare namespace API {
     fileUrl: string;
   };
 
-  type AssignmentSubmitStatVO = {
-    /** 未提交次数 */
-    unCommittedCount?: number;
-    /** 未批改次数 */
-    unCorrectedCount?: number;
-    /** 已批改次数 */
-    correctedCount?: number;
-    /** 总次数 */
-    totalCount?: number;
-  };
-
   type AssignmentVO = {
     /** 作业ID */
     assignmentId?: number;
@@ -210,6 +210,23 @@ declare namespace API {
     /** 创建时间 */
     createTime?: string;
     course?: CourseVO;
+  };
+
+  type AssignmentWithStatVO = {
+    /** 作业ID */
+    assignmentId?: number;
+    /** 课程ID */
+    courseId: number;
+    /** 作业标题 */
+    title: string;
+    /** 作业描述 */
+    description: string;
+    /** 截止时间 */
+    deadline: string;
+    /** 创建时间 */
+    createTime?: string;
+    course?: CourseVO;
+    stat?: AssignmentStatVO;
   };
 
   type commitAssignmentSubmissionParams = {
@@ -249,6 +266,8 @@ declare namespace API {
     likeCount?: number;
     /** 学生数量 */
     studentCount?: number;
+    /** 学习进度 */
+    progress?: number;
     /** 创建时间 */
     createTime?: string;
     /** 更新时间 */
@@ -341,10 +360,8 @@ declare namespace API {
     courseId?: number;
     /** 学生ID */
     studentId?: number;
-    /** 状态：0-未开始,1-进行中、2-已完成、3-已退出 */
-    status?: "0" | "1" | "2" | "3";
-    /** 学习进度 */
-    progress?: number;
+    /** 状态：0-选中 ，1-收藏 ，2-取消 */
+    status?: "0" | "1" | "2";
     /** 注册时间 */
     createTime?: string;
   };
@@ -356,10 +373,8 @@ declare namespace API {
     courseId?: number;
     /** 学生ID */
     studentId?: number;
-    /** 状态：0-未开始,1-进行中、2-已完成、3-已退出 */
-    status?: "0" | "1" | "2" | "3";
-    /** 学习进度 */
-    progress?: number;
+    /** 状态：0-选中 ，1-收藏 ，2-取消 */
+    status?: "0" | "1" | "2";
     /** 注册时间 */
     createTime?: string;
     course?: CourseVO;
@@ -447,6 +462,8 @@ declare namespace API {
     likeCount?: number;
     /** 学生数量 */
     studentCount?: number;
+    /** 学习进度 */
+    progress?: number;
     /** 创建时间 */
     createTime?: string;
     /** 更新时间 */
@@ -487,12 +504,110 @@ declare namespace API {
     likeCount?: number;
     /** 学生数量 */
     studentCount?: number;
+    /** 学习进度 */
+    progress?: number;
     /** 创建时间 */
     createTime?: string;
     /** 更新时间 */
     updateTime?: string;
     category?: CourseCategoryVO;
     teacher?: UserVO;
+  };
+
+  type CourseWithEnrollQuery = {
+    /** 课程ID */
+    courseId?: number;
+    /** 课程标题 */
+    title?: string;
+    /** 课程描述 */
+    description?: string;
+    /** 分类ID */
+    categoryId?: number;
+    /** 教师ID */
+    teacherId?: number;
+    /** 讲师名称 */
+    teacherName?: string;
+    /** 封面图片URL */
+    coverImage?: string;
+    /** 是否推荐 */
+    isRecommended?: boolean;
+    /** 课程状态：0-草稿、1-已发布、2-已归档 */
+    status?: "0" | "1" | "2";
+    /** 是否允许评论 */
+    allowComment?: boolean;
+    /** 是否允许笔记 */
+    allowNotes?: boolean;
+    /** 浏览次数 */
+    viewCount?: number;
+    /** 点赞数 */
+    likeCount?: number;
+    /** 学生数量 */
+    studentCount?: number;
+    /** 学习进度 */
+    progress?: number;
+    /** 创建时间 */
+    createTime?: string;
+    /** 更新时间 */
+    updateTime?: string;
+    sorter?: Sorter;
+    /** 状态值多选 */
+    statuses?: ("0" | "1" | "2")[];
+    /** 课程id */
+    courseIds?: number[];
+    /** 注册ID */
+    enrollmentId?: number;
+    /** 学生ID */
+    studentId?: number;
+    /** 注册状态 0-选中 ，1-收藏 ，2-取消 */
+    enrollStatus?: "0" | "1" | "2";
+  };
+
+  type CourseWithEnrollVO = {
+    /** 课程ID */
+    courseId?: number;
+    /** 课程标题 */
+    title?: string;
+    /** 课程描述 */
+    description?: string;
+    /** 分类ID */
+    categoryId?: number;
+    /** 教师ID */
+    teacherId?: number;
+    /** 讲师名称 */
+    teacherName?: string;
+    /** 封面图片URL */
+    coverImage?: string;
+    /** 是否推荐 */
+    isRecommended?: boolean;
+    /** 课程状态：0-草稿、1-已发布、2-已归档 */
+    status?: "0" | "1" | "2";
+    /** 是否允许评论 */
+    allowComment?: boolean;
+    /** 是否允许笔记 */
+    allowNotes?: boolean;
+    /** 浏览次数 */
+    viewCount?: number;
+    /** 点赞数 */
+    likeCount?: number;
+    /** 学生数量 */
+    studentCount?: number;
+    /** 学习进度 */
+    progress?: number;
+    /** 创建时间 */
+    createTime?: string;
+    /** 更新时间 */
+    updateTime?: string;
+    category?: CourseCategoryVO;
+    teacher?: UserVO;
+    /** 学生ID */
+    studentId?: number;
+    student?: UserVO;
+    /** 注册ID */
+    enrollmentId?: number;
+    /** 注册状态 */
+    enrollStatus?: "0" | "1" | "2";
+    /** 注册时间 */
+    enroll_time?: string;
   };
 
   type deleteAssignmentParams = {
@@ -719,6 +834,10 @@ declare namespace API {
     param: AssignmentQuery;
   };
 
+  type getAssignmentStatInfoParams = {
+    param: AssignmentDetailQuery;
+  };
+
   type getAssignmentSubmissionParams = {
     id: number;
   };
@@ -729,12 +848,10 @@ declare namespace API {
     param: AssignmentSubmissionQuery;
   };
 
-  type getAssignmentSubmitStatParams = {
-    param: AssignmentSubmissionQuery;
-  };
-
-  type getCourseAssignmentsParams = {
-    id: number;
+  type getAssignmentsWithStatsParams = {
+    current?: number;
+    pageSize?: number;
+    param: AssignmentDetailQuery;
   };
 
   type getCourseCarouselParams = {
@@ -795,6 +912,12 @@ declare namespace API {
     id: number;
   };
 
+  type getCoursesWithEnrollParams = {
+    current?: number;
+    pageSize?: number;
+    param: CourseWithEnrollQuery;
+  };
+
   type getDiscussionParams = {
     id: number;
   };
@@ -829,10 +952,10 @@ declare namespace API {
     param: CourseEnrollmentQuery;
   };
 
-  type getMyCoursesParams = {
+  type getMyCoursesWithEnrollParams = {
     current?: number;
     pageSize?: number;
-    param: CourseQuery;
+    param: CourseWithEnrollQuery;
   };
 
   type getMyDiscussionsParams = {
@@ -950,6 +1073,11 @@ declare namespace API {
     total?: number;
   };
 
+  type ListResultAssignmentWithStatVO = {
+    list?: AssignmentWithStatVO[];
+    total?: number;
+  };
+
   type ListResultCourseCarouselVO = {
     list?: CourseCarouselVO[];
     total?: number;
@@ -972,6 +1100,11 @@ declare namespace API {
 
   type ListResultCourseVO = {
     list?: CourseVO[];
+    total?: number;
+  };
+
+  type ListResultCourseWithEnrollVO = {
+    list?: CourseWithEnrollVO[];
     total?: number;
   };
 
@@ -1130,7 +1263,7 @@ declare namespace API {
     creatorId?: number;
     /** 试卷所属课程id */
     courseId?: number;
-    /** 试卷状态 */
+    /** 试卷状态 0-未发布 1-已发布 */
     status?: number;
     /** 试卷标题 */
     title: string;
@@ -1149,7 +1282,7 @@ declare namespace API {
     creatorId?: number;
     /** 试卷所属课程id */
     courseId?: number;
-    /** 试卷状态 */
+    /** 试卷状态 0-未发布 1-已发布 */
     status?: number;
     /** 试卷标题 */
     title: string;
@@ -1170,7 +1303,7 @@ declare namespace API {
     creatorId?: number;
     /** 试卷所属课程id */
     courseId?: number;
-    /** 试卷状态 */
+    /** 试卷状态 0-未发布 1-已发布 */
     status?: number;
     /** 试卷标题 */
     title: string;
@@ -1189,7 +1322,7 @@ declare namespace API {
     creatorId?: number;
     /** 试卷所属课程id */
     courseId?: number;
-    /** 试卷状态 */
+    /** 试卷状态 0-未发布 1-已发布 */
     status?: number;
     /** 试卷标题 */
     title: string;
@@ -1215,7 +1348,7 @@ declare namespace API {
     creatorId?: number;
     /** 试卷所属课程id */
     courseId?: number;
-    /** 试卷状态 */
+    /** 试卷状态 0-未发布 1-已发布 */
     status?: number;
     /** 试卷标题 */
     title: string;
@@ -1240,7 +1373,7 @@ declare namespace API {
     creatorId?: number;
     /** 试卷所属课程id */
     courseId?: number;
-    /** 试卷状态 */
+    /** 试卷状态 0-未发布 1-已发布 */
     status?: number;
     /** 试卷标题 */
     title: string;
