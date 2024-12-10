@@ -37,7 +37,7 @@
             class="menu-avatar"
           />
           <div class="user-details">
-            <div class="user-name">{{ userInfo.username || "用户" }}</div>
+            <div class="user-name">{{ userInfo.nickname || "用户" }}</div>
             <div class="user-role">
               <span v-for="(role, index) in userInfo.roles" :key="index" class="role-tag">
                 {{ role.cname }}
