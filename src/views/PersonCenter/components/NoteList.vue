@@ -85,7 +85,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { getMyStudyNotes, addStudyNote, updateStudyNote, deleteStudyNote } from '@/services/api/studyNote'
-import { getMyCourseEnrollments } from '@/services/api/courseEnrollment';
+import { getMyCoursesWithEnroll } from '@/services/api/course';
 
 const router = useRouter()
 
@@ -132,14 +132,16 @@ const courseNotes = ref<CourseStudyNote[]>([])
 // 获取课程列表
 const fetchCourses = async () => {
   try {
-    const res = await getMyCourseEnrollments({
+    const res = await getMyCoursesWithEnroll({
       current: 1,
       pageSize: 100000,
       param: {
+        enrollStatus: "0",
+        allowNotes: true
       },
     })
   if(res?.data?.list) {
-      courses.value = res.data.list.map((item: API.CourseEnrollmentVO) => item.course);
+      courses.value = res.data.list as API.CourseVO[];
     }else{
       courses.value = [];
     }

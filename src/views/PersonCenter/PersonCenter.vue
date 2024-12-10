@@ -35,15 +35,15 @@
       <!-- 统计数据 -->
       <div class="stats">
         <div class="stat-item">
-          <div class="number">{{ stats.studying ||3 }}</div>
+          <div class="number">{{ stats?.studying ||0 }}</div>
           <div class="label">正在学习课程</div>
         </div>
         <div class="stat-item">
-          <div class="number">{{ stats.total ||12 }}</div>
+          <div class="number">{{ stats?.total ||0 }}</div>
           <div class="label">累计学习课程</div>
         </div>
         <div class="stat-item">
-          <div class="number">{{ stats.posts ||25 }}</div>
+          <div class="number">{{ stats?.posts ||0 }}</div>
           <div class="label">发布的讨论</div>
         </div>
       </div>
@@ -141,10 +141,9 @@ import UserSettings from "@/views/PersonCenter/components/UserSettings.vue";
 import { uploadImage } from "@/services/api/commonController";
 import { updateUser } from "@/services/api/userManagement";
 import { useUser } from "@/utils/userAuth";
-import { getMyCourseEnrollments } from "@/services/api/courseEnrollment";
 import { getCurrentUser } from '@/services/api/user'
-import type { ComponentPublicInstance } from 'vue'
 import { getMyDiscussions } from "@/services/api/discussion";
+import { getMyCoursesWithEnroll } from "@/services/api/course";
 const { isTeacher,getCurrentUserInfo} = useUser();
 const currentTab = ref("courses");
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -175,28 +174,32 @@ const stats = ref({
 });
 //获取统计数据
 const reloadStats=async ()=>{
-  const studyingCourese=await getMyCourseEnrollments(
+  //进行中的课程
+  const studyingCourese=await getMyCoursesWithEnroll(
     {
       current:1,
-      pageSize:1,
+      pageSize:0,
       param:{
-        status:"1"
+        status:"1",
+        enrollStatus:"0"
       }
     }
   )
-  //进行中的课程
   stats.value.studying=studyingCourese.data.total
-  const totalCoures= await getMyCourseEnrollments({
+
+  //累计课程
+  const totalCoures= await getMyCoursesWithEnroll({
     current:1,
-    pageSize:1,
+    pageSize:0,
     param:{
+      enrollStatus:"0"
     }
   }) 
   stats.value.total=totalCoures.data.total
   //发起的讨论
   const discussionPosts=await getMyDiscussions({
     current:1,
-    pageSize:1,
+    pageSize:0,
     param:{}
   })
   stats.value.posts=discussionPosts.data.total

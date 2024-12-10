@@ -125,8 +125,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ASSIGNMENT_SUBMISSION_STATUS } from "@/constant/assignment";
 import { SELF_TEST_RECORD_STATUS } from "@/constant/test";
-import { getMySelfTestsWithRecords } from "@/services/api/selfTest";
 import { getMyAssignmentDetails } from "@/services/api/assignment";
+import { getMySelfTestsWithRecords } from "@/services/api/selfTest";
 
 const router = useRouter();
 const currentTab = ref("homework");
