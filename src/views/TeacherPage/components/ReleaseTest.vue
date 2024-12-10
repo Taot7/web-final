@@ -256,7 +256,7 @@ const viewResults = (index) => {
   alert(`查看试卷 "${tests.value[index].title}" 的答题情况`);
 }
 const deleteTest = async (index)=>{
-  await deleteSelfTest(tests.value[index].testId);
+  await deleteSelfTest({id: tests.value[index].testId});
   initTests()
   alert("试卷已删除");
 }
