@@ -179,8 +179,6 @@ declare namespace API {
   type AssignmentSubmitParam = {
     /** 作业ID */
     assignmentId: number;
-    /** 学生id,根据身份获取 */
-    studentId?: number;
     /** 提交内容 */
     content: string;
     /** 文件URL */
@@ -843,6 +841,12 @@ declare namespace API {
     param: DiscussionQuery;
   };
 
+  type getMySelfTestsWithRecordsParams = {
+    current?: number;
+    pageSize?: number;
+    param: SelfTestWithRecordQuery;
+  };
+
   type getMyStudyNotesParams = {
     current?: number;
     pageSize?: number;
@@ -887,6 +891,12 @@ declare namespace API {
     current?: number;
     pageSize?: number;
     param: SelfTestQuery;
+  };
+
+  type getSelfTestsWithRecordsParams = {
+    current?: number;
+    pageSize?: number;
+    param: SelfTestWithRecordQuery;
   };
 
   type getStudentsParams = {
@@ -992,6 +1002,11 @@ declare namespace API {
 
   type ListResultSelfTestVO = {
     list?: SelfTestVO[];
+    total?: number;
+  };
+
+  type ListResultSelfTestWithRecordVO = {
+    list?: SelfTestWithRecordVO[];
     total?: number;
   };
 
@@ -1113,6 +1128,10 @@ declare namespace API {
     testId?: number;
     /** 创建者ID */
     creatorId?: number;
+    /** 试卷所属课程id */
+    courseId?: number;
+    /** 试卷状态 */
+    status?: number;
     /** 试卷标题 */
     title: string;
     /** 试卷说明 */
@@ -1128,6 +1147,10 @@ declare namespace API {
     testId?: number;
     /** 创建者ID */
     creatorId?: number;
+    /** 试卷所属课程id */
+    courseId?: number;
+    /** 试卷状态 */
+    status?: number;
     /** 试卷标题 */
     title: string;
     /** 试卷说明 */
@@ -1145,6 +1168,10 @@ declare namespace API {
     testId?: number;
     /** 创建者ID */
     creatorId?: number;
+    /** 试卷所属课程id */
+    courseId?: number;
+    /** 试卷状态 */
+    status?: number;
     /** 试卷标题 */
     title: string;
     /** 试卷说明 */
@@ -1160,6 +1187,10 @@ declare namespace API {
     testId?: number;
     /** 创建者ID */
     creatorId?: number;
+    /** 试卷所属课程id */
+    courseId?: number;
+    /** 试卷状态 */
+    status?: number;
     /** 试卷标题 */
     title: string;
     /** 试卷说明 */
@@ -1174,6 +1205,66 @@ declare namespace API {
     questionTypes?: string[];
     /** 题目数量 */
     questionCount?: number;
+    course?: CourseVO;
+  };
+
+  type SelfTestWithRecordQuery = {
+    /** 试卷ID */
+    testId?: number;
+    /** 创建者ID */
+    creatorId?: number;
+    /** 试卷所属课程id */
+    courseId?: number;
+    /** 试卷状态 */
+    status?: number;
+    /** 试卷标题 */
+    title: string;
+    /** 试卷说明 */
+    description: string;
+    /** 试卷设置JSON */
+    settings?: string;
+    /** 创建时间 */
+    createTime?: string;
+    /** 学生ID */
+    studentId?: number;
+    /** 测试记录id */
+    recordId?: number;
+    /** 测试状态 0 未完成 1 已完成 */
+    recordStatus?: "0" | "1";
+  };
+
+  type SelfTestWithRecordVO = {
+    /** 试卷ID */
+    testId?: number;
+    /** 创建者ID */
+    creatorId?: number;
+    /** 试卷所属课程id */
+    courseId?: number;
+    /** 试卷状态 */
+    status?: number;
+    /** 试卷标题 */
+    title: string;
+    /** 试卷说明 */
+    description: string;
+    /** 试卷设置JSON */
+    settings?: string;
+    /** 创建时间 */
+    createTime?: string;
+    /** 题目列表 */
+    questions?: QuestionBank[];
+    /** 题目类型 */
+    questionTypes?: string[];
+    /** 题目数量 */
+    questionCount?: number;
+    course?: CourseVO;
+    /** 学生ID */
+    studentId?: number;
+    student?: UserVO;
+    /** 测试记录id */
+    recordId?: number;
+    /** 测试状态 0 未完成 1 已完成 */
+    recordStatus?: "0" | "1";
+    record?: TestRecord;
   };
 
   type setEnableUserRegisterParams = {
@@ -1264,6 +1355,8 @@ declare namespace API {
     testId?: number;
     /** 答案列表 */
     answers?: Answer[];
+    /** 课程编号 */
+    courseId?: number;
   };
 
   type TestRecordQuery = {
@@ -1304,7 +1397,6 @@ declare namespace API {
     courseId?: number;
     /** 试卷标题 */
     title?: string;
-    test?: SelfTestVO;
     course?: CourseVO;
   };
 

@@ -88,25 +88,25 @@
             @click="goToOnlineCourse(item.courseId)"
           >
             <div class="item-header">
-              <span :class="['status-badge', getSelfTestStatusClass(item.status)]">
-                {{ SELF_TEST_RECORD_STATUS[item.status] || "" }}
+              <span :class="['status-badge', getSelfTestStatusClass(item.recordStatus)]">
+                {{ SELF_TEST_RECORD_STATUS[item.recordStatus] || "" }}
               </span>
             </div>
             <div class="item-content">
-              <h3>{{ item.test.title }}</h3>
+              <h3>{{ item?.title || ''}}</h3>
               <div class="test-info">
-                <span>题目类型: {{ item.test.questionTypes.join("、") }}</span>
-                <span>题目数量: {{ item.test.questionCount }}题</span>
+                <span>题目类型: {{ item.questionTypes.join("、") }}</span>
+                <span>题目数量: {{ item.questionCount }}题</span>
                 <span>时间限制: 120 分钟</span>
               </div>
               <div class="item-footer">
                 <div class="time-info">
-                  <span class="publish-time">发布时间: {{ item.test.createTime }}</span>
+                  <span class="publish-time">发布时间: {{ item.createTime }}</span>
                   <span class="deadline">截止日期: 2025-01-15 23:59:59</span>
                 </div>
                 <button
                   class="btn btn-primary btn-small"
-                  v-if="item.status == '0'"
+                  v-if="item.recordStatus == '0'"
                   @click.stop="goToOnlineCourse(item.courseId)"
                 >
                   开始测试
@@ -125,8 +125,8 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { ASSIGNMENT_SUBMISSION_STATUS } from "@/constant/assignment";
 import { SELF_TEST_RECORD_STATUS } from "@/constant/test";
+import { getMySelfTestsWithRecords } from "@/services/api/selfTest";
 import { getMyAssignmentDetails } from "@/services/api/assignment";
-import { getMyTestRecords } from "@/services/api/testRecord";
 
 const router = useRouter();
 const currentTab = ref("homework");
@@ -138,7 +138,7 @@ interface CourseHomework {
 
 interface CourseTest {
   course: API.CourseVO;
-  tests: API.TestRecordVO[];
+  tests: API.SelfTestWithRecordVO[];
 }
 
 const courseHomeworks = ref<CourseHomework[]>([]);
@@ -196,11 +196,13 @@ const fetchHomeworkList = async () => {
 // 获取自测列表并按课程聚合
 const fetchSelfTestList = async () => {
   try {
-    const res = await getMyTestRecords({
+    const res = await getMySelfTestsWithRecords({
       current: 1,
       pageSize: 100000,
+      //@ts-ignore
       param: {
-        status: "0",
+        recordStatus: "0",
+        status: 1,
       },
     });
     if (res.data) {

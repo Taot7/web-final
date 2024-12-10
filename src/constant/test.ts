@@ -12,3 +12,9 @@ export const SELF_TEST_RECORD_STATUS: Record<number, string> = {
   1: "已完成",
 };
 
+
+//试卷状态 0-未发布、1-已发布
+export const SELF_TEST_STATUS: Record<number, string> = {
+  0: "未发布",
+  1: "已发布",
+};
