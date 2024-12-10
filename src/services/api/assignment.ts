@@ -96,6 +96,27 @@ export async function getMyAssignmentDetails(
   );
 }
 
+/** 获取作业统计情况列表 GET /assignment/list-stats */
+export async function getAssignmentsWithStats(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAssignmentsWithStatsParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultAssignmentWithStatVO>("/assignment/list-stats", {
+    method: "GET",
+    params: {
+      // current has a default value: 1
+      current: "1",
+      // pageSize has a default value: 10
+      pageSize: "10",
+      ...params,
+      param: undefined,
+      ...params["param"],
+    },
+    ...(options || {}),
+  });
+}
+
 /** 发布作业,并为每个选课的学生生成作业提交记录 POST /assignment/publish */
 export async function publishAssignment(
   body: API.Assignment,
@@ -107,6 +128,23 @@ export async function publishAssignment(
       "Content-Type": "application/json",
     },
     data: body,
+    ...(options || {}),
+  });
+}
+
+/** 获取作业统计情况信息 GET /assignment/stat-info */
+export async function getAssignmentStatInfo(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getAssignmentStatInfoParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.AssignmentStatVO>("/assignment/stat-info", {
+    method: "GET",
+    params: {
+      ...params,
+      param: undefined,
+      ...params["param"],
+    },
     ...(options || {}),
   });
 }

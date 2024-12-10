@@ -24,56 +24,49 @@
         >
           已结束
         </div>
-        <div 
-          class="tab-item" 
-          :class="{ active: currentTab === 'favorite' }"
-          @click="handleTabChange('favorite')"
-        >
-          关注的课程
-        </div>
       </div>
     </div>
 
     <div class="tab-content">
       <div class="course-container">
         <div
-          v-for="enrollment in courseList"
-          :key="enrollment.enrollmentId"
+          v-for="course in courseList"
+          :key="course.courseId"
           class="course-item"
         >
-          <div class="course-cover" @click="goToCourse(enrollment.courseId)">
-            <img :src="enrollment.course.coverImage" alt="课程封面" />
+          <div class="course-cover" @click="goToCourse(course.courseId)">
+            <img :src="course?.coverImage || '/src/assets/try1.png'" alt="课程封面" />
           </div>
           <div class="course-info">
-            <h3 class="course-title">{{ enrollment?.course?.title || "" }}</h3>
+            <h3 class="course-title">{{ course?.title || "" }}</h3>
             <div class="progress-info">
               <div class="progress-text">
-                <span v-if="currentTab !== 'upcoming'">待完成作业: {{ 0 }}</span>
-                <span>已完成进度: {{ currentTab === 'upcoming' ? 0 : enrollment.progress }}%</span>
+                <span v-if="currentTab !== 'upcoming'">待完成作业: {{ course.unCommittedCount }}</span>
+                <span>已完成进度: {{ currentTab === 'upcoming' ? 0 : course.progress }}%</span>
               </div>
               <div class="progress-bar">
                 <div
                   class="progress"
-                  :style="{ width: currentTab === 'upcoming' ? '0%' : enrollment.progress + '%' }"
+                  :style="{ width: currentTab === 'upcoming' ? '0%' : course.progress + '%' }"
                 ></div>
               </div>
             </div>
             <div class="course-meta">
               <span class="course-date">
                 <i class="iconfont icon-time"></i>
-                {{ currentTab === 'upcoming' ? '发布时间: 2025-02-14' : '创建时间: ' + enrollment.createTime }}
+                {{ currentTab === 'upcoming' ? '发布时间: 2025-02-14' : '创建时间: ' + course.createTime }}
               </span>
               <span class="course-status">
                 <i class="iconfont icon-status"></i>
                 状态:
-                {{ COURSE_ENROLLMENT_STATUS[enrollment.status] }}
+                {{ COURSE_STATUS[course.status] }}
               </span>
             </div>
           </div>
           <div class="course-actions">
             <button
               class="continue-btn"
-              @click="goToOnlineCourse(enrollment.courseId)"
+              @click="goToOnlineCourse(course.courseId)"
             >
               继续学习
             </button>
@@ -85,10 +78,12 @@
 </template>
 
 <script setup lang="ts">
-import { COURSE_ENROLLMENT_STATUS } from "@/constant/course";
+import { COURSE_ENROLLMENT_STATUS, COURSE_STATUS } from "@/constant/course";
+import { getAssignmentStatInfo } from "@/services/api/assignment";
+import { getMyCoursesWithEnroll } from "@/services/api/course";
+import { useUser } from "@/utils/userAuth";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { getMyCourseEnrollments } from "@/services/api/courseEnrollment";
 
 const router = useRouter();
 
@@ -115,33 +110,72 @@ const tabs = [
 const currentTab = ref<"learning" | "upcoming" | "completed" | "favorite">(
   "learning"
 );
-const courseList = ref<API.CourseEnrollmentVO[]>([]);
+interface CourseWithStat extends API.CourseWithEnrollVO{
+  unCommittedCount:number
+}
+const courseList = ref<CourseWithStat[]>([]);
+
+
 
 const loadCourseList = async () => {
-  let status: "0" | "1" | "2" | "3" = undefined;
+  let statusGroup:{
+    status: "0" | "1" | "2" |undefined,
+    enrollStatus: "0" | "1" | "2" |undefined
+  }
 
   switch (currentTab.value) {
+    // 开课中
     case "learning":
-      status = "1";
+      statusGroup = {
+        status: "1",
+        enrollStatus: "0",
+      };
       break;
     case "upcoming":
-      status = "0";
+      statusGroup = {
+        status: "0",
+        enrollStatus: "0",
+      };
       break;
     case "completed":
-      status = "2";
+      statusGroup = {
+        status: "2",
+        enrollStatus: "0",
+      };
       break;
     case "favorite":
-      status = "3";
+      statusGroup = {
+        status: undefined,
+        enrollStatus: "1",
+      };
       break;
   }
 
   try {
-    const response = await getMyCourseEnrollments({
+    const response = await getMyCoursesWithEnroll({
       current: 1,
       pageSize: 100,
-      param: { status },
+      param: { 
+        status: statusGroup.status,
+        enrollStatus: statusGroup.enrollStatus,
+      },
     });
-    courseList.value = response.data.list;
+    courseList.value = response?.data?.list as CourseWithStat[] || []
+
+    for(const course of courseList.value){
+      try{
+        const statsRes = await getAssignmentStatInfo({
+          //@ts-ignore
+        param: {
+          courseId: course.courseId,
+          studentId: useUser().currentUser.value.userId
+        } 
+        }) 
+        course.unCommittedCount = statsRes?.data?.unCommittedCount || 0
+      }catch(error){
+        course.unCommittedCount = 0
+      }
+    }
   } catch (error) {
     console.error("获取课程列表失败", error);
   }

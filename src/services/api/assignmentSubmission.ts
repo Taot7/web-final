@@ -118,23 +118,3 @@ export async function getMyAssignmentSubmissions(
     }
   );
 }
-
-/** 根据条件获取学生作业提交情况 GET /assignment-submission/statistic */
-export async function getAssignmentSubmitStat(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.getAssignmentSubmitStatParams,
-  options?: { [key: string]: any }
-) {
-  return request<API.AssignmentSubmitStatVO>(
-    "/assignment-submission/statistic",
-    {
-      method: "GET",
-      params: {
-        ...params,
-        param: undefined,
-        ...params["param"],
-      },
-      ...(options || {}),
-    }
-  );
-}

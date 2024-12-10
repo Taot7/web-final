@@ -161,6 +161,7 @@
 </template>
 
 <script setup lang="ts">
+import { getMyCoursesWithEnroll } from "@/services/api/course";
 import {
   deleteDiscussion,
   getMyDiscussions,
@@ -169,7 +170,6 @@ import {
 } from "@/services/api/discussion";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { getMyCourseEnrollments } from "@/services/api/courseEnrollment";
 
 const router = useRouter();
 
@@ -290,12 +290,15 @@ const goToDiscussion = (courseId: number, discussionId: number) => {
 // 加载课程列表
 const loadCourseList = async () => {
   try {
-    const res = await getMyCourseEnrollments({
+    const res = await getMyCoursesWithEnroll({
       current: 1,
       pageSize: 1000,
-      param: {},
+      param: {
+        enrollStatus: "0",
+        allowComment: true
+      },
     });
-    courseList.value = res.data.list.map((item) => item.course);
+    courseList.value = res.data.list as API.CourseVO[];
   } catch (error) {
     console.error("获取课程列表失败:", error);
   }

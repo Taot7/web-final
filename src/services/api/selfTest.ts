@@ -60,13 +60,16 @@ export async function getQuestion(
   });
 }
 
-/** 获取指定自测试卷信息 GET /self-test/info/${testId} */
+/** 获取指定自测试卷信息 GET /self-test/info/${param0} */
 export async function getSelfTest(
-  testId: string, // 只传入 testId 参数
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getSelfTestParams,
   options?: { [key: string]: any }
 ) {
-  return request<API.SelfTestVO>(`/self-test/info/${testId}`, {
+  const { id: param0, ...queryParams } = params;
+  return request<API.SelfTestVO>(`/self-test/info/${param0}`, {
     method: "GET",
+    params: { ...queryParams },
     ...(options || {}),
   });
 }
@@ -90,6 +93,54 @@ export async function getSelfTests(
     },
     ...(options || {}),
   });
+}
+
+/** 获取我的自测试卷详情列表，包括测试记录 GET /self-test/list-self-with-record */
+export async function getMySelfTestsWithRecords(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getMySelfTestsWithRecordsParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultSelfTestWithRecordVO>(
+    "/self-test/list-self-with-record",
+    {
+      method: "GET",
+      params: {
+        // current has a default value: 1
+        current: "1",
+        // pageSize has a default value: 10
+        pageSize: "10",
+        ...params,
+        param: undefined,
+        ...params["param"],
+      },
+      ...(options || {}),
+    }
+  );
+}
+
+/** 获取自测试卷详情列表，包括测试记录 GET /self-test/list-with-record */
+export async function getSelfTestsWithRecords(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.getSelfTestsWithRecordsParams,
+  options?: { [key: string]: any }
+) {
+  return request<API.ListResultSelfTestWithRecordVO>(
+    "/self-test/list-with-record",
+    {
+      method: "GET",
+      params: {
+        // current has a default value: 1
+        current: "1",
+        // pageSize has a default value: 10
+        pageSize: "10",
+        ...params,
+        param: undefined,
+        ...params["param"],
+      },
+      ...(options || {}),
+    }
+  );
 }
 
 /** 发布测试试卷到指定课程的学生 POST /self-test/publish/${param0}/${param1} */
