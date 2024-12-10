@@ -196,34 +196,7 @@ const selectQuestion = (event, questionId) => {
   console.log('selectedQuestions: ', selectedQuestions);
 }
 
-// const questions = [
-//     {
-//       type: "单选",
-//       content: "Vue是什么框架？",
-//       options: ["前端框架", "后端框架", "数据库", "操作系统"],
-//       answer: "A",
-//     },
-//     {
-//       type: "多选",
-//       content: "JavaScript的特性有哪些？",
-//       options: ["动态类型", "面向对象", "跨平台", "编译执行"],
-//       answer: "A,B,C",
-//     },
-//     {
-//       type: "简答题",
-//       content: "请简述Vue的核心概念。",
-//       options: [],
-//       answer: "",
-//     },
-//   ]
-// const courses = [
-//     "计算机科学基础",
-//     "数据结构与算法",
-//     "前端开发",
-//     "数据库管理系统",
-//     "操作系统原理",
-//   ]
-// const selectedCourse = ""
+
 const testPaper = ref({
     title: "",
     selectionMode: "random",

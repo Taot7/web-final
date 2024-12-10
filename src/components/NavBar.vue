@@ -7,7 +7,7 @@
     </div>
     <div class="nav-right">
       <router-link to="/personCenter" class="user-profile">
-        <img src="@/assets/account_photo.jpg" alt="用户头像" class="avatar">
+        <img src="http://47.115.57.164:81/api/common/view/image?filename=20241210.cde5d83097b64aaba8399ae3ef79812b.微信图片_20240912152837.png" alt="用户头像" class="avatar">
         <span class="notification">14</span>
       </router-link>
     </div>
@@ -17,7 +17,7 @@
 <script setup>
 import { ref } from 'vue'
 
-const userAvatar = ref('/path/to/default-avatar.png') // 替换为实际的默认头像路径
+
 </script>
 
 <style scoped>
