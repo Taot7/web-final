@@ -65,8 +65,49 @@
       </main>
     </div>
   </template>
-  
+
   <script>
+  import { getStudents, getTeachers } from "@/services/api/userManagement";
+  import { ref, computed } from "vue";
+
+  const students = ref([]);
+  const teachers = ref([]);
+
+  const processUserData = (user) => {
+    return {
+      ...user,
+      gender: user.gender === 1 ? "男" : "女",
+      role: user.roles.length > 0 ? user.roles[0].cname : "未知角色",
+    };
+  };
+
+  const initStudents = async () => {
+    try {
+      const resp = await getStudents({});
+      students.value = resp.data.list
+          .map(processUserData)
+          .sort((stu1, stu2) => stu1.userId - stu2.userId);
+      console.log("学生数据初始化完成", students.value);
+    } catch (error) {
+      console.error("获取学生数据失败", error);
+    }
+  };
+
+  const initTeachers = async () => {
+    try {
+      const resp = await getTeachers({});
+      teachers.value = resp.data.list
+          .map(processUserData)
+          .sort((tea1, tea2) => tea1.userId - tea2.userId);
+      console.log("教师数据初始化完成", teachers.value);
+    } catch (error) {
+      console.error("获取教师数据失败", error);
+    }
+  };
+
+  function getNestedValue(obj, path) {
+    return path.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : null), obj);
+  }
   export default {
     data() {
       return {
@@ -95,20 +136,22 @@
     computed: {
       filteredUsers() {
         const allUsers = this.users[this.userType];
-        const filtered = allUsers.filter((user) =>
-          Object.values(user).some((value) =>
-            value.toString().toLowerCase().includes(this.searchQuery.toLowerCase())
-          )
+        const filtered = allUsers.filter(user =>
+            this.userFields.some(field => {
+              const value = getNestedValue(user, field);
+              return value && value.toString().toLowerCase().includes(this.searchQuery.toLowerCase());
+            })
         );
         const startIndex = (this.currentPage - 1) * this.usersPerPage;
         const endIndex = startIndex + this.usersPerPage;
         return filtered.slice(startIndex, endIndex);
       },
       totalPages() {
-        const allUsers = this.users[this.userType].filter((user) =>
-          Object.values(user).some((value) =>
-            value.toString().toLowerCase().includes(this.searchQuery.toLowerCase())
-          )
+        const allUsers = this.users[this.userType].filter(user =>
+            this.userFields.some(field => {
+              const value = getNestedValue(user, field);
+              return value && value.toString().toLowerCase().includes(this.searchQuery.toLowerCase());
+            })
         );
         return Math.ceil(allUsers.length / this.usersPerPage);
       },
@@ -124,10 +167,10 @@
       updateHeaders() {
         if (this.userType === "student") {
           this.headers = ["学号", "姓名", "学院/部门", "性别", "角色", "密码"];
-          this.userFields = ["studentId", "name", "department", "gender", "role", "password"];
+          this.userFields = ["studentId", "username", "department", "gender", "role", "password"];
         } else {
           this.headers = ["工号", "姓名", "学院/部门", "性别", "角色", "密码"];
-          this.userFields = ["teacherId", "name", "department", "gender", "role", "password"];
+          this.userFields = ["userId", "username", "department", "gender", "role", "password"];
         }
       },
       addUser() {
@@ -190,6 +233,10 @@
     },
     created() {
       this.updateHeaders();
+      initStudents();
+      initTeachers();
+      this.users.student=students
+      this.users.teacher=teachers
     },
   };
   </script>
