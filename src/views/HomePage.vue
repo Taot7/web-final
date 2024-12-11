@@ -5,6 +5,8 @@
     <header >
 
       <div class="logo">
+        <img src="../../public/HomePagelogo.png" alt="logo" class="logo-img">
+
         <h1>课程平台</h1>
       </div>
       <div class="ss">
@@ -1202,7 +1204,7 @@ header .logo {
 }
 
 header .logo img.logo-img {
-  height: 40px; /* 设置 logo 图片高度，可根据需要调整 */
+  height: 100px; /* 设置 logo 图片高度，可根据需要调整 */
   margin-right: 10px; /* 图片与标题之间的间距 */
 }
 header .logo h1 {
