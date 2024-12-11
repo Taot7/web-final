@@ -156,9 +156,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getMyAssignmentDetails, submitAssignment } from "@/services/api/assignment"
 import { ASSIGNMENT_SUBMISSION_STATUS } from "@/constant/assignment"
 import { UploadUtils } from "@/utils/uploadUtils"
+import { getMyAssignmentDetails, submitAssignment } from '@/services/api/assignment';
 
 interface Props {
   courseId:  number

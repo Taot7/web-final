@@ -51,8 +51,8 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getMyTestRecords } from '@/services/api/testRecord'
 import { ElMessage } from 'element-plus'
-import { getMySelfTestsWithRecords } from '@/services/api/selfTest';
 import { SELF_TEST_RECORD_STATUS } from '@/constant/test';
+import { getMySelfTestsWithRecords } from '@/services/api/selfTest';
 interface Props {
   courseId:  number
 }
@@ -76,7 +76,8 @@ onMounted(async () => {
       pageSize: 1000,
       //@ts-ignore
       param: {
-        courseId:courseId
+        courseId:courseId,
+        status: 1
       }
     })
     quizzes.value = response.data.list
