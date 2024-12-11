@@ -38,7 +38,7 @@
           <button class="action-btn like-btn" @click="handleLike">
             <i class="like-icon">👍</i> {{ (discussion?.replayCount -2 ) <0?0: discussion?.replayCount -2 }}
           </button>
-          <button class="action-btn reply-btn" @click="focusReply">
+          <button class="action-btn reply-btn" @click="focusReply" v-if="props.isEnrolled">
             <i class="reply-icon">💬</i> 回复
           </button>
         </div>
@@ -80,6 +80,7 @@
               <button
                 class="action-btn reply-btn"
                 @click="handleReplyToReply(reply)"
+                v-if="props.isEnrolled"
               >
                 回复
               </button>
@@ -135,6 +136,7 @@
                     <button
                       class="action-btn reply-btn"
                       @click="handleReplyToSubReply(reply, subReply as BaseReply)"
+                      v-if="props.isEnrolled"
                     >
                       回复
                     </button>
@@ -167,7 +169,7 @@
     </div>
 
     <!-- 回复输入框 -->
-    <div class="reply-input-section" ref="replySection">
+    <div class="reply-input-section" ref="replySection" v-if="props.isEnrolled">
       <textarea
         v-model="newReply"
         placeholder="写下你的回复..."
@@ -189,6 +191,7 @@ import { ref, computed, onMounted } from "vue";
 
 interface Props {
   discussionId: string | number;
+  isEnrolled: boolean;
 }
 interface BaseReply extends API.DiscussionReplyWithSubVO {
   showSubReplies: boolean;
@@ -258,7 +261,9 @@ const handleLike = () => {
 };
 
 const handleReplyLike = (reply: BaseReply) => {
-  reply.likeCount++;
+  if(props.isEnrolled){
+    reply.likeCount++;
+  }
 };
 
 const handleSubReplyLike = (subReply: BaseReply) => {

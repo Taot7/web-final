@@ -19,7 +19,7 @@
 
         <!-- 导航菜单 -->
         <ul class="menu">
-          <li v-for="(item, index) in menuItems" 
+          <li v-for="(item, index) in filteredMenuItems" 
               :key="index"
               :class="{ active: currentMenuItem === index }"
               @click="handleMenuClick(item, index)">
@@ -29,7 +29,7 @@
           
           <!-- 子菜单 -->
           <transition name="submenu">
-            <ul class="submenu" v-if="showSubMenu"> <!-- 5是考核选项的索引 -->
+            <ul class="submenu" v-if="showSubMenu && enrolled"> 
               <li v-for="(subItem, subIndex) in examSubMenu" 
                   :key="subIndex"
                   @click="handleSubMenuClick(subItem)">
@@ -47,14 +47,14 @@
         <template v-if="currentMenuItem === 3">
           <CourseContent />
         </template>
-        <template v-else-if="currentMenuItem === 5">
+        <template v-else-if="currentMenuItem === 5 && enrolled">
           <CourseQuiz :courseId="currentCourseId" />
         </template>
-        <template v-else-if="currentMenuItem === 6">
+        <template v-else-if="currentMenuItem === 6 && enrolled">
           <CourseHomework :courseId="currentCourseId" />
         </template>
         <template v-else-if="currentMenuItem === 4">
-          <CourseDiscussion :courseId="currentCourseId" />
+          <CourseDiscussion :courseId="currentCourseId" :isEnrolled="enrolled" />
         </template>
         <template v-else>
           <!-- 原有的成绩进度内容 -->
@@ -134,15 +134,15 @@
   </div>
 </template>
 
-<script>
+<script >
 import NavBar from '@/components/NavBar.vue';
 import CourseContent from './components/CourseContent.vue';
 import CourseQuiz from './components/CourseQuiz.vue';
 import CourseHomework from './components/CourseHomework.vue';
 import CourseDiscussion from './components/CourseDiscussion.vue';
 import { getCourse } from '@/services/api/course';
-import { currentUser } from '@/utils/userAuth';
-
+import { checkCourseEnrolled, getMyCourseEnrollments } from '@/services/api/courseEnrollment';
+import { useUser } from '@/utils/userAuth';
 export default {
   components: {
     NavBar,
@@ -173,11 +173,10 @@ export default {
         { name: '直播', icon: 'icon-live' },
         { name: '课程内容', icon: 'icon-content' },
         { name: '课程讨论', icon: 'icon-discussion' },
-        { name: '考核', icon: 'icon-exam', hasSubMenu: true }
-
+        { name: '考核', icon: 'icon-exam', hasSubMenu: true, requireEnrollment: true }
       ],
       examSubMenu: [
-      { name: '测验', icon: 'icon-quiz' },
+        { name: '测验', icon: 'icon-quiz' },
         { name: '作业', icon: 'icon-homework' },
       ],
       chapters: [
@@ -214,7 +213,13 @@ export default {
       ],
       selectedLesson: null,
       currentCourseId: 0,
+      enrolled: false,
     };
+  },
+  computed: {
+    filteredMenuItems() {
+      return this.menuItems.filter(item => !item.requireEnrollment || this.enrolled);
+    }
   },
   async created() {
     const courseId = this.$route.query.courseId;
@@ -228,6 +233,14 @@ export default {
       } catch (error) {
         console.error('获取课程信息失败:', error);
       }
+      this.enrolled =false;
+      const enroll = await checkCourseEnrolled({
+        courseId: courseId,
+      });
+      if (enroll.status === 200) {
+        this.enrolled = enroll.data;
+      }
+      console.log('enrolled',this.enrolled);
     }
   },
   methods: {

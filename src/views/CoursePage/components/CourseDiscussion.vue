@@ -8,7 +8,12 @@
         <div class="discussion-controls">
           <!-- 搜索框,用于根据关键字过滤讨论 -->
           <input type="text" class="search-input" placeholder="请输入关键字" v-model="searchText">
-          <button class="post-btn" @click="startNewPost">发起讨论</button>
+          <button 
+            class="post-btn" 
+            @click="startNewPost"
+            :disabled="!isEnrolled"
+            :class="{'disabled': !isEnrolled}"
+          >发起讨论</button>
           <div class="filter">
             <!-- 教师筛选复选框 -->
             <label>
@@ -59,6 +64,7 @@
     <div class="discussion-detail-container" v-else>
       <CourseDiscussionDetail
         :discussionId="currentDiscussionId"
+        :isEnrolled="isEnrolled"
         @back="showDetail = false"
       />
     </div>
@@ -93,6 +99,7 @@ import { getDiscussions, addDiscussion } from '@/services/api/discussion'
 
 const props = defineProps<{
   courseId: number;
+  isEnrolled: boolean;
 }>();
 
 // 查询相关的响应式变量
@@ -139,6 +146,10 @@ const filteredPosts = computed(() => {
 })
 
 const startNewPost = () => {
+  if (!props.isEnrolled) {
+    alert('请先注册课程后再发起讨论')
+    return
+  }
   showNewPostDialog.value = true
 }
 
@@ -231,6 +242,11 @@ onMounted(() => {
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.post-btn.disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .discussion-item {

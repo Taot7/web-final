@@ -16,6 +16,20 @@ export async function addCourseEnrollment(
   });
 }
 
+/** 是否注册相应课程 GET /course-enrollment/check-enrolled/${param0} */
+export async function checkCourseEnrolled(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.checkCourseEnrolledParams,
+  options?: { [key: string]: any }
+) {
+  const { courseId: param0, ...queryParams } = params;
+  return request<boolean>(`/course-enrollment/check-enrolled/${param0}`, {
+    method: "GET",
+    params: { ...queryParams },
+    ...(options || {}),
+  });
+}
+
 /** 删除指定课程注册 DELETE /course-enrollment/delete/${param0} */
 export async function deleteCourseEnrollment(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
