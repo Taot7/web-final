@@ -176,7 +176,12 @@
         class="reply-input"
         rows="4"
       ></textarea>
-      <button class="submit-btn" @click="submitReply">发表回复</button>
+      <button class="submit-btn" @click="submitReply" :disabled="isSubmitting">
+        <span v-if="isSubmitting">
+          <i class="fas fa-spinner fa-spin"></i> 发表中...
+        </span>
+        <span v-else>发表回复</span>
+      </button>
     </div>
   </div>
 </template>
@@ -208,6 +213,7 @@ const pageSize = ref(10);
 const replyingTo = ref<{ reply: BaseReply; type: "main" | "sub" } | null>(null);
 const totalReplies = ref(0);
 const replySection = ref<HTMLElement | null>(null);
+const isSubmitting = ref(false);
 
 const totalPages = computed(() =>
   Math.ceil(totalReplies.value / pageSize.value)
@@ -296,6 +302,8 @@ const submitReply = async () => {
     return;
   }
 
+  isSubmitting.value = true;
+
   try {
     if (replyingTo.value) {
       // 添加子回复
@@ -323,6 +331,8 @@ const submitReply = async () => {
   } catch (error) {
     console.error("提交回复失败:", error);
     alert("提交回复失败,请重试");
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

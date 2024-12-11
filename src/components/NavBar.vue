@@ -2,7 +2,7 @@
   <nav class="nav-bar">
     <div class="nav-left">
       <div class="nav-links">
-        <router-link to="/" class="nav-item">首页</router-link>
+        <router-link to="/" class="nav-item" style="text-decoration: none; color: #333; font-size: 18px; font-weight: 600; padding: 10px 20px; border-radius: 6px; transition: all 0.3s ease; background: linear-gradient(to right, #fff, #f5f5f5); box-shadow: 0 2px 4px rgba(0,0,0,0.1); hover:background: linear-gradient(to right, #f5f5f5, #eee);">首页</router-link>
       </div>
     </div>
     <div class="nav-right">
