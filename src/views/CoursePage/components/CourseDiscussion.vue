@@ -84,7 +84,10 @@
           </div>
           <div class="dialog-buttons">
             <button class="cancel-btn" @click="closeDialog">取消</button>
-            <button class="submit-btn" @click="submitNewPost">发布</button>
+            <button class="submit-btn" @click="submitNewPost" :class="{ 'submitting': isSubmitting }">
+              <span v-if="isSubmitting">发布中...</span>
+              <span v-else>发布</span>
+            </button>
           </div>
         </div>
       </div>
@@ -122,6 +125,8 @@ const newPost = ref<{
 const discussionPosts = ref<API.DiscussionVO[]>([])
 const showDetail = ref(false)
 const currentDiscussionId = ref<number | null>(null)
+
+const isSubmitting = ref(false); // 添加 isSubmitting 属性
 
 // 加载讨论列表数据
 const loadDiscussions = async () => {
@@ -163,25 +168,29 @@ const closeDialog = () => {
 
 const submitNewPost = async () => {
   if (!newPost.value.title || !newPost.value.content) {
-    alert('请填写完整的标题和内容')
-    return
+    alert('请填写完整的标题和内容');
+    return;
   }
-  
+
+  isSubmitting.value = true; // 开始提交时设置为 true
+
   try {
     const result = await addDiscussion({
       courseId: props.courseId,
       title: newPost.value.title,
       content: newPost.value.content
-    })
-    
+    });
+
     if(result) {
-      closeDialog()
-      await loadDiscussions()
+      closeDialog();
+      await loadDiscussions();
     }
   } catch(error) {
-    console.error('发布讨论失败:', error)
+    console.error('发布讨论失败:', error);
+  } finally {
+    isSubmitting.value = false; // 提交完成后设置为 false
   }
-}
+};
 
 // 分页相关方法
 const goToPage = async (direction: 'prev' | 'next') => {
