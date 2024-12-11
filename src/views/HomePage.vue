@@ -59,7 +59,34 @@
       <div class="sidebar-content">
         <h3>咨询</h3>
         <p>有问题？联系我们！</p>
-        <button>联系我们</button>
+        <!-- 主按钮 -->
+        <button @click="openPopup">联系我们</button>
+      </div>
+    </div>
+
+
+    <!-- 弹窗 -->
+    <!-- 弹窗 -->
+    <div v-if="isPopupVisible" class="popup">
+      <div class="popup-content">
+        <div class="popup-header">
+          <h3>提问</h3>
+          <button @click="closePopup" class="close-btn">×</button>
+        </div>
+        <div class="popup-body">
+          <p class="response-message">{{ responseMessage }}</p>
+          <!-- 文本输入框 -->
+          <input
+              type="text"
+              v-model="userInput"
+              placeholder="请输入您的问题"
+              class="input-box"
+          />
+          <!-- 发送按钮 -->
+          <button @click="sendQuery" class="send-btn">发送问题</button>
+          <!-- 显示结果的标签 -->
+
+        </div>
       </div>
     </div>
     <!-- 课程类别 -->
@@ -320,6 +347,9 @@ export default {
   },
   data() {
     return {
+      isPopupVisible: false, // 控制弹窗显示
+      userInput: '', // 用户输入内容
+      responseMessage: '您好，我是基于大语言模型的AI智能助手，请问我有什么可以帮助你的？' ,// 后端返回消息
       activeCategory: "全部",  // 保存当前激活的分类
       filteredCourses: [], // 筛选后的课程数据
       selectedCategory: null, // 当前选择的课程类别
@@ -714,6 +744,40 @@ export default {
     })
   },
   methods: {
+    openPopup() {
+      this.isPopupVisible = true; // 打开弹窗
+    },
+    closePopup() {
+      this.isPopupVisible = false; // 关闭弹窗
+      this.responseMessage = ''; // 清空返回消息
+    },
+    async sendQuery() {
+      if (!this.userInput.trim()) {
+        this.responseMessage = '请输入问题后再提交。';
+        return;
+      }
+
+      this.responseMessage = '正在提交，请稍后...';
+
+      try {
+        const response = await fetch('https://your-backend-api-endpoint.com/query', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ query: this.userInput }),
+        });
+
+        if (!response.ok) {
+          throw new Error('网络错误或服务器返回错误');
+        }
+
+        const result = await response.json();
+        this.responseMessage = result.answer || '未收到有效回复';
+      } catch (error) {
+        this.responseMessage = `提交失败：${error.message}`;
+      }
+    },
     // 异步按顺序获取所有课程、推荐课程、热门课程和最新课程
     async fetchDataInOrder() {
       try {
@@ -1619,5 +1683,110 @@ h2{
 
 .sidebar button:hover {
   background-color: #1c688f;
+}
+/* 弹窗背景 */
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* 弹窗内容容器 */
+.popup-content {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 弹窗标题和关闭按钮 */
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative; /* 确保关闭按钮相对于这个容器定位 */
+}
+
+.popup-header h3 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.close-btn {
+  position: absolute; /* 绝对定位，基于父容器 */
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #333;
+  padding: 5px;
+  line-height: 1;
+}
+
+/* 弹窗主体 */
+.popup-body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 文本输入框样式 */
+.input-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  margin-bottom: 15px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 发送按钮样式 */
+.send-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.send-btn:hover {
+  background-color: #0056b3;
+}
+
+/* 响应信息样式 */
+.response-message {
+  margin-top: 15px;
+  color: #007bff;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>
