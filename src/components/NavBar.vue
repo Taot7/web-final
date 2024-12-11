@@ -6,17 +6,29 @@
       </div>
     </div>
     <div class="nav-right">
-      <router-link to="/personCenter" class="user-profile">
-        <img src="http://47.115.57.164:81/api/common/view/image?filename=20241210.cde5d83097b64aaba8399ae3ef79812b.微信图片_20240912152837.png" alt="用户头像" class="avatar">
-        <span class="notification">14</span>
+      <router-link 
+        v-if="useUser().isLoggedIn"
+        to="/personCenter"  
+        class="user-profile"
+      >
+        <img :src="useUser().currentUser?.value?.avatarUrl || '/src/assets/default-avatar.png'" alt="用户头像" class="avatar">
+        <!-- <span class="notification">14</span> -->
+      </router-link>
+      <router-link 
+        v-else
+        to="/login" 
+        class="nav-item"
+      >
+        登录
       </router-link>
     </div>
   </nav>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
-
+import { useUser } from '@/utils/userAuth'
+import { onMounted } from 'vue'
 
 </script>
 

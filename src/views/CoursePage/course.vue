@@ -27,8 +27,29 @@
               <span>点赞数: {{ course.likeCount }}</span>
             </div>
             <div class="join-course">
-              <button class="join-button orange-button" @click="showJoinDialog = true">
+              <button class="join-button orange-button" @click="handleViewDetails">
+                查看详情
+              </button>
+              <button 
+                v-if="useUser().isStudent && !isEnrolled" 
+                class="join-button orange-button" 
+                @click="showJoinDialog = true"
+              >
                 加入课程
+              </button>
+              <button 
+                v-if="useUser().isStudent && isEnrolled && course.status != '2'"
+                class="join-button danger-button"
+                @click="handleCancelCourse"
+              >
+                退出课程
+              </button>
+              <button 
+                v-if="useUser().isStudent && isEnrolled && course.status == '2'"
+                class="join-button enrolled-button" 
+                disabled
+              >
+                已归档，不能退出
               </button>
               <div class="course-stats">
                 <span class="stats-item">
@@ -66,7 +87,7 @@
         <!-- 左侧主要内容区域 -->
         <div class="content-left">
           <!-- 课程导航 -->
-          <div class="course-nav">
+          <!-- <div class="course-nav">
             <ul>
               <li 
                 v-for="tab in tabs" 
@@ -77,7 +98,7 @@
                 {{ tab.name }}
               </li>
             </ul>
-          </div>
+          </div> -->
 
           <!-- 课程内容区域 -->
           <div class="course-content">
@@ -144,15 +165,15 @@
             <h3>课程信息</h3>
             <div class="info-item">
               <span class="label">创建时间:</span>
-              <span>{{ formatDate(course.createTime) }}</span>
+              <span>{{ course?.createTime || '--' }}</span>
             </div>
             <div class="info-item">
               <span class="label">更新时间:</span>
-              <span>{{ formatDate(course.updateTime) }}</span>
+              <span>{{ course?.updateTime || '--' }}</span>
             </div>
             <div class="info-item">
               <span class="label">课程状态:</span>
-              <span>{{ course.status === 1 ? '已发布' : '未发布' }}</span>
+              <span>{{ COURSE_STATUS[course?.status] }}</span>
             </div>
             <div class="info-item">
               <span class="label">是否推荐:</span>
@@ -185,21 +206,24 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import NavBar from '@/components/NavBar.vue'
 import { useRouter, useRoute } from 'vue-router'
 import { getCourse } from '@/services/api/course'
 import { getCourseMaterialsByCourseId } from '@/services/api/courseMaterial'
-import { addCourseEnrollment } from '@/services/api/courseEnrollment'
+import { addCourseEnrollment, getCourseEnrollment, getMyCourseEnrollments, quitCourseEnrollment } from '@/services/api/courseEnrollment'
+import { useUser } from '@/utils/userAuth'
+import { COURSE_STATUS } from '@/constant/course'
 
 const router = useRouter()
 const route = useRoute()
-const course = ref(null)
+const course = ref<API.CourseVO>(null)
 const showJoinDialog = ref(false)
 const currentTab = ref('intro')
 const defaultAvatar = '@/assets/default-avatar.png' // 确保你有默认头像图片
 const courseMaterials = ref([])
+const isEnrolled = ref(false)
 
 // 格式化日期的函数
 const formatDate = (dateArray) => {
@@ -207,22 +231,53 @@ const formatDate = (dateArray) => {
   return `${dateArray[0]}-${String(dateArray[1]).padStart(2, '0')}-${String(dateArray[2]).padStart(2, '0')}`
 }
 
+// 检查学生是否已注册课程
+const checkEnrollmentStatus = async (courseId) => {
+  if (!useUser().isStudent) return
+  
+  try {
+    const response = await getMyCourseEnrollments({ 
+      param: {
+        courseId: courseId
+      }
+    })
+    isEnrolled.value = response?.data?.list?.[0].status == '0' || false
+  } catch (error) {
+    console.error('获取课程注册状态失败:', error)
+  }
+}
+
 // 获取课程数据
 const fetchCourseData = async () => {
   try {
-    const courseId = route.params.courseId
+    const courseId = route.params.courseId 
     if (!courseId) {
       console.error('未找到课程ID')
       return
     }
-
+    // @ts-ignore
     const response = await getCourse({ id: courseId })
     if (response.status === 200) {
       course.value = response.data
+      await checkEnrollmentStatus(courseId)
     }
   } catch (error) {
     console.error('获取课程信息失败:', error)
+  }finally{
+    console.log('isStudent',useUser().isStudent)
+    console.log('isEnrolled',isEnrolled.value)
   }
+}
+
+// 处理查看详情
+const handleViewDetails = () => {
+  // 跳转到课程详情页面
+  router.push({
+        path: '/online-course', 
+        query: { courseId: 
+          course.value?.courseId 
+        }
+      })
 }
 
 // 处理确认加入课程
@@ -232,7 +287,10 @@ const handleConfirmJoin = async (courseId) => {
   try {
     // 调用加入课程的API
     const response = await addCourseEnrollment({ courseId })
-    if (response) {
+    if (response.data) {
+      isEnrolled.value = true
+
+      alert('加入课程成功')
       // 加入成功后跳转到课程页面
       router.push({
         path: '/online-course', 
@@ -241,9 +299,26 @@ const handleConfirmJoin = async (courseId) => {
     }
   } catch (error) {
     console.error('加入课程失败:', error)
+
+    //使用原生弹窗提醒
+    alert('加入课程失败'+ error.response.data.message)
   }
 }
-
+const handleCancelCourse = async () => {
+  try {
+    const response = await quitCourseEnrollment(
+      { courseId: course.value?.courseId }
+    )
+    if (response.data) {
+      isEnrolled.value = false
+      alert('退出课程成功')
+    }
+  } catch (error) {
+    console.error('退出课程失败:', error)
+    //使用原生弹窗提醒
+    alert('退出课程失败'+ error.response.data.message)
+  }
+}
 // 获取课程内容
 const fetchCourseMaterials = async (courseId) => {
   try {
@@ -278,8 +353,9 @@ const handleFileClick = (material) => {
   window.open(material.contentUrl, '_blank')
 }
 
-onMounted(() => {
-  fetchCourseData()
+onMounted(async () => {
+  await useUser().refreshUserInfo()
+  await fetchCourseData()
 })
 </script>
 
@@ -644,6 +720,28 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(255, 107, 53, 0.2);
 }
 
+.enrolled-button {
+  background-color: #8e8e8e;
+  cursor: not-allowed;
+}
+
+.enrolled-button:hover {
+  background-color: #8e8e8e;
+  transform: none;
+  box-shadow: none;
+}
+
+.danger-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.danger-button:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+
 .course-stats {
   display: flex;
   align-items: center;
@@ -750,5 +848,3 @@ onMounted(() => {
   border-bottom: 1px solid #eee;
 }
 </style>
-
-

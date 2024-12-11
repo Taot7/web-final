@@ -11,7 +11,7 @@
           <img :src="course?.coverImage" alt="课程封面" class="cover-image">
           <div class="course-details">
             <h2>{{ course?.title }}</h2>
-            <p>教师: {{ course?.teacher?.nickname }} / 深圳大学 </p>
+            <p>教师: {{ course?.teacher?.username }} / 深圳大学 </p>
             <p>进度: 课程已进行 15/18 周</p>
             <button @click="startLearning">开始学习</button>
           </div>

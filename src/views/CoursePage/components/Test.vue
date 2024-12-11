@@ -97,7 +97,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { reactive } from 'vue'
 import { getSelfTest } from '@/services/api/selfTest'
 import { submitTestRecord } from '@/services/api/testRecord'
@@ -123,9 +123,9 @@ export default {
         description: '',
         settings: '',
         createTime: '',
-        questions: []
-      },
-      answers: reactive({}),
+        questions: [] 
+      } as API.SelfTestVO,
+      answers: reactive({} ) ,
       isSubmitting: false
     }
   },
@@ -145,11 +145,11 @@ export default {
     // 获取试卷数据
     async fetchTestData() {
       try {
-        const tempTestId = this.$route.params.testId
-        const courseId = this.$route.params.courseId
-        console.log(tempTestId, courseId);
+        console.log(this.testId, this.courseId);
         
-        const response = await getSelfTest(tempTestId)
+        const response = await getSelfTest({
+          id: this.testId
+        })
         if (response.status === 200 && response.data) {
           this.testData = response.data
           // 格式化创建时间
@@ -172,7 +172,7 @@ export default {
       })
 
       if (unansweredQuestions.length > 0) {
-        console.warn(`还�� ${unansweredQuestions.length} 道题目未完成`)
+        console.warn(`还有 ${unansweredQuestions.length} 道题目未完成`)
         return
       }
 
@@ -186,7 +186,7 @@ export default {
             questionId: parseInt(questionId),
             answer: Array.isArray(answer) ? answer.join(',') : answer.toString()
           }))
-        }
+        } as API.TestRecordCommitParam
         console.error(submitData)
         // 调用提交API
         const result = await submitTestRecord(submitData)
