@@ -130,6 +130,7 @@ const handleSubmit = async () => {
     }
   } catch (error: any) {
     errors.username = "学号/学工号或密码错误";
+    alert(error?.response?.data?.message || '登录失败，请重试')
   } finally {
     isSubmitting.value = false;
   }
