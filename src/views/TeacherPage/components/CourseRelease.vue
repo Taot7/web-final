@@ -371,7 +371,7 @@ const retrieveCategories = async () => {
   console.log(categories)
 }
 const retrieveTeachers = async () => {
-    const resp = await request.get('/user-management/list?roleId=2', {
+    const resp = await request.get('/user-management/list?roleIds=2', {
     params: {
       current: 1, 
       pageSize: 100
