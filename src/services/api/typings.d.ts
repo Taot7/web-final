@@ -191,9 +191,9 @@ declare namespace API {
     /** 作业ID */
     assignmentId: number;
     /** 提交内容 */
-    content: string;
+    content?: string;
     /** 文件URL */
-    fileUrl: string;
+    fileUrl?: string;
   };
 
   type AssignmentVO = {
@@ -607,7 +607,7 @@ declare namespace API {
     /** 注册状态 */
     enrollStatus?: "0" | "1" | "2";
     /** 注册时间 */
-    enroll_time?: string;
+    enrollTime?: string;
   };
 
   type deleteAssignmentParams = {
@@ -1221,7 +1221,7 @@ declare namespace API {
   };
 
   type quitCourseEnrollmentParams = {
-    id: number;
+    courseId: number;
   };
 
   type Role = {

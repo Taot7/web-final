@@ -95,7 +95,7 @@ export async function quitCourseEnrollment(
   params: API.quitCourseEnrollmentParams,
   options?: { [key: string]: any }
 ) {
-  const { id: param0, ...queryParams } = params;
+  const { courseId: param0, ...queryParams } = params;
   return request<boolean>(`/course-enrollment/quit/${param0}`, {
     method: "PUT",
     params: { ...queryParams },
