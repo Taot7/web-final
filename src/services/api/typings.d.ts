@@ -1046,6 +1046,12 @@ declare namespace API {
     param: StudyNoteQuery;
   };
 
+  type getTeachersParams = {
+    current?: number;
+    pageSize?: number;
+    param: UserQuery;
+  };
+
   type getTestRecordParams = {
     id: number;
   };
