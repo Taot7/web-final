@@ -26,6 +26,9 @@
             <span v-if="discussion?.isTeacher || false" class="teacher-tag"
               >教师</span
             >
+            <span v-if="isRobot(discussion?.user)" class="robot-tag"
+              >机器人</span
+            >
           </div>
           <span class="post-time">发布于 {{ discussion?.createTime }}</span>
         </div>
@@ -63,6 +66,9 @@
               />
               <span class="username">{{ reply.user?.username || '用户' }}</span>
               <span v-if="reply.isTeacher" class="teacher-tag">教师</span>
+              <span v-if="isRobot(reply.user)" class="robot-tag"
+                >机器人</span
+              >
             </div>
             <span class="reply-time">{{ reply.createTime }}</span>
           </div>
@@ -117,6 +123,9 @@
                     <span class="sub-username">{{ subReply.user?.username || '用户' }}</span>
                     <span v-if="subReply.isTeacher" class="teacher-tag"
                       >教师</span
+                    >
+                    <span v-if="isRobot(subReply.user)" class="robot-tag"
+                      >机器人</span
                     >
                   </div>
                   <span class="sub-reply-time">{{ subReply.createTime }}</span>
@@ -226,6 +235,9 @@ const paginatedReplies = computed(() => {
   return replies.value.slice(start, end);
 });
 
+const isRobot = (user: API.UserVO) => {
+  return user?.roles?.some((role) => role.ename === 'CHAT_ROBOT') || false;
+};
 // 获取评论详情和评论列表
 const fetchData = async () => {
   // 获取讨论详情
@@ -434,6 +446,16 @@ const changePage = (page: number) => {
   font-size: 0.9em;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.robot-tag {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
 }
 
 .post-content {
