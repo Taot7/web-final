@@ -16,7 +16,7 @@
       <div class="profile-container" @mouseenter="showDropdown = true">
         <div class="avatar-wrapper" @click="goToPersonalCenter">
           <img
-            :src="userInfo.avatarUrl || '/src/assets/default-avatar.png'"
+            :src="userInfo.avatarUrl || defaultAvatar"
             alt="用户头像"
             class="user-avatar"
           />
@@ -32,7 +32,7 @@
       >
         <div class="user-info">
           <img
-            :src="userInfo.avatarUrl || '/src/assets/default-avatar.png'"
+            :src="userInfo.avatarUrl || defaultAvatar"
             alt="用户头像"
             class="menu-avatar"
           />
@@ -60,7 +60,7 @@
 
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from "vue";
-
+import defaultAvatar from '@/assets/default-avatar.png'
 const {userInfo,isLoggedIn} = defineProps<{
   userInfo: API.UserVO;
   isLoggedIn: boolean;

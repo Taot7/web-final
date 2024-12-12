@@ -33,7 +33,7 @@
       <div class="discussion-list">
         <div v-for="post in filteredPosts" :key="post.discussionId" class="discussion-item" @click="showPostDetail(post.discussionId)">
           <div class="user-avatar">
-            <img :src="post?.user?.avatarUrl || '/src/assets/default-avatar.png'" :alt="post?.user?.username || ''">
+            <img :src="post?.user?.avatarUrl || defaultAvatar" :alt="post?.user?.username || ''">
           </div>
           <div class="post-content">
             <h3>{{ post.title }}</h3>
@@ -99,7 +99,7 @@
 import { ref, computed, onMounted } from 'vue'
 import CourseDiscussionDetail from './CourseDiscussionDetail.vue'
 import { getDiscussions, addDiscussion } from '@/services/api/discussion'
-
+import defaultAvatar from '@/assets/default-avatar.png'
 const props = defineProps<{
   courseId: number;
   isEnrolled: boolean;

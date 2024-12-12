@@ -88,10 +88,7 @@
                 <div class="reply-header">
                   <div class="reply-user">
                     <img
-                      :src="
-                        reply.user.avatarUrl ||
-                        '/src/assets/images/default-avatar.png'
-                      "
+                      :src="reply.user.avatarUrl || defaultAvatar"
                       class="reply-avatar"
                     />
                     {{ reply.user.username || "" }}
@@ -162,6 +159,7 @@
 
 <script setup lang="ts">
 import { getMyCoursesWithEnroll } from "@/services/api/course";
+import defaultAvatar from "@/assets/default-avatar.png";
 import {
   deleteDiscussion,
   getMyDiscussions,
@@ -295,7 +293,7 @@ const loadCourseList = async () => {
       pageSize: 1000,
       param: {
         enrollStatus: "0",
-        allowComment: true
+        allowComment: true,
       },
     });
     courseList.value = res.data.list as API.CourseVO[];
@@ -373,7 +371,7 @@ const handleClose = () => {
 </script>
 
 <style scoped>
-@import '../styles/common.css';
+@import "../styles/common.css";
 
 .discussion-list {
   padding: 20px;

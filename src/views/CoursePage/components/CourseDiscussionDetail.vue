@@ -15,7 +15,7 @@
           <div class="user-info">
             <img
               :src="
-                discussion?.user?.avatarUrl || '/src/assets/default-avatar.png'
+                discussion?.user?.avatarUrl || defaultAvatar
               "
               :alt="discussion?.user?.username || '用户'"
               class="avatar"
@@ -57,7 +57,7 @@
           <div class="reply-header">
             <div class="user-info">
               <img
-                :src="reply.user?.avatarUrl || '/src/assets/default-avatar.png'"
+                :src="reply.user?.avatarUrl || defaultAvatar"
                 :alt="reply.user?.username || '用户'"
                 class="avatar"
               />
@@ -110,7 +110,7 @@
                 <div class="sub-reply-header">
                   <div class="user-info">
                     <img
-                      :src="subReply.user?.avatarUrl || '/src/assets/default-avatar.png'"
+                      :src="subReply.user?.avatarUrl || defaultAvatar"
                       :alt="subReply.user?.username || '用户'"
                       class="sub-avatar"
                     />
@@ -193,6 +193,7 @@ import {
   getDiscussionReplies,
 } from "@/services/api/discussion";
 import { ref, computed, onMounted } from "vue";
+import defaultAvatar from '@/assets/default-avatar.png';
 
 interface Props {
   discussionId: string | number;
