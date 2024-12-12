@@ -7,6 +7,10 @@ declare namespace API {
     courseId: number;
   };
 
+  type aiParams = {
+    userInput: string;
+  };
+
   type Answer = {
     /** 问题ID */
     questionId?: number;

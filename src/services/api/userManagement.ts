@@ -108,27 +108,7 @@ export async function getStudents(
     ...(options || {}),
   });
 }
-/** 获取老师列表 GET /user-management/list-students/2 */
-export async function getTeachers(
-    // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-    params: API.getStudentsParams,
-    options?: { [key: string]: any }
-) {
-  return request<API.ListResultUserVO>("/user-management/list", {
-    method: "GET",
-    params: {
-      // current has a default value: 1
-      current: "1",
-      // pageSize has a default value: 10
-      pageSize: "10",
-      ...params,
-      param: undefined,
-      ...params["param"],
-      roleIds:2
-    },
-    ...(options || {}),
-  });
-}
+
 /** 重置密码 PUT /user-management/reset-password */
 export async function resetPassword(
   body: API.UserResetPasswordParam,

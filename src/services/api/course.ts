@@ -17,6 +17,21 @@ export async function addCourse(
   });
 }
 
+/** ai助手交流 POST /course/ai/query */
+export async function ai(
+  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
+  params: API.aiParams,
+  options?: { [key: string]: any }
+) {
+  return request<string>("/course/ai/query", {
+    method: "POST",
+    params: {
+      ...params,
+    },
+    ...(options || {}),
+  });
+}
+
 /** 删除指定课程信息 DELETE /course/delete/${param0} */
 export async function deleteCourse(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
