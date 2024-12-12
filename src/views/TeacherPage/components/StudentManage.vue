@@ -124,7 +124,7 @@
     console.log('enable disable resp: ', resp)
     const student = students.value.find((s) => s.userId === id);
     if (student) {
-      alert(`学生 ${student.name} 的状态已更新为 ${student.status === 1 ? "禁用" : "启用"}`);
+      alert(`学生 ${student.name} 的状态已更新为 ${student.status === 1 ? "启用" : "禁用"}`);
     }
     await initStudents()
   };
