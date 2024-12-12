@@ -332,12 +332,43 @@ export default {
         }
       });
     },
+
+    // 添加重置数据的方法
+    resetData() {
+      this.testData = {
+        testId: 0,
+        creatorId: 0,
+        title: "",
+        description: "",
+        settings: "",
+        createTime: "",
+        questions: [],
+      };
+      this.answers = {};
+      this.isSubmitting = false;
+      this.showResult = false;
+      this.totalScore = 0;
+      this.questionScores = {};
+      this.correctAnswers = {};
+      this.perQuestionScore = 0;
+      this.isViewMode = false;
+    },
   },
-  created() {
-    console.log('testId',this.testId)
-    console.log('courseId',this.courseId)
-    console.log('recordId',this.recordId)
-    this.fetchTestData();
+  watch: {
+    '$route': {
+      handler(to, from = {}) {
+        const fromParams = from.params || {};
+        const toParams = to.params || {};
+        
+        if (toParams.testId !== fromParams.testId || 
+            toParams.courseId !== fromParams.courseId || 
+            toParams.recordId !== fromParams.recordId) {
+          this.resetData();
+          this.fetchTestData();
+        }
+      },
+      immediate: true
+    }
   },
 };
 </script>
