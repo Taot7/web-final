@@ -76,7 +76,7 @@ const fetchCourseMaterials = async () => {
   isLoading.value = true
   try {
     const courseId = route.query.courseId
-    console.log('正在���取课程内容，课程ID:', courseId)
+    console.log('正在获取课程内容，课程ID:', courseId)
     
     if (!courseId) {
       console.error('未找到课程ID')
@@ -189,9 +189,9 @@ onMounted(() => {
 
 .video-player-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 1500px;
   height: auto;
-  max-height: 70vh;
+  max-height: 80vh;
   aspect-ratio: 16 / 9;
   background: #fff;
   margin: 0 auto;
@@ -336,15 +336,15 @@ onMounted(() => {
   background-color: #f0f7ff;
 }
 
-@media screen and (max-width: 1366px) {
+@media screen and (max-width: 1500px) {
   .video-player-container {
-    max-width: 640px;
+    max-width: 1000px;
   }
 }
 
 @media screen and (max-width: 1024px) {
   .video-player-container {
-    max-width: 540px;
+    max-width: 800px;
   }
 }
 </style>

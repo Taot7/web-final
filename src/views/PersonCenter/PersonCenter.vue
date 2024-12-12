@@ -10,7 +10,7 @@
     <div class="profile-header">
       <div class="user-info">
         <div class="avatar" @click="triggerFileInput">
-          <img :src="userInfo.avatarUrl ||'/src/assets/default-avatar.png'" alt="用户头像" />
+          <img :src="userInfo.avatarUrl ||defaultAvatar" alt="用户头像" />
           <input
             type="file"
             ref="fileInput"
@@ -144,6 +144,7 @@ import { useUser } from "@/utils/userAuth";
 import { getCurrentUser } from '@/services/api/user'
 import { getMyDiscussions } from "@/services/api/discussion";
 import { getMyCoursesWithEnroll } from "@/services/api/course";
+import defaultAvatar from '@/assets/default-avatar.png'
 const { isTeacher,getCurrentUserInfo} = useUser();
 const currentTab = ref("courses");
 const fileInput = ref<HTMLInputElement | null>(null);

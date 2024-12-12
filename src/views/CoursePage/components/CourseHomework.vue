@@ -16,7 +16,7 @@
             <th style="width: 15%">截止时间</th>
             <th style="width: 12%">状态</th>
             <th style="width: 8%">分数</th>
-            <th style="width: 15%">操作</th>
+            <th style="width: 20%">操作</th>
           </tr>
         </thead>
         <tbody>
@@ -70,7 +70,7 @@
                     <button class="action-btn view-btn" 
                             @click="openViewModal(homework)">
                       <i class="fas fa-eye"></i>
-                      查看
+                      查看提交
                     </button>
                     <button class="action-btn resubmit-btn" 
                             @click="openSubmitModal(homework)">
@@ -97,7 +97,7 @@
       
       <div class="modal-body">
         <div class="form-item">
-          <label class="form-label">作业内容</label>
+          <label class="form-label">文本内容</label>
           <textarea 
             v-model="submissionContent" 
             placeholder="请输入作业内容"
@@ -134,7 +134,7 @@
   <div class="homework-modal" v-if="showViewModal" @click.self="closeViewModal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3>查看作业</h3>
+        <h3>查看提交</h3>
         <button class="btn-close" @click="closeViewModal">×</button>
       </div>
       
@@ -258,8 +258,8 @@ const submitHomework = async () => {
   }
 }
 
-onMounted(() => {
-  fetchHomeworks()
+onMounted(async () => {
+  await fetchHomeworks()
 })
 </script>
 
@@ -555,7 +555,7 @@ onMounted(() => {
 }
 
 .modal-textarea {
-  width: 100%;
+  width: 95%;
   min-height: 200px;
   padding: 12px 16px;
   border: 1px solid #d9d9d9;

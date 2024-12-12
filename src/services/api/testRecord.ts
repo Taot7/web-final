@@ -92,7 +92,7 @@ export async function submitTestRecord(
   body: API.TestRecordCommitParam,
   options?: { [key: string]: any }
 ) {
-  return request<boolean>("/test-record/submit", {
+  return request<API.TestRecordResultVO>("/test-record/submit", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

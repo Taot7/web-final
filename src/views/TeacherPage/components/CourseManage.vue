@@ -151,7 +151,7 @@ const confirmUpload = () => {
       alert("没有文件可以上传");
       return;
   }
-  if (confirm(`确认上传选中的课件到 "${selectedCourse.value}" 吗？`)) {
+  if (confirm(`确认上传课件吗？`)) {
       pendingFiles.value.forEach(async (item)=>{
         const resp = await request.post('/course-material/add',{
 

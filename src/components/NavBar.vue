@@ -2,7 +2,7 @@
   <nav class="nav-bar">
     <div class="nav-left">
       <div class="nav-links">
-        <router-link to="/" class="nav-item">首页</router-link>
+        <router-link to="/" class="nav-item home-link">首页</router-link>
       </div>
     </div>
     <div class="nav-right">
@@ -11,7 +11,7 @@
         to="/personCenter"  
         class="user-profile"
       >
-        <img :src="useUser().currentUser?.value?.avatarUrl || '/src/assets/default-avatar.png'" alt="用户头像" class="avatar">
+        <img :src="useUser().currentUser?.value?.avatarUrl || defaultAvatar" alt="用户头像" class="avatar">
         <!-- <span class="notification">14</span> -->
       </router-link>
       <router-link 
@@ -29,7 +29,7 @@
 import { ref } from 'vue'
 import { useUser } from '@/utils/userAuth'
 import { onMounted } from 'vue'
-
+import defaultAvatar from '@/assets/default-avatar.png'
 </script>
 
 <style scoped>
@@ -106,5 +106,21 @@ import { onMounted } from 'vue'
   padding: 2px 6px;
   border-radius: 10px;
   border: 2px solid white;
+}
+
+.home-link {
+  text-decoration: none;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  background: linear-gradient(to right, #fff, #f5f5f5);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.home-link:hover {
+  background: linear-gradient(to right, #f5f5f5, #eee);
 }
 </style> 

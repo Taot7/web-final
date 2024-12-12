@@ -180,7 +180,7 @@ const handleSubmit = async () => {
       errors.userId = '注册失败，请重试'
     }
   } catch (error: any) {
-    alert('用户名重复，请重新注册')
+    alert(error?.response?.data?.message || '注册失败，请重试')
     errors.userId = '注册失败，请重试'
   } finally {
     isSubmitting.value = false

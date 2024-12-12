@@ -8,7 +8,12 @@
         <div class="discussion-controls">
           <!-- 搜索框,用于根据关键字过滤讨论 -->
           <input type="text" class="search-input" placeholder="请输入关键字" v-model="searchText">
-          <button class="post-btn" @click="startNewPost">发起讨论</button>
+          <button 
+            class="post-btn" 
+            @click="startNewPost"
+            :disabled="!isEnrolled"
+            :class="{'disabled': !isEnrolled}"
+          >发起讨论</button>
           <div class="filter">
             <!-- 教师筛选复选框 -->
             <label>
@@ -28,7 +33,7 @@
       <div class="discussion-list">
         <div v-for="post in filteredPosts" :key="post.discussionId" class="discussion-item" @click="showPostDetail(post.discussionId)">
           <div class="user-avatar">
-            <img :src="post?.user?.avatarUrl || '/src/assets/default-avatar.png'" :alt="post?.user?.username || ''">
+            <img :src="post?.user?.avatarUrl || defaultAvatar" :alt="post?.user?.username || ''">
           </div>
           <div class="post-content">
             <h3>{{ post.title }}</h3>
@@ -59,6 +64,7 @@
     <div class="discussion-detail-container" v-else>
       <CourseDiscussionDetail
         :discussionId="currentDiscussionId"
+        :isEnrolled="isEnrolled"
         @back="showDetail = false"
       />
     </div>
@@ -78,7 +84,10 @@
           </div>
           <div class="dialog-buttons">
             <button class="cancel-btn" @click="closeDialog">取消</button>
-            <button class="submit-btn" @click="submitNewPost">发布</button>
+            <button class="submit-btn" @click="submitNewPost" :class="{ 'submitting': isSubmitting }">
+              <span v-if="isSubmitting">发布中...</span>
+              <span v-else>发布</span>
+            </button>
           </div>
         </div>
       </div>
@@ -90,9 +99,10 @@
 import { ref, computed, onMounted } from 'vue'
 import CourseDiscussionDetail from './CourseDiscussionDetail.vue'
 import { getDiscussions, addDiscussion } from '@/services/api/discussion'
-
+import defaultAvatar from '@/assets/default-avatar.png'
 const props = defineProps<{
   courseId: number;
+  isEnrolled: boolean;
 }>();
 
 // 查询相关的响应式变量
@@ -115,6 +125,8 @@ const newPost = ref<{
 const discussionPosts = ref<API.DiscussionVO[]>([])
 const showDetail = ref(false)
 const currentDiscussionId = ref<number | null>(null)
+
+const isSubmitting = ref(false); // 添加 isSubmitting 属性
 
 // 加载讨论列表数据
 const loadDiscussions = async () => {
@@ -139,6 +151,10 @@ const filteredPosts = computed(() => {
 })
 
 const startNewPost = () => {
+  if (!props.isEnrolled) {
+    alert('请先注册课程后再发起讨论')
+    return
+  }
   showNewPostDialog.value = true
 }
 
@@ -152,25 +168,29 @@ const closeDialog = () => {
 
 const submitNewPost = async () => {
   if (!newPost.value.title || !newPost.value.content) {
-    alert('请填写完整的标题和内容')
-    return
+    alert('请填写完整的标题和内容');
+    return;
   }
-  
+
+  isSubmitting.value = true; // 开始提交时设置为 true
+
   try {
     const result = await addDiscussion({
       courseId: props.courseId,
       title: newPost.value.title,
       content: newPost.value.content
-    })
-    
+    });
+
     if(result) {
-      closeDialog()
-      await loadDiscussions()
+      closeDialog();
+      await loadDiscussions();
     }
   } catch(error) {
-    console.error('发布讨论失败:', error)
+    console.error('发布讨论失败:', error);
+  } finally {
+    isSubmitting.value = false; // 提交完成后设置为 false
   }
-}
+};
 
 // 分页相关方法
 const goToPage = async (direction: 'prev' | 'next') => {
@@ -231,6 +251,11 @@ onMounted(() => {
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.post-btn.disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }
 
 .discussion-item {

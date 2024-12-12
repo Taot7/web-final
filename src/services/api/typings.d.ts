@@ -229,6 +229,10 @@ declare namespace API {
     stat?: AssignmentStatVO;
   };
 
+  type checkCourseEnrolledParams = {
+    courseId: number;
+  };
+
   type commitAssignmentSubmissionParams = {
     id: number;
   };
@@ -1398,6 +1402,7 @@ declare namespace API {
     /** 测试状态 0 未完成 1 已完成 */
     recordStatus?: "0" | "1";
     record?: TestRecord;
+    result?: TestRecordResultVO;
   };
 
   type setEnableUserRegisterParams = {
@@ -1470,9 +1475,15 @@ declare namespace API {
     /** 测试状态 */
     status?: "0" | "1";
     /** 答案JSON */
-    answers?: string;
+    answers?: Answer[];
     /** 得分 */
     score?: number;
+    /** 最高分数 */
+    maxScore?: number;
+    /** 题目分数 questionId:score */
+    questionScore?: Record<string, any>;
+    /** 正确答案列表 questionId:answer */
+    correctAnswers?: Record<string, any>;
     /** 完成时间 */
     completeTime?: string;
     /** 课程标号 */
@@ -1502,13 +1513,30 @@ declare namespace API {
     /** 测试状态 */
     status?: "0" | "1";
     /** 答案JSON */
-    answers?: string;
+    answers?: Answer[];
     /** 得分 */
     score?: number;
+    /** 最高分数 */
+    maxScore?: number;
+    /** 题目分数 questionId:score */
+    questionScore?: Record<string, any>;
+    /** 正确答案列表 questionId:answer */
+    correctAnswers?: Record<string, any>;
     /** 完成时间 */
     completeTime?: string;
     /** 课程标号 */
     courseId?: number;
+  };
+
+  type TestRecordResultVO = {
+    /** 总分数 */
+    totalScore?: number;
+    /** 最高分数 */
+    maxScore?: number;
+    /** 题目分数 questionId:score */
+    questionScore?: Record<string, any>;
+    /** 正确答案列表 questionId:answer */
+    correctAnswers?: Record<string, any>;
   };
 
   type TestRecordVO = {
@@ -1521,9 +1549,15 @@ declare namespace API {
     /** 测试状态 */
     status?: "0" | "1";
     /** 答案JSON */
-    answers?: string;
+    answers?: Answer[];
     /** 得分 */
     score?: number;
+    /** 最高分数 */
+    maxScore?: number;
+    /** 题目分数 questionId:score */
+    questionScore?: Record<string, any>;
+    /** 正确答案列表 questionId:answer */
+    correctAnswers?: Record<string, any>;
     /** 完成时间 */
     completeTime?: string;
     /** 课程标号 */

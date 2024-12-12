@@ -15,7 +15,7 @@
           <div class="user-info">
             <img
               :src="
-                discussion?.user?.avatarUrl || '/src/assets/default-avatar.png'
+                discussion?.user?.avatarUrl || defaultAvatar
               "
               :alt="discussion?.user?.username || '用户'"
               class="avatar"
@@ -25,6 +25,9 @@
             }}</span>
             <span v-if="discussion?.isTeacher || false" class="teacher-tag"
               >教师</span
+            >
+            <span v-if="isRobot(discussion?.user)" class="robot-tag"
+              >机器人</span
             >
           </div>
           <span class="post-time">发布于 {{ discussion?.createTime }}</span>
@@ -38,7 +41,7 @@
           <button class="action-btn like-btn" @click="handleLike">
             <i class="like-icon">👍</i> {{ (discussion?.replayCount -2 ) <0?0: discussion?.replayCount -2 }}
           </button>
-          <button class="action-btn reply-btn" @click="focusReply">
+          <button class="action-btn reply-btn" @click="focusReply" v-if="props.isEnrolled">
             <i class="reply-icon">💬</i> 回复
           </button>
         </div>
@@ -57,12 +60,15 @@
           <div class="reply-header">
             <div class="user-info">
               <img
-                :src="reply.user?.avatarUrl || '/src/assets/default-avatar.png'"
+                :src="reply.user?.avatarUrl || defaultAvatar"
                 :alt="reply.user?.username || '用户'"
                 class="avatar"
               />
               <span class="username">{{ reply.user?.username || '用户' }}</span>
               <span v-if="reply.isTeacher" class="teacher-tag">教师</span>
+              <span v-if="isRobot(reply.user)" class="robot-tag"
+                >机器人</span
+              >
             </div>
             <span class="reply-time">{{ reply.createTime }}</span>
           </div>
@@ -80,6 +86,7 @@
               <button
                 class="action-btn reply-btn"
                 @click="handleReplyToReply(reply)"
+                v-if="props.isEnrolled"
               >
                 回复
               </button>
@@ -109,13 +116,16 @@
                 <div class="sub-reply-header">
                   <div class="user-info">
                     <img
-                      :src="subReply.user?.avatarUrl || '/src/assets/default-avatar.png'"
+                      :src="subReply.user?.avatarUrl || defaultAvatar"
                       :alt="subReply.user?.username || '用户'"
                       class="sub-avatar"
                     />
                     <span class="sub-username">{{ subReply.user?.username || '用户' }}</span>
                     <span v-if="subReply.isTeacher" class="teacher-tag"
                       >教师</span
+                    >
+                    <span v-if="isRobot(subReply.user)" class="robot-tag"
+                      >机器人</span
                     >
                   </div>
                   <span class="sub-reply-time">{{ subReply.createTime }}</span>
@@ -135,6 +145,7 @@
                     <button
                       class="action-btn reply-btn"
                       @click="handleReplyToSubReply(reply, subReply as BaseReply)"
+                      v-if="props.isEnrolled"
                     >
                       回复
                     </button>
@@ -167,14 +178,19 @@
     </div>
 
     <!-- 回复输入框 -->
-    <div class="reply-input-section" ref="replySection">
+    <div class="reply-input-section" ref="replySection" v-if="props.isEnrolled">
       <textarea
         v-model="newReply"
         placeholder="写下你的回复..."
         class="reply-input"
         rows="4"
       ></textarea>
-      <button class="submit-btn" @click="submitReply">发表回复</button>
+      <button class="submit-btn" @click="submitReply" :disabled="isSubmitting">
+        <span v-if="isSubmitting">
+          <i class="fas fa-spinner fa-spin"></i> 发表中...
+        </span>
+        <span v-else>发表回复</span>
+      </button>
     </div>
   </div>
 </template>
@@ -186,9 +202,11 @@ import {
   getDiscussionReplies,
 } from "@/services/api/discussion";
 import { ref, computed, onMounted } from "vue";
+import defaultAvatar from '@/assets/default-avatar.png';
 
 interface Props {
   discussionId: string | number;
+  isEnrolled: boolean;
 }
 interface BaseReply extends API.DiscussionReplyWithSubVO {
   showSubReplies: boolean;
@@ -205,6 +223,7 @@ const pageSize = ref(10);
 const replyingTo = ref<{ reply: BaseReply; type: "main" | "sub" } | null>(null);
 const totalReplies = ref(0);
 const replySection = ref<HTMLElement | null>(null);
+const isSubmitting = ref(false);
 
 const totalPages = computed(() =>
   Math.ceil(totalReplies.value / pageSize.value)
@@ -216,6 +235,9 @@ const paginatedReplies = computed(() => {
   return replies.value.slice(start, end);
 });
 
+const isRobot = (user: API.UserVO) => {
+  return user?.roles?.some((role) => role.ename === 'CHAT_ROBOT') || false;
+};
 // 获取评论详情和评论列表
 const fetchData = async () => {
   // 获取讨论详情
@@ -258,7 +280,9 @@ const handleLike = () => {
 };
 
 const handleReplyLike = (reply: BaseReply) => {
-  reply.likeCount++;
+  if(props.isEnrolled){
+    reply.likeCount++;
+  }
 };
 
 const handleSubReplyLike = (subReply: BaseReply) => {
@@ -291,6 +315,8 @@ const submitReply = async () => {
     return;
   }
 
+  isSubmitting.value = true;
+
   try {
     if (replyingTo.value) {
       // 添加子回复
@@ -318,6 +344,8 @@ const submitReply = async () => {
   } catch (error) {
     console.error("提交回复失败:", error);
     alert("提交回复失败,请重试");
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
@@ -418,6 +446,16 @@ const changePage = (page: number) => {
   font-size: 0.9em;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+}
+
+.robot-tag {
+  background: linear-gradient(135deg, #2196F3, #1976D2);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 0.9em;
+  font-weight: 600;
+  box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
 }
 
 .post-content {
