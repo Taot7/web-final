@@ -92,6 +92,14 @@
                       class="reply-avatar"
                     />
                     {{ reply.user.username || "" }}
+                    <span v-if="isRobot(reply?.user)" class="user-tag bot-tag"
+                      >机器人</span
+                    >
+                    <span
+                      v-if="isTeacher(reply?.user)"
+                      class="user-tag teacher-tag"
+                      >老师</span
+                    >
                   </div>
                   <div class="reply-time">{{ reply.createTime || "" }}</div>
                 </div>
@@ -166,7 +174,7 @@ import {
   addDiscussion,
   updateDiscussion,
 } from "@/services/api/discussion";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -203,6 +211,14 @@ const discussionForm = ref({
   content: "",
   courseId: undefined,
 });
+//判断用户是否时机器人
+const isRobot = (user: API.UserVO) => {
+  return user?.roles?.some((role) => role.ename === "CHAT_ROBOT") || false;
+};
+//判断用户是否是老师
+const isTeacher = (user: API.UserVO) => {
+  return user?.roles?.some((role) => role.ename === "TEACHER") || false;
+};
 
 // 折叠状态管理
 const collapsedCourses = ref<number[]>([]);
@@ -281,6 +297,8 @@ const goToDiscussion = (courseId: number, discussionId: number) => {
     path: "/online-course",
     query: {
       courseId,
+      currentMenuItem : 4,
+      discussionId
     },
   });
 };
@@ -726,5 +744,26 @@ const handleClose = () => {
 
 .icon-chat {
   font-size: 16px;
+}
+
+/* 用户标签样式 */
+.user-tag {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.bot-tag {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.teacher-tag {
+  background-color: #fce4ec;
+  color: #e91e63;
+  border: 1px solid #f8bbd0;
 }
 </style>

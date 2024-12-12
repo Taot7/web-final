@@ -54,7 +54,7 @@
           <CourseHomework :courseId="currentCourseId" />
         </template>
         <template v-else-if="currentMenuItem === 4">
-          <CourseDiscussion :courseId="currentCourseId" :isEnrolled="enrolled" />
+          <CourseDiscussion :courseId="currentCourseId" :isEnrolled="enrolled" :discussionId="discussionId"/>
         </template>
         <template v-else>
           <!-- 原有的成绩进度内容 -->
@@ -214,6 +214,7 @@ export default {
       selectedLesson: null,
       currentCourseId: 0,
       enrolled: false,
+      discussionId: null
     };
   },
   computed: {
@@ -221,26 +222,26 @@ export default {
       return this.menuItems.filter(item => !item.requireEnrollment || this.enrolled);
     }
   },
-  async created() {
-    const courseId = this.$route.query.courseId;
-    if (courseId) {
-      this.currentCourseId = courseId;
-      try {
-        const response = await getCourse({ id: courseId });
-        if (response.status === 200) {
-          this.course = response.data;
+  watch: {
+    // 监听路由变化
+    '$route': {
+      handler(to, from = {}) {
+        const toQuery = to.query || {};
+        const fromQuery = from.query || {};
+        this.currentMenuItem = Number(toQuery?.currentMenuItem);
+        this.discussionId=Number(toQuery?.discussionId)
+        // 如果courseId发生变化或是首次加载，则刷新数据
+        if (!from || toQuery.courseId !== fromQuery.courseId) {
+          const courseId = toQuery.courseId;
+          if (courseId) {
+            this.currentCourseId = courseId;
+            this.loadCourseData();
+          }
         }
-      } catch (error) {
-        console.error('获取课程信息失败:', error);
-      }
-      this.enrolled =false;
-      const enroll = await checkCourseEnrolled({
-        courseId: courseId,
-      });
-      if (enroll.status === 200) {
-        this.enrolled = enroll.data;
-      }
-      console.log('enrolled',this.enrolled);
+        console.log('courseId',this.currentCourseId,'currentMenuItem',this.currentMenuItem)
+  
+      },
+      immediate: true
     }
   },
   methods: {
@@ -296,7 +297,27 @@ export default {
         default:
           return '';
       }
-    }
+    },
+    // 添加加载数据的统一方法
+    async loadCourseData() {
+      try {
+        // 获取课程信息
+        const response = await getCourse({ id: this.currentCourseId });
+        if (response.status === 200) {
+          this.course = response.data;
+        }
+
+        // 检查课程报名状态
+        const enroll = await checkCourseEnrolled({
+          courseId: this.currentCourseId,
+        });
+        if (enroll.status === 200) {
+          this.enrolled = enroll.data;
+        }
+      } catch (error) {
+        console.error('获取课程信息失败:', error);
+      }
+    },
   },
   mounted() {
     // 点击其他地方关闭弹出菜单
