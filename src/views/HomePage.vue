@@ -762,20 +762,26 @@ export default {
       this.responseMessage = '正在提交，请稍后...';
 
       try {
-        const response = await fetch('https://your-backend-api-endpoint.com/query', {
+        const params = new URLSearchParams({
+          userInput: this.userInput
+        });
+        const response = await fetch(`http://47.115.57.164:81/api/course/ai/query?${params}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ query: this.userInput }),
         });
 
         if (!response.ok) {
           throw new Error('网络错误或服务器返回错误');
         }
-
         const result = await response.json();
-        this.responseMessage = result.answer || '未收到有效回复';
+        // 根据返回格式获取 data 字段内容
+        if (result.status === 200 && result.message === 'OK') {
+          this.responseMessage = result.data || '未收到有效回复';
+        } else {
+          this.responseMessage = `请求失败：${result.message || '未知错误'}`;
+        }
       } catch (error) {
         this.responseMessage = `提交失败：${error.message}`;
       }
