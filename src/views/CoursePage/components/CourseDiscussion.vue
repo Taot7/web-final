@@ -142,6 +142,7 @@ const currentPage = ref(1); // 当前页码
 const pageSize = ref(5); // 每页显示数量
 const total = ref(0); // 总记录数
 const showNewPostDialog = ref(false); // 是否显示发帖弹窗
+const courseId = ref<number>(props.courseId);
 const newPost = ref<{
   title: string;
   content: string;
@@ -152,19 +153,20 @@ const newPost = ref<{
 
 // 讨论列表数据
 const discussionPosts = ref<API.DiscussionVO[]>([]);
-const showDetail = ref<boolean>(props.discussionId !==undefined );
+const showDetail = ref<boolean>(props.discussionId !=null );
 const currentDiscussionId = ref<number | null>(props?.discussionId);
 
 const isSubmitting = ref(false); // 添加 isSubmitting 属性
 
 // 加载讨论列表数据
 const loadDiscussions = async () => {
+  console.log("加载讨论列表数据",courseId.value);
   try {
     const res = await getDiscussions({
       current: currentPage.value,
       pageSize: pageSize.value,
       param: {
-        courseId: props.courseId,
+        courseId: courseId.value,
       },
     });
     discussionPosts.value = res.data.list;
@@ -205,7 +207,7 @@ const submitNewPost = async () => {
 
   try {
     const result = await addDiscussion({
-      courseId: props.courseId,
+      courseId: courseId.value,
       title: newPost.value.title,
       content: newPost.value.content,
     });
