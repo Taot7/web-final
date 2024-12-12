@@ -13,6 +13,12 @@ request.interceptors.request.use((config) => {
   if (token) {
     config.headers['token'] = `${token}`;
   }
+
+  // 对/common开头的接口指向远程服务器
+  if (config.url?.startsWith('/common')) {
+    config.baseURL = 'http://47.115.57.164:81/api';
+  }
+
   return config;
 });
 
@@ -23,6 +29,9 @@ request.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    if(error?.response?.data?.message ==='用户已被禁用'){
+      localStorage.removeItem('token')
+    }
     // 处理错误情况
     return Promise.reject(error);
   }
