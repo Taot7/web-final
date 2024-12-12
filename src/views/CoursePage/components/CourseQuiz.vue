@@ -4,7 +4,7 @@
       <h2>测验</h2>
     </div>
     <div class="quiz-list">
-      <table>
+      <table v-if="quizzes.length > 0">
         <thead>
           <tr>
             <th style="width: 12%">名称</th>
@@ -52,6 +52,9 @@
           </tr>
         </tbody>
       </table>
+      <div v-else class="empty-state">
+        暂无测验内容
+      </div>
     </div>
   </div>
 </template>
@@ -199,5 +202,12 @@ const viewRecord = (quiz: API.SelfTestWithRecordVO) => {
 
 .view-btn:hover {
   background-color: #1976d2;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+  font-size: 16px;
 }
 </style>

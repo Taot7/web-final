@@ -7,6 +7,10 @@ declare namespace API {
     courseId: number;
   };
 
+  type aiParams = {
+    userInput: string;
+  };
+
   type Answer = {
     /** 问题ID */
     questionId?: number;
@@ -1040,6 +1044,12 @@ declare namespace API {
     current?: number;
     pageSize?: number;
     param: StudyNoteQuery;
+  };
+
+  type getTeachersParams = {
+    current?: number;
+    pageSize?: number;
+    param: UserQuery;
   };
 
   type getTestRecordParams = {

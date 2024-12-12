@@ -1785,6 +1785,7 @@ h2{
   color: #007bff;
   font-size: 0.9em;
   text-align: center;
+  white-space: pre-wrap; /* 允许换行符 */
 }
 
 /* 动画效果 */

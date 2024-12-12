@@ -30,6 +30,10 @@ import { ref } from 'vue'
 import { useUser } from '@/utils/userAuth'
 import { onMounted } from 'vue'
 import defaultAvatar from '@/assets/default-avatar.png'
+
+onMounted(async () => {
+  await useUser().refreshUserInfo()
+})
 </script>
 
 <style scoped>

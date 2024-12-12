@@ -1,23 +1,28 @@
 <template>
   <div class="discussion-container">
-    
-
     <div v-if="!showDetail">
       <div class="discussion-header">
         <h2>课程讨论</h2>
         <div class="discussion-controls">
           <!-- 搜索框,用于根据关键字过滤讨论 -->
-          <input type="text" class="search-input" placeholder="请输入关键字" v-model="searchText">
-          <button 
-            class="post-btn" 
+          <input
+            type="text"
+            class="search-input"
+            placeholder="请输入关键字"
+            v-model="searchText"
+          />
+          <button
+            class="post-btn"
             @click="startNewPost"
             :disabled="!isEnrolled"
-            :class="{'disabled': !isEnrolled}"
-          >发起讨论</button>
+            :class="{ disabled: !isEnrolled }"
+          >
+            发起讨论
+          </button>
           <div class="filter">
             <!-- 教师筛选复选框 -->
             <label>
-              <input type="checkbox" v-model="showTeacherOnly"> 
+              <input type="checkbox" v-model="showTeacherOnly" />
               仅显示教师参与
             </label>
             <!-- 排序方式下拉框 -->
@@ -31,18 +36,29 @@
       </div>
       <!-- 讨论列表,显示过滤后的帖子 -->
       <div class="discussion-list">
-        <div v-for="post in filteredPosts" :key="post.discussionId" class="discussion-item" @click="showPostDetail(post.discussionId)">
+        <div
+          v-for="post in filteredPosts"
+          :key="post.discussionId"
+          class="discussion-item"
+          @click="showPostDetail(post.discussionId)"
+        >
           <div class="user-avatar">
-            <img :src="post?.user?.avatarUrl || defaultAvatar" :alt="post?.user?.username || ''">
+            <img
+              :src="post?.user?.avatarUrl || defaultAvatar"
+              :alt="post?.user?.username || ''"
+            />
           </div>
           <div class="post-content">
             <h3>{{ post.title }}</h3>
             <p>{{ post.content }}</p>
             <div class="post-meta">
-              <span>{{ post.user?.username || '' }}</span>
+              <span>{{ post.user?.username || "" }}</span>
               <span v-if="post.isTeacher" class="teacher-tag">教师</span>
               <span>回复: {{ post.replayCount }}</span>
-              <span>点赞: {{ (post.replayCount - 3 ) <0 ? 0 : post.replayCount - 3 }}</span>
+              <span
+                >点赞:
+                {{ post.replayCount - 3 < 0 ? 0 : post.replayCount - 3 }}</span
+              >
               <span>最后更新: {{ post.createTime }}</span>
             </div>
           </div>
@@ -76,15 +92,27 @@
         <div class="dialog-form">
           <div class="form-item">
             <label>标题</label>
-            <input type="text" v-model="newPost.title" placeholder="请输入讨论标题">
+            <input
+              type="text"
+              v-model="newPost.title"
+              placeholder="请输入讨论标题"
+            />
           </div>
           <div class="form-item">
             <label>内容</label>
-            <textarea v-model="newPost.content" placeholder="请输入讨论内容" rows="5"></textarea>
+            <textarea
+              v-model="newPost.content"
+              placeholder="请输入讨论内容"
+              rows="5"
+            ></textarea>
           </div>
           <div class="dialog-buttons">
             <button class="cancel-btn" @click="closeDialog">取消</button>
-            <button class="submit-btn" @click="submitNewPost" :class="{ 'submitting': isSubmitting }">
+            <button
+              class="submit-btn"
+              @click="submitNewPost"
+              :class="{ submitting: isSubmitting }"
+            >
               <span v-if="isSubmitting">发布中...</span>
               <span v-else>发布</span>
             </button>
@@ -96,79 +124,82 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import CourseDiscussionDetail from './CourseDiscussionDetail.vue'
-import { getDiscussions, addDiscussion } from '@/services/api/discussion'
-import defaultAvatar from '@/assets/default-avatar.png'
+import { ref, computed, onMounted } from "vue";
+import CourseDiscussionDetail from "./CourseDiscussionDetail.vue";
+import { getDiscussions, addDiscussion } from "@/services/api/discussion";
+import defaultAvatar from "@/assets/default-avatar.png";
 const props = defineProps<{
   courseId: number;
   isEnrolled: boolean;
+  discussionId?: number;
 }>();
 
 // 查询相关的响应式变量
-const searchText = ref('') // 搜索关键字
-const showTeacherOnly = ref(false) // 是否只显示教师参与的讨论
-const selectedFilter = ref('all') // 排序方式
-const currentPage = ref(1) // 当前页码
-const pageSize = ref(5) // 每页显示数量
-const total = ref(0) // 总记录数
-const showNewPostDialog = ref(false) // 是否显示发帖弹窗
+const searchText = ref(""); // 搜索关键字
+const showTeacherOnly = ref(false); // 是否只显示教师参与的讨论
+const selectedFilter = ref("all"); // 排序方式
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(5); // 每页显示数量
+const total = ref(0); // 总记录数
+const showNewPostDialog = ref(false); // 是否显示发帖弹窗
+const courseId = ref<number>(props.courseId);
 const newPost = ref<{
-  title: string
-  content: string
+  title: string;
+  content: string;
 }>({
-  title: '',
-  content: ''
-})
+  title: "",
+  content: "",
+});
 
 // 讨论列表数据
-const discussionPosts = ref<API.DiscussionVO[]>([])
-const showDetail = ref(false)
-const currentDiscussionId = ref<number | null>(null)
+const discussionPosts = ref<API.DiscussionVO[]>([]);
+const showDetail = ref<boolean>(props.discussionId !=null );
+const currentDiscussionId = ref<number | null>(props?.discussionId);
 
 const isSubmitting = ref(false); // 添加 isSubmitting 属性
 
 // 加载讨论列表数据
 const loadDiscussions = async () => {
+  console.log("加载讨论列表数据",courseId.value);
   try {
     const res = await getDiscussions({
       current: currentPage.value,
       pageSize: pageSize.value,
       param: {
-        courseId: props.courseId
-      }
-    })
-    discussionPosts.value = res.data.list
-    total.value = res.data.total
+        courseId: courseId.value,
+      },
+    });
+    discussionPosts.value = res.data.list;
+    total.value = res.data.total;
   } catch (error) {
-    console.error('获取讨论列表失败:', error)
+    console.error("获取讨论列表失败:", error);
   }
-}
+};
 
 // 根据筛选条件过滤讨论列表
 const filteredPosts = computed(() => {
-  return discussionPosts.value
-})
+  return discussionPosts.value;
+});
 
 const startNewPost = () => {
   if (!props.isEnrolled) {
-    alert('请先注册课程后再发起讨论')
-    return
+    alert("请先注册课程后再发起讨论");
+    return;
   }
-  showNewPostDialog.value = true
-}
+  showNewPostDialog.value = true;
+};
 
 const closeDialog = () => {
-  showNewPostDialog.value = false
+  showNewPostDialog.value = false;
   newPost.value = {
-    title: '',
-    content: ''
-  }
-}
+    title: "",
+    content: "",
+  };
+};
 
 const submitNewPost = async () => {
   if (!newPost.value.title || !newPost.value.content) {
-    alert('请填写完整的标题和内容');
+    alert("请填写完整的标题和内容");
     return;
   }
 
@@ -176,46 +207,49 @@ const submitNewPost = async () => {
 
   try {
     const result = await addDiscussion({
-      courseId: props.courseId,
+      courseId: courseId.value,
       title: newPost.value.title,
-      content: newPost.value.content
+      content: newPost.value.content,
     });
 
-    if(result) {
+    if (result) {
       closeDialog();
       await loadDiscussions();
     }
-  } catch(error) {
-    console.error('发布讨论失败:', error);
+  } catch (error) {
+    console.error("发布讨论失败:", error);
   } finally {
     isSubmitting.value = false; // 提交完成后设置为 false
   }
 };
 
 // 分页相关方法
-const goToPage = async (direction: 'prev' | 'next') => {
-  if (direction === 'prev' && currentPage.value > 1) {
-    currentPage.value--
-  } else if (direction === 'next' && currentPage.value * pageSize.value < total.value) {
-    currentPage.value++
+const goToPage = async (direction: "prev" | "next") => {
+  if (direction === "prev" && currentPage.value > 1) {
+    currentPage.value--;
+  } else if (
+    direction === "next" &&
+    currentPage.value * pageSize.value < total.value
+  ) {
+    currentPage.value++;
   }
-  await loadDiscussions()
-}
+  await loadDiscussions();
+};
 
 // 筛选条件改变时重新加载数据
 const handleFilterChange = () => {
-  currentPage.value = 1
-  loadDiscussions()
-}
+  currentPage.value = 1;
+  loadDiscussions();
+};
 
 const showPostDetail = (postId: number) => {
-  currentDiscussionId.value = postId
-  showDetail.value = true
-}
+  currentDiscussionId.value = postId;
+  showDetail.value = true;
+};
 
 onMounted(() => {
-  loadDiscussions()
-})
+  loadDiscussions();
+});
 </script>
 
 <style scoped>
@@ -223,7 +257,7 @@ onMounted(() => {
   padding: 20px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .discussion-header {
@@ -245,7 +279,7 @@ onMounted(() => {
 }
 
 .post-btn {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -286,7 +320,7 @@ onMounted(() => {
 }
 
 .teacher-tag {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
@@ -352,7 +386,7 @@ onMounted(() => {
 }
 
 .submit-btn {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -372,6 +406,6 @@ onMounted(() => {
   width: 100%;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 </style>

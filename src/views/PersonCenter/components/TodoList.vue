@@ -54,7 +54,7 @@
                 <button
                   class="btn btn-primary btn-small"
                   v-if="item?.submissionStatus == '0'"
-                  @click="goToOnlineCourse(item.courseId)"
+                  @click="goToHomework(item.courseId)"
                 >
                   提交作业
                 </button>
@@ -85,7 +85,7 @@
             class="todo-item" 
             v-for="item in courseTest.tests" 
             :key="item.recordId"
-            @click="goToOnlineCourse(item.courseId)"
+            @click="goToTest(item?.courseId,item?.testId)"
           >
             <div class="item-header">
               <span :class="['status-badge', getSelfTestStatusClass(item.recordStatus)]">
@@ -107,7 +107,7 @@
                 <button
                   class="btn btn-primary btn-small"
                   v-if="item.recordStatus == '0'"
-                  @click.stop="goToOnlineCourse(item.courseId)"
+                  @click.stop="goToTest(item?.courseId,item?.testId)"
                 >
                   开始测试
                 </button>
@@ -249,14 +249,26 @@ const getSelfTestStatusClass = (status: string) => {
   return classMap[status] || status;
 };
 
-const goToOnlineCourse = (courseId: number) => {
-  router.push({
+const goToHomework = (courseId: number ) => {
+  console.log('currentMenuItem',6)
+  //点击测试页面
+    router.push({
     path: "/online-course",
     query: {
       courseId,
+      currentMenuItem : 6
+    },
+    });
+};
+const goToTest=(courseId: number,testId:number)=>{
+  router.push({
+    name: "Test",
+    params: {
+      testId: testId,
+      courseId: courseId,
     },
   });
-};
+}
 </script>
 
 <style scoped>

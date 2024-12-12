@@ -88,7 +88,9 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const goToCourse = (courseId: number) => {
-  router.push("/course/" + courseId);
+  router.push("/course/" + courseId).then(()=>{
+    location.reload()
+  })
 };
 const goToOnlineCourse = (courseId: number) => {
   router.push({

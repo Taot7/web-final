@@ -1,7 +1,7 @@
 <template>
   <div class="course-page">
     <!-- 导航栏 -->
-    <NavBar />
+    <NavBar/>
 
     <div class="main-content">
       <!-- 左侧导航和信息 -->
@@ -19,18 +19,18 @@
 
         <!-- 导航菜单 -->
         <ul class="menu">
-          <li v-for="(item, index) in filteredMenuItems" 
+          <li v-for="(item, index) in filteredMenuItems"
               :key="index"
               :class="{ active: currentMenuItem === index }"
               @click="handleMenuClick(item, index)">
             <span>{{ item.name }}</span>
             <i :class="item.icon" class="menu-icon"></i>
           </li>
-          
+
           <!-- 子菜单 -->
           <transition name="submenu">
-            <ul class="submenu" v-if="showSubMenu && enrolled"> 
-              <li v-for="(subItem, subIndex) in examSubMenu" 
+            <ul class="submenu" v-if="showSubMenu && enrolled">
+              <li v-for="(subItem, subIndex) in examSubMenu"
                   :key="subIndex"
                   @click="handleSubMenuClick(subItem)">
                 <span>{{ subItem.name }}</span>
@@ -45,16 +45,16 @@
       <div class="content-right">
         <!-- 根据当前选中的菜单项显示不同内容 -->
         <template v-if="currentMenuItem === 3">
-          <CourseContent />
+          <CourseContent/>
         </template>
         <template v-else-if="currentMenuItem === 5 && enrolled">
-          <CourseQuiz :courseId="currentCourseId" />
+          <CourseQuiz :courseId="currentCourseId"/>
         </template>
         <template v-else-if="currentMenuItem === 6 && enrolled">
-          <CourseHomework :courseId="currentCourseId" />
+          <CourseHomework :courseId="currentCourseId"/>
         </template>
         <template v-else-if="currentMenuItem === 4">
-          <CourseDiscussion :courseId="currentCourseId" :isEnrolled="enrolled" />
+          <CourseDiscussion :courseId="currentCourseId" :isEnrolled="enrolled" :discussionId="discussionId"/>
         </template>
         <template v-else>
           <!-- 原有的成绩进度内容 -->
@@ -77,26 +77,26 @@
             <h3>线上成绩进度</h3>
             <table>
               <thead>
-                <tr>
-                  <th>考核项</th>
-                  <th>权重</th>
-                  <th>任务数</th>
-                  <th>完成数</th>
-                  <th>平均分数</th>
-                  <th>完成进度</th>
-                  <th>加权得分</th>
-                </tr>
+              <tr>
+                <th>考核项</th>
+                <th>权重</th>
+                <th>任务数</th>
+                <th>完成数</th>
+                <th>平均分数</th>
+                <th>完成进度</th>
+                <th>加权得分</th>
+              </tr>
               </thead>
               <tbody>
-                <tr v-for="item in progressItems" :key="item.name">
-                  <td>{{ item.name }}</td>
-                  <td>{{ item.weight }}</td>
-                  <td>{{ item.tasks }}</td>
-                  <td>{{ item.completed }}</td>
-                  <td>{{ item.averageScore }}</td>
-                  <td>{{ item.progress }}</td>
-                  <td>{{ item.weightedScore }}</td>
-                </tr>
+              <tr v-for="item in progressItems" :key="item.name">
+                <td>{{ item.name }}</td>
+                <td>{{ item.weight }}</td>
+                <td>{{ item.tasks }}</td>
+                <td>{{ item.completed }}</td>
+                <td>{{ item.averageScore }}</td>
+                <td>{{ item.progress }}</td>
+                <td>{{ item.weightedScore }}</td>
+              </tr>
               </tbody>
             </table>
             <p>当前得分: {{ currentScore }}</p>
@@ -134,15 +134,16 @@
   </div>
 </template>
 
-<script >
+<script>
 import NavBar from '@/components/NavBar.vue';
 import CourseContent from './components/CourseContent.vue';
 import CourseQuiz from './components/CourseQuiz.vue';
 import CourseHomework from './components/CourseHomework.vue';
 import CourseDiscussion from './components/CourseDiscussion.vue';
-import { getCourse } from '@/services/api/course';
-import { checkCourseEnrolled, getMyCourseEnrollments } from '@/services/api/courseEnrollment';
-import { useUser } from '@/utils/userAuth';
+import {getCourse} from '@/services/api/course';
+import {checkCourseEnrolled, getMyCourseEnrollments} from '@/services/api/courseEnrollment';
+import {useUser} from '@/utils/userAuth';
+
 export default {
   components: {
     NavBar,
@@ -155,12 +156,20 @@ export default {
     return {
       course: null,
       progressItems: [
-        { name: '签到', weight: 0, tasks: 0, completed: 0, averageScore: 100, progress: '0%', weightedScore: 0.00 },
-        { name: '视频', weight: 30, tasks: 178, completed: 174, averageScore: '--', progress: '98%', weightedScore: 29.33 },
-        { name: '作业', weight: 0, tasks: 0, completed: 0, averageScore: 0, progress: '0%', weightedScore: 0.00 },
-        { name: '测验', weight: 10, tasks: 13, completed: 0, averageScore: 0, progress: '0%', weightedScore: 0.00 },
-        { name: '讨论', weight: 30, tasks: 0, completed: 16, averageScore: 32, progress: '--', weightedScore: 9.60 },
-        { name: '考试', weight: 30, tasks: 0, completed: 0, averageScore: 0, progress: '--', weightedScore: 0.00 },
+        {name: '签到', weight: 0, tasks: 0, completed: 0, averageScore: 100, progress: '0%', weightedScore: 0.00},
+        {
+          name: '视频',
+          weight: 30,
+          tasks: 178,
+          completed: 174,
+          averageScore: '--',
+          progress: '98%',
+          weightedScore: 29.33
+        },
+        {name: '作业', weight: 0, tasks: 0, completed: 0, averageScore: 0, progress: '0%', weightedScore: 0.00},
+        {name: '测验', weight: 10, tasks: 13, completed: 0, averageScore: 0, progress: '0%', weightedScore: 0.00},
+        {name: '讨论', weight: 30, tasks: 0, completed: 16, averageScore: 32, progress: '--', weightedScore: 9.60},
+        {name: '考试', weight: 30, tasks: 0, completed: 0, averageScore: 0, progress: '--', weightedScore: 0.00},
       ],
       currentScore: 38.93,
       announcement: '暂无公告',
@@ -168,16 +177,16 @@ export default {
       currentMenuItem: null,
       showSubMenu: false,
       menuItems: [
-        { name: '线上成绩进度', icon: 'icon-progress' },
-        { name: '课程公告', icon: 'icon-announcement' },
-        { name: '直播', icon: 'icon-live' },
-        { name: '课程内容', icon: 'icon-content' },
-        { name: '课程讨论', icon: 'icon-discussion' },
-        { name: '考核', icon: 'icon-exam', hasSubMenu: true, requireEnrollment: true }
+        {name: '线上成绩进度', icon: 'icon-progress'},
+        {name: '课程公告', icon: 'icon-announcement'},
+        {name: '直播', icon: 'icon-live'},
+        {name: '课程内容', icon: 'icon-content'},
+        {name: '课程讨论', icon: 'icon-discussion'},
+        {name: '考核', icon: 'icon-exam', hasSubMenu: true, requireEnrollment: true}
       ],
       examSubMenu: [
-        { name: '测验', icon: 'icon-quiz' },
-        { name: '作业', icon: 'icon-homework' },
+        {name: '测验', icon: 'icon-quiz'},
+        {name: '作业', icon: 'icon-homework'},
       ],
       chapters: [
         {
@@ -214,6 +223,7 @@ export default {
       selectedLesson: null,
       currentCourseId: 0,
       enrolled: false,
+      discussionId: null
     };
   },
   computed: {
@@ -221,26 +231,31 @@ export default {
       return this.menuItems.filter(item => !item.requireEnrollment || this.enrolled);
     }
   },
-  async created() {
-    const courseId = this.$route.query.courseId;
-    if (courseId) {
-      this.currentCourseId = courseId;
-      try {
-        const response = await getCourse({ id: courseId });
-        if (response.status === 200) {
-          this.course = response.data;
+  watch: {
+    // 监听路由变化
+    '$route': {
+      handler(to, from = {}) {
+        const toQuery = to.query || {};
+        const fromQuery = from.query || {};
+        if (toQuery.currentMenuItem != null) {
+          this.currentMenuItem = Number(toQuery?.currentMenuItem);
         }
-      } catch (error) {
-        console.error('获取课程信息失败:', error);
-      }
-      this.enrolled =false;
-      const enroll = await checkCourseEnrolled({
-        courseId: courseId,
-      });
-      if (enroll.status === 200) {
-        this.enrolled = enroll.data;
-      }
-      console.log('enrolled',this.enrolled);
+        if (toQuery?.discussionId != null) {
+          this.discussionId = Number(toQuery?.discussionId)
+        }
+        // 如果courseId发生变化或是首次加载，则刷新数据
+        if (!from || toQuery.courseId !== fromQuery.courseId) {
+          const courseId = toQuery.courseId;
+          console.log("courseId", courseId);
+          if (courseId) {
+            this.currentCourseId = Number(courseId);
+            this.loadCourseData();
+          }
+        }
+        console.log('courseId', this.currentCourseId, 'currentMenuItem', this.currentMenuItem)
+
+      },
+      immediate: true
     }
   },
   methods: {
@@ -296,7 +311,27 @@ export default {
         default:
           return '';
       }
-    }
+    },
+    // 添加加载数据的统一方法
+    async loadCourseData() {
+      try {
+        // 获取课程信息
+        const response = await getCourse({id: this.currentCourseId});
+        if (response.status === 200) {
+          this.course = response.data;
+        }
+
+        // 检查课程报名状态
+        const enroll = await checkCourseEnrolled({
+          courseId: this.currentCourseId,
+        });
+        if (enroll.status === 200) {
+          this.enrolled = enroll.data;
+        }
+      } catch (error) {
+        console.error('获取课程信息失败:', error);
+      }
+    },
   },
   mounted() {
     // 点击其他地方关闭弹出菜单
@@ -596,9 +631,17 @@ button:hover {
 }
 
 /* 子菜单图标 */
-.icon-quiz::after { content: '📝'; }
-.icon-homework::after { content: '📚'; }
-.icon-exam::after { content: '✍️'; }
+.icon-quiz::after {
+  content: '📝';
+}
+
+.icon-homework::after {
+  content: '📚';
+}
+
+.icon-exam::after {
+  content: '✍️';
+}
 
 /* 子菜单展开/收起动画 */
 .submenu-enter-active,

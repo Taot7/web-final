@@ -8,6 +8,10 @@
         <div class="loading-spinner"></div>
         <span>加载中...</span>
       </div>
+      <div v-else-if="!homeworks.length" class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <p>暂无作业</p>
+      </div>
       <table v-else>
         <thead>
           <tr>
@@ -450,6 +454,25 @@ onMounted(async () => {
   border-top: 3px solid #1890ff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  color: #999;
+}
+
+.empty-state i {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state p {
+  font-size: 16px;
+  margin: 0;
 }
 
 @keyframes spin {
