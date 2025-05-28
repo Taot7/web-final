@@ -388,7 +388,7 @@ export default {
           courseId: 1,
           title: "Vue.js 入门",
           description: "Vue.js 是一个渐进式框架",
-          coverImage: "https://oimagea4.ydstatic.com/image?id=4019700121939132344&product=xue",
+          coverImage: "https://picx.zhimg.com/v2-cb82611338496ad01095b9161c9a3fc6_r.jpg?source=172ae18b",
           likeCount: 120,
           studentCount: 3500,
           viewCount: 15000,
@@ -399,11 +399,11 @@ export default {
         },
         {
           courseId: 2,
-          title: "JavaScript 深入",
-          description: "JavaScript 高级技巧课程",
-          coverImage: "https://oimagea1.ydstatic.com/image?id=8533269818510859732&product=xue",
+          title: "JavaScript 入门",
+          description: "JavaScript 是一门面向对象的语言",
+          coverImage: "https://ts1.tc.mm.bing.net/th/id/R-C.1bc1273348f9049debb592bd3fbb2b8f?rik=Q6AIUZPccD9BHQ&riu=http%3a%2f%2fimg.htmleaf.com%2f1512%2f201512112032.jpg&ehk=bRWEOzvNG9AZlt4%2b3JYT3pSFThR6nzMvvpDWkjTGOxg%3d&risl=&pid=ImgRaw&r=0",
           likeCount: 300,
-          studentCount: 4500,
+          studentCount: 4000,
           viewCount: 20000,
           categoryId: 1,
           updateTime: "2023-08-15T10:00:00Z",
@@ -1235,7 +1235,7 @@ header nav ul li {
   position: relative;
   overflow: hidden;
   width: 100%;
-  height: 400px;
+  height: 420px;
   background-color: white;
   border-radius: 20px;
 }
