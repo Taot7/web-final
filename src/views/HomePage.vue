@@ -5,7 +5,7 @@
     <header >
 
       <div class="logo">
-        <img src="../../public/HomePagelogo.png" alt="logo" class="logo-img">
+        <img src="../../public/ISACLogo.jpg" alt="logo" class="logo-img">
 
         <h1>课程平台</h1>
       </div>
@@ -316,7 +316,7 @@
 
     <!-- 页脚 -->
     <footer>
-      <p>© 2024 在线课程平台 版权所有</p>
+      <p>© 2025 在线课程平台 版权所有</p>
     </footer>
 
   </div>
@@ -412,9 +412,9 @@ export default {
         },
         {
           courseId: 2,
-          title: "JavaScript 深入",
-          description: "JavaScript 高级技巧课程",
-          coverImage: "https://oimagea1.ydstatic.com/image?id=8533269818510859732&product=xue",
+          title: "Docker 入门",
+          description: "Docker 是一个开源的应用容器引擎",
+          coverImage: "https://jaybril.oss-cn-shenzhen.aliyuncs.com/wchat/docker/f3043528f98e3a9099f6a7f7f0c47214.jpeg",
           likeCount: 300,
           studentCount: 4500,
           viewCount: 20000,
@@ -425,9 +425,9 @@ export default {
         },
         {
           courseId: 2,
-          title: "JavaScript 深入",
-          description: "JavaScript 高级技巧课程",
-          coverImage: "https://oimagea1.ydstatic.com/image?id=8533269818510859732&product=xue",
+          title: "Docker 入门",
+          description: "Docker 是一个开源的应用容器引擎",
+          coverImage: "https://jaybril.oss-cn-shenzhen.aliyuncs.com/wchat/docker/f3043528f98e3a9099f6a7f7f0c47214.jpeg",
           likeCount: 300,
           studentCount: 4500,
           viewCount: 20000,
@@ -438,9 +438,9 @@ export default {
         },
         {
           courseId: 2,
-          title: "JavaScript 深入",
-          description: "JavaScript 高级技巧课程",
-          coverImage: "https://oimagea1.ydstatic.com/image?id=8533269818510859732&product=xue",
+          title: "Docker 入门",
+          description: "Docker 是一个开源的应用容器引擎",
+          coverImage: "https://jaybril.oss-cn-shenzhen.aliyuncs.com/wchat/docker/f3043528f98e3a9099f6a7f7f0c47214.jpeg",
           likeCount: 300,
           studentCount: 4500,
           viewCount: 20000,
@@ -451,9 +451,9 @@ export default {
         },
         {
           courseId: 2,
-          title: "JavaScript 深出",
-          description: "JavaScript 高级技巧课程",
-          coverImage: "https://oimagea1.ydstatic.com/image?id=8533269818510859732&product=xue",
+          title: "Docker 入门",
+          description: "Docker 是一个开源的应用容器引擎",
+          coverImage: "https://jaybril.oss-cn-shenzhen.aliyuncs.com/wchat/docker/f3043528f98e3a9099f6a7f7f0c47214.jpeg",
           likeCount: 350,
           studentCount: 4500,
           viewCount: 20000,
@@ -464,9 +464,9 @@ export default {
         },
         {
           courseId: 2,
-          title: "JavaScript 深入",
-          description: "JavaScript 高级技巧课程",
-          coverImage: "https://oimagea1.ydstatic.com/image?id=8533269818510859732&product=xue",
+          title: "Docker 入门",
+          description: "Docker 是一个开源的应用容器引擎",
+          coverImage: "https://jaybril.oss-cn-shenzhen.aliyuncs.com/wchat/docker/f3043528f98e3a9099f6a7f7f0c47214.jpeg",
           likeCount: 300,
           studentCount: 5000,
           viewCount: 20000,
@@ -483,7 +483,7 @@ export default {
           courseId: 3,
           title: "React 基础",
           description: "学习 React 的基础知识",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/cover/2019/03/05/190305011321_bb329a_cba106a0-99f6-4134-8498-d75454456cea_900x620_thumb.png",
+          coverImage: "https://rails365.oss-cn-shenzhen.aliyuncs.com/uploads/playlist/image/84/2021/1a1577fd8e15e92fc6410c05873e5926.jpg",
           viewCount: 10000,
           likeCount: 500,
           studentCount: 2000,
@@ -502,7 +502,7 @@ export default {
           courseId: 3,
           title: "React 基础",
           description: "学习 React 的基础知识",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course293/cover/170804084312_1ce398_ca2cedbd-0779-4bd1-92d7-47807b5c5e93_thumb.png",
+          coverImage: "https://geekdaxue.co/uploads/projects/matrix@gdn7nq/449a13642309a40765cd6889f1256bd6.png",
           viewCount: 10000,
           likeCount: 500,
           studentCount: 2000,
@@ -519,8 +519,8 @@ export default {
         },
         {
           courseId: 3,
-          title: "React 基础",
-          description: "学习 React 的基础知识",
+          title: "软件工程",
+          description: "学习软件工程的基础知识",
           coverImage: "https://assets.uooconline.com/upload/uooc-www/course/cover/2020/08/31/200831105259_ab6196_354c14d0-ca69-4d07-9033-3dce08664aaa_900x620_thumb.png",
           viewCount: 10000,
           likeCount: 500,
@@ -540,7 +540,7 @@ export default {
           courseId: 4,
           title: "Python 数据分析",
           description: "Python 与数据分析的结合",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course293/cover/170804084312_1ce398_ca2cedbd-0779-4bd1-92d7-47807b5c5e93_thumb.png",
+          coverImage: "https://oss.zhizhu-t.com/seo-img/2019/11/1d5866ed81dd2d.png?x-oss-process=image/resize,m_fill,h_480,w_720/sharpen,120",
           viewCount: 10000,
           likeCount: 500,
           studentCount: 2000,
@@ -561,7 +561,7 @@ export default {
           courseId: 4,
           title: "Python 数据分析",
           description: "Python 与数据分析的结合",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course274/cover/170830094122_8da914_114b2fbb-616d-4337-a668-c530fc2f02d9_thumb.png",
+          coverImage: "https://oss.zhizhu-t.com/seo-img/2019/11/1d5866ed81dd2d.png?x-oss-process=image/resize,m_fill,h_480,w_720/sharpen,120",
           viewCount: 10000,
           likeCount: 500,
           studentCount: 2000,
@@ -578,8 +578,8 @@ export default {
         },
         {
           courseId: 4,
-          title: "Python 数据分析",
-          description: "Python 与数据分析的结合",
+          title: "运动与健康",
+          description: "运动与健康的知识",
           coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course263/cover/170801110207_d72177_06f77d4c-f6f4-4def-b3b1-05e5d9fd2a8c_thumb.png",
           viewCount: 10000,
           likeCount: 500,
@@ -599,7 +599,7 @@ export default {
           courseId: 5,
           title: "机器学习入门",
           description: "入门级机器学习课程",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course286/cover/170925030930_49353d_4adc8372-7524-485c-a73e-b88197ef4bc7_thumb.png",
+          coverImage: "https://pic1.zhimg.com/v2-7fddc8f063c7aa5e63aa2208a149f153_1440w.jpg?source=172ae18b",
           viewCount: 10000,
           likeCount: 500,
           studentCount: 2000,
@@ -616,7 +616,7 @@ export default {
           courseId: 6,
           title: "数据科学",
           description: "数据科学与实践",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course233/cover/170823181131_fc5aa7_a3956db5-b7f7-4693-a94a-0f8bd94c86ec_thumb.png",
+          coverImage: "https://ts1.tc.mm.bing.net/th/id/R-C.2f255e310dd21bb64cfeddcaddb7a1d3?rik=ZDMzPZBSqCO3kg&riu=http%3a%2f%2fculmart.com%2fplay%2fusr%2fuploads%2f2019%2f12%2f450080970.jpeg&ehk=8fRvLLZGy3xz3W1wrZTP9uCJoak%2fiTnkdRHug%2bXQVQQ%3d&risl=&pid=ImgRaw&r=0",
           viewCount: 50000,
           likeCount: 1000,
           studentCount: 10000,
@@ -633,8 +633,8 @@ export default {
       localNewCourses: [
         {
           courseId: 4,
-          title: "Python 数据分析",
-          description: "Python 与数据分析的结合",
+          title: "唐诗宋词与人生",
+          description: "唐诗宋词与人生的对话",
           coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course355/cover/170908074349_97ce47_ded16c7c-f415-4e3d-967e-3ffe9eb61d20_thumb.png",
           viewCount: 10000,
           likeCount: 500,
@@ -652,8 +652,8 @@ export default {
         },
         {
           courseId: 4,
-          title: "Python 数据分析",
-          description: "Python 与数据分析的结合",
+          title: "走进民间音乐",
+          description: "民间音乐的历史与文化",
           coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course328/cover/170907121201_4ed9b3_c7096c1f-2f5c-4321-8f8f-11fbfa9d8380_thumb.png",
           viewCount: 10000,
           likeCount: 500,
@@ -673,7 +673,7 @@ export default {
           courseId: 7,
           title: "Web 开发全栈教程",
           description: "学习 HTML、CSS、JavaScript 和更多",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/course288/cover/170908075144_7fd619_6e6b9d56-9d87-48bb-aa5c-8873c55ca938_thumb.png",
+          coverImage: "https://pic1.zhimg.com/v2-a6eabbcbc5fef709daaf0c56011b1134_r.jpg",
           updateTime: "2023-11-01T10:00:00Z",
           viewCount: 10000,
           likeCount: 500,
@@ -690,7 +690,7 @@ export default {
           courseId: 8,
           title: "前端优化技巧",
           description: "提高前端性能的技巧",
-          coverImage: "https://assets.uooconline.com/upload/uooc-www/course/cover/2021/10/18/211018111337_8e3008_0295fa6b-d398-4a54-9508-cc15fb88a694_900x620_thumb.png",
+          coverImage: "https://tse1-mm.cn.bing.net/th/id/OIP-C.mUfxQowFwxZ_RZ1Wkw-1gQHaFL?rs=1&pid=ImgDetMain",
           updateTime: "2023-10-15T14:00:00Z",
           viewCount: 10000,
           likeCount: 500,
@@ -1235,7 +1235,7 @@ header nav ul li {
   position: relative;
   overflow: hidden;
   width: 100%;
-  height: 420px;
+  height: 450px;
   background-color: white;
   border-radius: 20px;
 }
